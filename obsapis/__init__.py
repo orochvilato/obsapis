@@ -17,13 +17,19 @@ CORS(app)
 import bmemcached
 memcache = bmemcached.Client(('observatoire-assemblee.orvdev.fr:11211',))
 
+
+
 def use_cache(k,fct,expires=60):
-    v = memcache.get(k)
+    if expires==0:
+        memcache.delete(k)
+        v=None
+    else:
+        v = memcache.get(k)
     if not v:
         v = fct()
         memcache.set(k,v,time=expires)
     else:
-        print "cached"
+        pass
     return v
 
-from views import deputes,votes,interventions
+from views import deputes,votes,interventions,svgs

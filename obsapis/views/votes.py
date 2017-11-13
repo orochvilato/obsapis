@@ -6,8 +6,9 @@ import datetime
 
 from obsapis.config import cache_pages_delay
 
-@cache_function(expires=cache_pages_delay)
+
 @app.route('/votes')
+@cache_function(expires=cache_pages_delay)
 def votes():
     nb = int(request.args.get('itemsperpage','25'))
     page = int(request.args.get('page','1'))-1

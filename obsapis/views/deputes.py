@@ -45,7 +45,7 @@ deputesfields  = deputefields
 
 #scrutins_by_id = cache.disk('scrutins_by_id',lambda: dict((s['scrutin_id'],s) for s in mdb.scrutins.find()), time_expire=3600)
 
-deputesFI = use_cache('deputesfi',lambda:mdb.deputes.find({'groupe_abrev':'FI'}).distinct('depute_shortid'),expires=60)
+deputesFI = use_cache('deputesfi',lambda:mdb.deputes.find({'groupe_abrev':'FI'}).distinct('depute_shortid'),expires=3600)
 
 
 
@@ -111,6 +111,7 @@ def depute(shortid):
 # ---------------------------------
 # Page députés
 # ---------------------------------
+
 @app.route('/deputes')
 @app.route('/deputes/<func>')
 @cache_function(expires=cache_pages_delay)

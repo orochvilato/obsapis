@@ -7,8 +7,9 @@ import datetime
 from obsapis.config import cache_pages_delay
 
 
-@cache_function(expires=cache_pages_delay)
+
 @app.route('/interventions')
+@cache_function(expires=cache_pages_delay)
 def interventions():
     nb = int(request.args.get('itemsperpage','25'))
     page = int(request.args.get('page','1'))-1
