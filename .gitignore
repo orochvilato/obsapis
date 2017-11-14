@@ -1,3 +1,4 @@
 config_private.py
 .pyenv/
 *.pyc
+static/logs.html
