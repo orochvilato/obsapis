@@ -2,7 +2,7 @@
 
 from obsapis import app,use_cache,mdb
 from flask import request
-from obsapis.tools import json_response,cache_function
+from obsapis.tools import json_response,cache_function, getdot
 import re
 import random
 import datetime

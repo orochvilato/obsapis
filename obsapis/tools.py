@@ -15,3 +15,12 @@ def cache_function(expires=0):
             return use_cache(request.url,lambda:f(*args,**kwargs),expires=expires)
         return wrapped_f
     return wrap
+
+def getdot(e,k):
+    for _k in k.split('.'):
+        if _k in e.keys():
+            e = e[_k]
+        else:
+            e = ""
+            break
+    return e
