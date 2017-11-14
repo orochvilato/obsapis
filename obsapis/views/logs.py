@@ -8,7 +8,7 @@ from obsapis.config import cache_pages_delay
 
 @app.route('/logs')
 def logs():
-    resp = Response(current_app.send_static_file('logs.html'))
+    resp = Response(open('obsapis/static/logs.html').read())
     resp.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
     resp.headers['Pragma'] = 'no-cache'
     return resp
