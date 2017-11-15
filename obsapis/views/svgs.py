@@ -1,5 +1,5 @@
 from obsapis import app,use_cache,mdb
-from flask import request,render_template
+from flask import request,render_template,make_response,Response
 from obsapis.tools import json_response,cache_function
 import re
 import datetime
@@ -8,17 +8,23 @@ from obsapis.config import cache_pages_delay
 
 
 
-@cache_function(expires=cache_pages_delay)
-@app.route('/svgs/circonscription/<id>')
-def svgcirco(id):
-    if not id:
-        circo = '013-01'
-    else:
-        circo = id
+
+@app.route('/svgs/circonscription')
+@cache_function(expires=cache_pages_delay*100)
+def svgcirco():
+    circo = request.args.get('id',None)
+    if not circo:
+        depute=request.args.get('depute',None)
+        if depute:
+            circo = mdb.deputes.find_one({'depute_shortid':depute},{'depute_circo_id':1,'_id':None}).get('depute_circo_id',None)
+
+    circosel = mdb.circonscriptions.find_one({'id':circo}) if circo else None
+    if not circo and not circosel:
+        return ""
     dep = circo.split('-')[0]
-    circosel = mdb.circonscriptions.find_one({'id':circo})
+
     if not circosel:
-        return XML(response.render('svg/circoworld.svg',dep=dep,circo=circo))
+        return render_template('svg/circoworld.svg',dep=dep,circo=circo)
     if circosel['paris']:
         filtre = {'paris':True}
     else:
@@ -41,9 +47,12 @@ def svgcirco(id):
         if not g in circos.keys():
             circos[g] = []
         circos[g].append(c)
-    return json_response(circos)
-    return render_template('svg/circofrance.svg',dep=dep,circo=circosel,circos=circos,strokewidth=float(max(circosel['w'],circosel['h']))*0.0136)
-    return XML(response.render('svg/circofrance.svg',dep=dep,circo=circosel,circos=circos))
+    #return json_response(circos)
+    datasvg = render_template('svg/circofrance.svg',dep=dep,circo=circosel,circos=circos,strokewidth=float(max(circosel['w'],circosel['h']))*0.0136)
+    return datasvg
+    response= make_response(datasvg)
+    response.headers["Content-Type"] = "image/svg+xml"
+    return response
 
 def hemicycle(place="nope",groupe="",base_url=""):
     return XML(response.render('svg/hemicyclelight.svg',place='p'+(place or 'nope'),groupe=groupe,base_url='/'+base_url))

@@ -1,10 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <svg onload="svgcirco_init(evt)"
        viewBox="0 0 1136.4137 1088.9165"
        preserveAspectRation="xMaxYMax meet"
        width="100%"
        id="svgcirco"
        style="height:300px;"
-       version="1.1">
+       version="1.1"
+       xmlns:xlink="http://www.w3.org/1999/xlink">
      <script type="text/ecmascript" xlink:href="https://cdnjs.cloudflare.com/ajax/libs/gsap/1.18.4/TweenMax.min.js"></script>
      <script type="text/ecmascript"><![CDATA[
        var svgcircoDoc;
@@ -15,7 +17,7 @@
        function svgcirco_init(evt) {
           svgcircoDoc = evt.target;
           //svgcircoDoc.style.height = svgcircoDoc.getBoundingClientRect().height;
-          circo=svgcircoDoc.getElementById("{{=circo['id']}}");
+          circo=svgcircoDoc.getElementById("{{circo['id']}}");
           box=circo.getBBox();
         if ((box.width<50) && (box.height<50)) {
           circocircle = document.createElementNS("http://www.w3.org/2000/svg", 'circle');
@@ -104,50 +106,43 @@
       transform="translate(0,-3.7310432e-6)"
       id="france" />
 
-      {{ stroke ='light' if circo['paris'] or circo['ville'] else 'normal' }}
-      {{ for c in [_c for _c in circos if not _c['ville'] and _c['id'][0:3]!=dep]: }}
-        {{ strokewidth = float(max(c['w'],c['h'])) }}
       {% for c in circos['france'] %}
        <path
-            class="autres stroke{{ =stroke }}"
-            dep="{{ =c['dep'] }}"
-            id="{{ =c['id'] }}"
-            d="{{ =c['d'] }}"
-            sw ="{{ =strokewidth }}">
-           <title id="t{{ =c['id']}}">{{ =c['title'] }}</title>
-           <desc id="d{{ =c['id']}}">{{ =c['desc'] }}</desc>
+            class="{{ c['class'] }}"
+            dep="{{ c['dep'] }}"
+            id="{{ c['id'] }}"
+            d="{{ c['d'] }}"
+            sw ="{{ c['strokewidth'] }}">
+           <title id="t{{ c['id']}}">{{ c['title'] }}</title>
+           <desc id="d{{ c['id']}}">{{ c['desc'] }}</desc>
         </path>
-        {{ pass }}
-      <g id="{{=dep}}">
+      {% endfor %}
+      <g id="{{dep}}">
+      {% for c in circos[dep] %}
+       <path
+          class="{{ c['class'] }}"
+          dep="{{ c['dep'] }}"
+          id="{{ c['id'] }}"
+          sw ="{{ c['strokewidth'] }}"
+          d="{{ c['d'] }}">
 
-          {{ for c in [_c for _c in circos if not _c['ville'] and _c['id'][0:3]==dep]: }}
-       {{ strokewidth = float(max(c['w'],c['h'])) }}
-           <path
-            class="circo stroke{{ =stroke }}"
-            dep="{{ =c['dep'] }}"
-            id="{{ =c['id'] }}"
-            sw ="{{ =strokewidth }}"
-            d="{{ =c['d'] }}">
-
-           <title id="t{{ =c['id']}}">{{ =c['title'] }}</title>
-           <desc id="d{{ =c['id']}}">{{ =c['desc'] }}</desc>
+           <title id="t{{ c['id']}}">{{ c['title'] }}</title>
+           <desc id="d{{ c['id']}}">{{ c['desc'] }}</desc>
         </path>
-        {{ pass }}
-          <g id="ville">
-          {{ for c in [_c for _c in circos if _c['ville']]: }}
-       {{ strokewidth = float(max(c['w'],c['h'])) }}
-
-           <path
-            class="circo {{ ='inville' if circo['ville'] else 'outville' }} stroke{{ =stroke }}"
-            dep="{{ =c['dep'] }}"
-            {{ if circo['ville']: }}ville="1"{{ pass }}
-            id="{{ =c['id'] }}"
-            sw ="{{ =strokewidth }}"
-            d="{{ =c['d'] }}">
-           <title id="t{{ =c['id']}}">{{ =c['title'] }}</title>
-           <desc id="d{{ =c['id']}}">{{ =c['desc'] }}</desc>
+        {% endfor %}
+        <g id="ville">
+        {% for c in circos['ville'] %}
+         <path
+            class="{{ c['class'] }}"
+            dep="{{ c['dep'] }}"
+            {{ villeitem }}
+            id="{{ c['id'] }}"
+            sw ="{{ c['strokewidth'] }}"
+            d="{{ c['d'] }}">
+           <title id="t{{ c['id']}}">{{ c['title'] }}</title>
+           <desc id="d{{ c['id']}}">{{ c['desc'] }}</desc>
         </path>
-        {{ pass }}
+        {% endfor %}
           </g>
       </g>
 </svg>
