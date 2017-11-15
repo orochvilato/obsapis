@@ -27,7 +27,8 @@ def use_cache(k,fct,expires=60):
         v = memcache.get(k)
     if not v:
         v = fct()
-        memcache.set(k,v,time=expires)
+        if expires!=0:
+            memcache.set(k,v,time=expires)
     else:
         #print "cached"
         pass
