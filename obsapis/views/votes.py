@@ -12,11 +12,11 @@ from obsapis.config import cache_pages_delay
 def votes():
     nb = int(request.args.get('itemsperpage','25'))
     page = int(request.args.get('page','1'))-1
-    groupe = request.args.get('group',None)
+    groupe = request.args.get('groupe',request.args.get('group',None))
+    search = request.args.get('requete',request.args.get('query',''))
     scrutin = request.args.get('scrutin',None)
     csp = request.args.get('csp',None)
     age = request.args.get('age',None)
-    search = request.args.get('query','').decode('utf8')
     region = request.args.get('region',None)
     depute = request.args.get('depute',None)
     position = request.args.get('position',None)

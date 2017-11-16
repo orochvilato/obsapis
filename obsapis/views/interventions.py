@@ -13,8 +13,8 @@ from obsapis.config import cache_pages_delay
 def interventions():
     nb = int(request.args.get('itemsperpage','25'))
     page = int(request.args.get('page','1'))-1
-    groupe = request.args.get('group',None)
-    search = request.args.get('query','').decode('utf8')
+    groupe = request.args.get('groupe',request.args.get('group',None))
+    search = request.args.get('requete',request.args.get('query',''))
     depute = request.args.get('depute',None)
     session = request.args.get('session',None)
     date = request.args.get('date',None)

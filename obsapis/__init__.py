@@ -20,6 +20,7 @@ memcache = bmemcached.Client(('observatoire-assemblee.orvdev.fr:11211',))
 
 
 def use_cache(k,fct,expires=60):
+    k = k.encode('utf8')
     if expires==0:
         memcache.delete(k)
         v=None

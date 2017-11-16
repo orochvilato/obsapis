@@ -133,14 +133,17 @@ def _ajax(type_page):
     age = request.args.get('age',None)
     csp = request.args.get('csp',None)
     page = int(request.args.get('page','1'))-1
-    groupe = request.args.get('group',None)
+    groupe = request.args.get('groupe',request.args.get('group',None))
+    text = request.args.get('query',request.args.get('requete',''))
 
-    text = request.args.get('query','').decode('utf8')
     region = request.args.get('region',None)
     top = None if type_page=='liste' else type_page
-    tri = request.args.get('sort','stats.positions.exprimes' if top else 'depute_nom_tri')
-    direction = request.args.get('order','down' if top else 'up')
-    #direction = 1 if direction=='up' else -1
+    tri = request.args.get('tri',request.args.get('sort','stats.positions.exprimes' if top else 'depute_nom_tri'))
+    direction = request.args.get('ordre',request.args.get('order','down' if top else 'up'))
+    if direction =='asc':
+        direction = 'up'
+    elif direction =='desc':
+        direction = 'down'
 
     tops_dir = {'stats.positions.exprimes':-1,
                   'stats.positions.dissidence':-1,
