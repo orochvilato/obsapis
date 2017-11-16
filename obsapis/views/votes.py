@@ -54,7 +54,7 @@ def votes():
     def countItems():
         rcount = mdb.votes.find(vote_filter).count()
         return {'totalitems':rcount}
-    cachekey= u"vot%s_%s_%s_%s_%s_%s_%s_%s" % (depute,position,scrutin,age,csp.decode('utf8') if csp else csp,groupe,search,region.decode('utf8') if region else region)
+    cachekey= u"vot%s_%s_%s_%s_%s_%s_%s_%s" % (depute,position,scrutin,age,csp if csp else csp,groupe,search,region if region else region)
     counts = use_cache(cachekey,lambda:countItems(),expires=3600)
     regx = re.compile(search, re.IGNORECASE)
     if search:

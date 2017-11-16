@@ -199,7 +199,7 @@ def _ajax(type_page):
                 skipped=excount
 
         return {'totalitems':rcount, 'skipped':skipped, 'skippedpct':seuil_compat}
-    cachekey= u"dep%s_%s_%s_%s_%s_%s" % (type_page,age,csp.decode('utf8') if csp else csp,groupe,text,region.decode('utf8') if region else region)
+    cachekey= u"dep%s_%s_%s_%s_%s_%s" % (type_page,age,csp if csp else csp,groupe,text,region if region else region)
     counts = use_cache(cachekey,lambda:countItems(),expires=3600)
     counts = countItems()
     #return json.dumps(counts)
