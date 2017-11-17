@@ -56,7 +56,10 @@ def svgcirco():
 
 @app.route('/svgs/hemicycle')
 def hemicycle():
-    place = request.args.get('place')
+    depute = request.args.get('depute','')
+    place = mdb.deputes.find_one({'depute_shortid':depute},{'depute_place':1}).get('depute_place','')
+    place = request.args.get('place',place)
+
     groupe = request.args.get('groupe')
     base_url = request.args.get('baseurl','http://dev.observatoire-democratie.fr/assemblee/deputes')
     def genhemicycle():
