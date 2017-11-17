@@ -41,7 +41,7 @@ deputesfields = ['depute_uid','depute_id','depute_shortid','depute_region','depu
                  'depute_csp','depute_contacts','depute_suppleant'
                 'depute_circo','depute_nom','groupe_abrev','groupe_libelle',
                 'depute_profession','depute_naissance','depute_actif','depute_place','stats']
-deputesfields  = deputefields
+#deputesfields  = deputefields
 
 #scrutins_by_id = cache.disk('scrutins_by_id',lambda: dict((s['scrutin_id'],s) for s in mdb.scrutins.find()), time_expire=3600)
 

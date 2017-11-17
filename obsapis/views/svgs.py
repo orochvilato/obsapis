@@ -54,5 +54,24 @@ def svgcirco():
     response.headers["Content-Type"] = "image/svg+xml"
     return response
 
-def hemicycle(place="nope",groupe="",base_url=""):
-    return XML(response.render('svg/hemicyclelight.svg',place='p'+(place or 'nope'),groupe=groupe,base_url='/'+base_url))
+@app.route('/svgs/hemicycle')
+def hemicycle():
+    place = request.args.get('place')
+    groupe = request.args.get('groupe')
+    base_url = request.args.get('baseurl','http://dev.observatoire-democratie.fr/assemblee/deputes')
+    def genhemicycle():
+        hrefs = {}
+        titles = {}
+        classes = {}
+
+        for d in mdb.deputes.find({},{'depute_shortid':1,'_id':None,'depute_place':1,'depute_nom':1,'groupe_abrev':1}):
+            plc = d['depute_place']
+            hrefs[plc] = base_url+'/'+d['depute_shortid'] if 'base_url' else '#'
+            titles[plc]= "place %s : %s (%s)" % (plc,d['depute_nom'],d['groupe_abrev'])
+            classes[plc] = d['groupe_abrev']
+        return render_template('svg/hemicycle-paths.svg',hrefs=hrefs,titles=titles,classes=classes)
+
+    cachekey= u"hemicycle-paths"+base_url
+    paths = use_cache(cachekey,lambda:genhemicycle(),expires=24*3600)
+
+    return render_template('svg/hemicycle.svg',paths=paths,groupe=groupe,place='p'+(place or 'nope'))

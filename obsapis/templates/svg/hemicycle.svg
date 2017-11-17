@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<svg xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:svg="http://www.w3.org/2000/svg" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" onload="svghemi_init(evt)" id="hemicycle" version="1.1" viewBox="0 0 845 583" style="width:300px; height:300px;" inkscape:version="0.48.4 r9939" width="100%" height="100%">
+	<script type="text/ecmascript" xlink:href="https://cdnjs.cloudflare.com/ajax/libs/gsap/1.18.4/TweenMax.min.js" id="script4861"></script>
+	<script type="text/ecmascript">var svghemiDoc;
+       var hemi
+       var tlhemi;
+       function svghemi_init(evt) {
+          svghemiDoc = evt.target;
+
+          hemi=svghemiDoc.getElementById("{% if groupe %}{{ groupe}}{% else %}{{ place}}{% endif %}");
+          svghemiDoc.addEventListener("mouseenter", hemiZoomIn);
+          svghemiDoc.addEventListener("mouseleave", hemiZoomOut);
+          hemi.style.fill = "#ff0052";
+
+
+       }
+       function hemiZoomIn() {
+           var s = hemi.getBBox();
+           {% if groupe %}var viewplace = "" + s.x + " " + s.y + " " + s.width + " " + s.height;{% else %}
+           var viewplace = "" + (s.x-845/6) + " " + (s.y-583/6) + " " + (845/3) + " " + (583/3);{% endif %}
+           tlhemi = new TimelineMax();
+           tlhemi.add("zIn");
+
+           tlhemi.fromTo(svghemiDoc, 1, {
+              attr: { viewBox: "0 0 845 583"}
+           }, {
+              attr: { viewBox: viewplace }
+           }, "zIn");
+        }
+        function hemiZoomOut() {
+          tlhemi.kill();
+          tlhemi = new TimelineMax();
+          tlhemi.add("zOut");
+          tlhemi.to(svghemiDoc, 1, {
+              attr: { viewBox: "0 0 845 583"}, overwrite:"all"
+          }, "zOut");
+    }</script>
+	<desc id="desc3">Created with Raphaël 2.1.0</desc>
+	<defs id="defs">
+		<style type="text/css" id="style6">path.contour {
+									stroke-linejoin: round;
+									cursor: pointer;
+									fill:#9c9c9c;
+									stroke:#ffffff;
+									stroke-width:1.0714285714285714
+								  }
+								  path.place {
+									stroke-linejoin: round;
+									cursor: pointer;
+									fill:#f0f0f0;
+									stroke:#ffffff;
+									stroke-width:0
+								  }
+                                  path.{{ groupe}} {
+                                      fill:#ff0052;
+                                  }</style>
+	</defs>
+	{{ paths }}
+</svg>
