@@ -38,7 +38,7 @@ deputefields = ['depute_uid','depute_id','depute_shortid','depute_region','deput
                 'depute_hatvp','depute_nuages','depute_place','stats']
 
 deputesfields = ['depute_uid','depute_id','depute_shortid','depute_region','depute_departement','depute_departement_id',
-                 'depute_csp','depute_contacts','depute_suppleant'
+                 'depute_csp','depute_contacts','depute_suppleant',
                 'depute_circo','depute_nom','groupe_abrev','groupe_libelle',
                 'depute_profession','depute_naissance','depute_actif','depute_place','stats']
 #deputesfields  = deputefields
