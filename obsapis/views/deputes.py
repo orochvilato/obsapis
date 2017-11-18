@@ -48,14 +48,33 @@ deputesfields = ['depute_uid','depute_id','depute_shortid','depute_region','depu
 deputesFI = use_cache('deputesfi',lambda:mdb.deputes.find({'groupe_abrev':'FI'}).distinct('depute_shortid'),expires=3600)
 
 
+def depute_hasard():
+    from obsapis.controllers.scrutins import getScrutinsCles
+    scrutins_cles = use_cache('scrutins_cles',lambda:getScrutinsCles(),expires=3600)
+
+    mfields = dict((f,1) for f in deputesfields)
+    mfields.update({'_id':None})
+    depute = mdb.deputes.find({'depute_actif':True},mfields).skip(int(random.random()*577)).limit(1)[0]
+
+    photo_an='http://www2.assemblee-nationale.fr/static/tribun/15/photos/'+depute['depute_uid'][2:]+'.jpg'
+    depnumdep = depute['depute_departement_id'][1:] if depute['depute_departement_id'][0]=='0' else depute['depute_departement_id']
+    depute_circo_complet = "%s / %s (%s) / %se circ" % (depute['depute_region'],depute['depute_departement'],depnumdep,depute['depute_circo'])
+
+    resp = dict(depute_circo_complet = depute_circo_complet,
+                depute_photo_an = photo_an,
+                id = depute['depute_shortid'],
+                **depute)
+
+    return resp
 
 
+@cache_function(expires=cache_pages_delay)
 def depute(shortid):
     from obsapis.controllers.scrutins import getScrutinsCles
     scrutins_cles = use_cache('scrutins_cles',lambda:getScrutinsCles(),expires=3600)
 
     mfields = dict((f,1) for f in deputefields)
-    mfields.update({'_id':False})
+    mfields.update({'_id':None})
     depute = mdb.deputes.find_one({'depute_shortid':shortid},mfields)
     if not depute:
         depute = mdb.deputes.find_one({'depute_shortid':deputesFI[int(random.random()*len(deputesFI))]},mfields)
@@ -114,18 +133,19 @@ def depute(shortid):
 
 @app.route('/deputes')
 @app.route('/deputes/<func>')
-@cache_function(expires=cache_pages_delay)
 def deputes(func=""):
-    if not func in ['liste','top']:
-        resp = depute(func)
     if func=='liste':
         resp = _ajax('liste')
     elif func=='top':
         resp = _ajax('top')
+    elif func=='hasard':
+        resp = depute_hasard()
+    else:
+        resp = depute(func)
 
     return json_response(resp)
 
-
+@cache_function(expires=cache_pages_delay)
 def _ajax(type_page):
     # ajouter des index (aux differentes collections)
 
