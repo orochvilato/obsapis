@@ -38,7 +38,7 @@ deputefields = ['depute_uid','depute_id','depute_shortid','depute_region','deput
                 'depute_hatvp','depute_nuages','depute_place','stats']
 
 deputesfields = ['depute_uid','depute_id','depute_shortid','depute_region','depute_departement','depute_departement_id',
-                 'depute_csp','depute_contacts','depute_suppleant',
+                 'depute_csp','depute_contacts','depute_suppleant','depute_bureau',
                 'depute_circo','depute_nom','groupe_abrev','groupe_libelle',
                 'depute_profession','depute_naissance','depute_actif','depute_place','stats']
 #deputesfields  = deputefields
@@ -71,7 +71,8 @@ def depute_hasard():
 @cache_function(expires=cache_pages_delay)
 def depute(shortid):
     from obsapis.controllers.scrutins import getScrutinsCles
-    scrutins_cles = use_cache('scrutins_cles',lambda:getScrutinsCles(),expires=3600)
+    scrutins_cles = use_cache('scrutins_cles',lambda:getScrutinsCles(),expires=36000)
+
 
     mfields = dict((f,1) for f in deputefields)
     mfields.update({'_id':None})
