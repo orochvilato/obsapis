@@ -68,7 +68,6 @@ def depute_hasard():
     return resp
 
 
-@cache_function(expires=cache_pages_delay)
 def depute(shortid):
     from obsapis.controllers.scrutins import getScrutinsCles
     scrutins_cles = use_cache('scrutins_cles',lambda:getScrutinsCles(),expires=36000)
@@ -134,6 +133,7 @@ def depute(shortid):
 
 @app.route('/deputes')
 @app.route('/deputes/<func>')
+@cache_function(expires=cache_pages_delay)
 def deputes(func=""):
     if func=='liste':
         resp = _ajax('liste')
@@ -146,7 +146,7 @@ def deputes(func=""):
 
     return json_response(resp)
 
-@cache_function(expires=cache_pages_delay)
+
 def _ajax(type_page):
     # ajouter des index (aux differentes collections)
 
