@@ -6,7 +6,7 @@ from bson import json_util
 
 @app.route('/test')
 def test():
-    return json_util.dumps(mdb.deputes.find_one({'depute_circo':None}))
+    return json_util.dumps(mdb.scrutins.find_one({'scrutin_sort':None}))
     return json_util.dumps(list(mdb.amendements.find({'sort':u"Adopt\u00e9","signataires_groupes":{'$elemMatch':{'$eq':'FI'}}},{'_id':None,'numInit':1,'numAmend':1})))
 
 

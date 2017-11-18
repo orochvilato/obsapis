@@ -47,8 +47,8 @@ deputesfields = ['depute_uid','depute_id','depute_shortid','depute_region','depu
 
 deputesFI = use_cache('deputesfi',lambda:mdb.deputes.find({'groupe_abrev':'FI'}).distinct('depute_shortid'),expires=3600)
 
-
-def depute_hasard():
+@app.route('/deputes/hasard')
+def deputehasard():
     from obsapis.controllers.scrutins import getScrutinsCles
     scrutins_cles = use_cache('scrutins_cles',lambda:getScrutinsCles(),expires=3600)
 
@@ -65,7 +65,7 @@ def depute_hasard():
                 id = depute['depute_shortid'],
                 **depute)
 
-    return resp
+    return json_response(resp)
 
 
 def depute(shortid):
@@ -139,8 +139,6 @@ def deputes(func=""):
         resp = _ajax('liste')
     elif func=='top':
         resp = _ajax('top')
-    elif func=='hasard':
-        resp = depute_hasard()
     else:
         resp = depute(func)
 
