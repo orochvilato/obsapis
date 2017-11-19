@@ -6,10 +6,12 @@ import datetime
 
 from obsapis.config import cache_pages_delay
 
+from obsapis.controllers.scrutins import getScrutinsSorts
 
 @app.route('/votes')
 @cache_function(expires=cache_pages_delay)
 def votes():
+    scrutins_sorts = use_cache('scrutins_sorts',lambda:getScrutinsSorts(),expires=36000)
     nb = int(request.args.get('itemsperpage','25'))
     page = int(request.args.get('page','1'))-1
     groupe = request.args.get('groupe',request.args.get('group',None))
@@ -49,7 +51,10 @@ def votes():
     else:
         vote_filter = {'$and':filters}
 
-    votes = list(mdb.votes.find(vote_filter).sort('scrutin_num',-1).skip(skip).limit(nb))
+    votes = []
+    for v in mdb.votes.find(vote_filter).sort('scrutin_num',-1).skip(skip).limit(nb):
+        v['scrutin_sort'] = scrutins_sorts[v['scrutin_num']]
+        votes.append(v)
 
     def countItems():
         rcount = mdb.votes.find(vote_filter).count()

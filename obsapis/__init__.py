@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 
 import locale
 locale.setlocale(locale.LC_ALL, 'fr_FR.utf8')

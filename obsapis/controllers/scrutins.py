@@ -27,3 +27,8 @@ def getScrutinsPositions():
     for s in mdb.scrutins.find({},{'scrutin_id':1,'scrutin_num':1,'_id':None,'scrutin_positions.assemblee':1}):
         spositions[s['scrutin_num']] = s['scrutin_positions']['assemblee']
     return spositions
+def getScrutinsSorts():
+    ssorts = {}
+    for s in mdb.scrutins.find({},{'scrutin_id':1,'scrutin_num':1,'_id':None,'scrutin_sort':1}):
+        ssorts[s['scrutin_num']] = s['scrutin_sort']
+    return ssorts
