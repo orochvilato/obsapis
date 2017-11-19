@@ -22,7 +22,10 @@ tri_choices = OrderedDict([('stats.positions.exprimes',{'label':'Participation',
 
             ('stats.election.inscrits',{'label':"Voix en % des inscrits",'classe':'deputes-pctinscrits','precision':2,'rank':'pctinscrits','unit':'%'}),
             ('stats.election.exprimes',{'label':"Voix en % des votes exprimés",'classe':'deputes-pctexprimes','precision':2,'rank':'pctexprimes','unit':'%'}),
-
+            ('stats.positions.absent',{'label':'','classe':'','precision':0,'rank':'absent','unit':'%'}),
+            ('stats.positions.pour',{'label':'','classe':'','precision':0,'rank':'pour','unit':'%'}),
+            ('stats.positions.contre',{'label':'','classe':'','precision':0,'rank':'contre','unit':'%'}),
+            ('stats.positions.abstention',{'label':'','classe':'','precision':0,'rank':'abtention','unit':'%'}),
             ('depute_nom_tri',{'label':"Nom",'classe':'','rank':'N/A','unit':''})
             ])
 tri_items = {'tops': ('stats.positions.exprimes','stats.positions.dissidence','stats.compat.FI','stats.compat.REM','stats.nbitvs','stats.nbmots','stats.amendements.rediges','stats.amendements.adoptes','stats.commissions.present','stats.election.exprimes','stats.election.inscrits'),
@@ -173,6 +176,10 @@ def _ajax(type_page):
                   'stats.amendements.rediges':-1,
                   'stats.amendements.adoptes':-1,
                   'stats.commissions.present':-1,
+                  'stats.positions.pour':-1,
+                  'stats.positions.contre':-1,
+                  'stats.positions.abstention':-1,
+                  'stats.positions.absent':-1,
                   'stats.election.exprimes':-1,
                   'stats.election.inscrits':-1}
 
