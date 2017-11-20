@@ -160,7 +160,7 @@ def _ajax(type_page):
 
     region = request.args.get('region',None)
     top = None if type_page=='liste' else type_page
-    tri = request.args.get('tri',request.args.get('sort','stats.positions.exprimes' if top else 'depute_nom_tri'))
+    tri = request.args.get('tri',request.args.get('sort','stats.positions.exprimes' if top else 'stats.hasard'))
     direction = request.args.get('ordre',request.args.get('order','down' if top else 'up'))
     if direction =='asc':
         direction = 'up'
