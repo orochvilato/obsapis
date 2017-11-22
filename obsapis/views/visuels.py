@@ -12,8 +12,9 @@ from obsapis.controllers.visuels import get_visuel
 def visuel(id):
     depute = request.args.get('depute',None)
     download = int(request.args.get('download','0'))
+    neutre = request.args.get('neutre')
     regen = request.args.get('regen')
-    v=get_visuel(id,depute,regen)
+    v=get_visuel(id,depute,regen=regen,neutre=neutre)
     if download==0:
         r = Response(v, mimetype="image/png")
     else:
@@ -24,6 +25,6 @@ def visuel(id):
 
 @app.route('/visuels/genall')
 def genallvis():
-    for d in list(mdb.deputes.find({'depute_actif':True},{'depute_shortid':1,'_id':None}))[:10]:
+    for d in list(mdb.deputes.find({'depute_actif':True},{'depute_shortid':1,'_id':None})):
         v=get_visuel('obs2',d['depute_shortid'])
     return "ok"
