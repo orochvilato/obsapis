@@ -61,7 +61,10 @@ def deputehasard():
 
     photo_an='http://www2.assemblee-nationale.fr/static/tribun/15/photos/'+depute['depute_uid'][2:]+'.jpg'
     depnumdep = depute['depute_departement_id'][1:] if depute['depute_departement_id'][0]=='0' else depute['depute_departement_id']
-    depute_circo_complet = "%s / %s (%s) / %se circ" % (depute['depute_region'],depute['depute_departement'],depnumdep,depute['depute_circo'])
+    if depute['depute_region']==depute['depute_departement']:
+        depute_circo_complet = "%s (%s) / %se circ" % (depute['depute_departement'],depnumdep,depute['depute_circo'])
+    else:
+        depute_circo_complet = "%s / %s (%s) / %se circ" % (depute['depute_region'],depute['depute_departement'],depnumdep,depute['depute_circo'])
 
     resp = dict(depute_circo_complet = depute_circo_complet,
                 depute_photo_an = photo_an,
@@ -71,7 +74,7 @@ def deputehasard():
     return json_response(resp)
 
 
-def depute(shortid):
+def deputeget(shortid):
     from obsapis.controllers.scrutins import getScrutinsCles
     scrutins_cles = use_cache('scrutins_cles',lambda:getScrutinsCles(),expires=36000)
 
@@ -88,7 +91,10 @@ def depute(shortid):
 
     photo_an='http://www2.assemblee-nationale.fr/static/tribun/15/photos/'+depute['depute_uid'][2:]+'.jpg'
     depnumdep = depute['depute_departement_id'][1:] if depute['depute_departement_id'][0]=='0' else depute['depute_departement_id']
-    depute_circo_complet = "%s / %s (%s) / %se circ" % (depute['depute_region'],depute['depute_departement'],depnumdep,depute['depute_circo'])
+    if depute['depute_region']==depute['depute_departement']:
+        depute_circo_complet = "%s (%s) / %se circ" % (depute['depute_departement'],depnumdep,depute['depute_circo'])
+    else:
+        depute_circo_complet = "%s / %s (%s) / %se circ" % (depute['depute_region'],depute['depute_departement'],depnumdep,depute['depute_circo'])
 
     votes = list(mdb.votes.find({'depute_uid':depute['depute_uid']}).sort('scrutin_num',-1))
     votes_cles = list(mdb.votes.find({'depute_uid':depute['depute_uid'],'scrutin_num':{'$in':scrutins_cles.keys()}},{'scrutin_num':1,'vote_position':1,'scrutin_dossierLibelle':1}).sort('scrutin_num',-1))
@@ -143,7 +149,7 @@ def deputes(func=""):
     elif func=='top':
         resp = _ajax('top')
     else:
-        resp = depute(func)
+        resp = deputeget(func)
 
     return json_response(resp)
 
@@ -234,7 +240,10 @@ def _ajax(type_page):
     for d in mdb.deputes.find(filter,deputes_filters).sort(sort).skip(skip).limit(nb):
         photo_an='http://www2.assemblee-nationale.fr/static/tribun/15/photos/'+d['depute_uid'][2:]+'.jpg'
         depnumdep = d['depute_departement_id'][1:] if d['depute_departement_id'][0]=='0' else d['depute_departement_id']
-        depute_circo_complet = "%s / %s (%s) / %se circ" % (d['depute_region'],d['depute_departement'],depnumdep,d['depute_circo'])
+        if d['depute_region']==d['depute_departement']:
+            depute_circo_complet = "%s (%s) / %se circ" % (d['depute_departement'],depnumdep,d['depute_circo'])
+        else:
+            depute_circo_complet = "%s / %s (%s) / %se circ" % (d['depute_region'],d['depute_departement'],depnumdep,d['depute_circo'])
         d['depute_photo_an'] = photo_an
         d['depute_circo_complet'] = depute_circo_complet
         d['id'] = d['depute_shortid']

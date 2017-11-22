@@ -6,16 +6,29 @@ from selenium.webdriver.chrome import service
 from PIL import Image
 import StringIO
 
-factor = 1.2
-def get_visuel(depute,neutre=1):
-    dep = mdb.deputes.find_one({'depute_shortid':depute})
+def get_visuel(id,depute):
+    ln = [(d['depute_shortid'],len("%s (000) / %se circ" % (d['depute_departement'],d['depute_circo']))) for d in mdb.deputes.find({'depute_actif':True},{'depute_circo':1,'depute_departement':1,'depute_shortid':1,'depute_naissance':1,'_id':None})]
+    ln.sort(key=lambda x:x[1],reverse=True)
+    print ln[0:5]
+    dep = mdb.deputes.find_one({'depute_shortid':depute},{'depute_nom':1,'_id':None})
     if not dep:
         return "nope"
     options = webdriver.ChromeOptions()
     options.binary_location = '/usr/bin/google-chrome'
     options.add_argument('headless')
-    options.add_argument('window-size=1000x1000')
-    options.add_argument('force-device-scale-factor=1.2')
+    if id=='obs1':
+        factor = 1.2
+        url = "http://dev.observatoire-democratie.fr/assemblee/deputes/recherche?requete=%s" % dep['depute_nom']
+        zone = (120,560,860,804)
+        size = '1000x1000'
+
+    else:
+        factor = 1
+        url = "http://dev.observatoire-democratie.fr/assemblee/deputes/%s/votes" % depute
+        zone = (120,310,820,570)
+        size = '1000x1000'
+    options.add_argument('window-size=%s' % size)
+    options.add_argument('force-device-scale-factor=%0.1f' % factor)
 
 
     cdservice = service.Service('/usr/bin/chromedriver')
@@ -23,32 +36,42 @@ def get_visuel(depute,neutre=1):
     driver = webdriver.Chrome(chrome_options=options)
     #driver = webdriver.PhantomJS() # or add to your PATH
     #driver.set_window_size(1600, 1024) # optional
-    driver.get("http://dev.observatoire-democratie.fr/assemblee/deputes/recherche?requete=%s" % dep['depute_nom'])
+    driver.get(url)
 
     import os
 
-    path = '/'.join(app.instance_path.split('/')[:-1] +['obsapis','resources','visuels','obs1'])
+    path = '/'.join(app.instance_path.split('/')[:-1] +['obsapis','resources','visuels',id])
 
     image = Image.open(StringIO.StringIO(driver.get_screenshot_as_png()))
+    print "done"
 
-    image3 = image.crop((120*factor,560*factor,860*factor,804*factor))
-    #image3 = image2.resize((975,305))
+    image2 = image.crop((factor*zone[0],factor*zone[1],factor*zone[2],factor*zone[3]))
     output = StringIO.StringIO()
-    vis = Image.open(path+'/fiche_fond.png').resize((1024,1024))
-    poster = Image.open(path+'/fiche_poster.png').resize((1024,1024))
-    plis = Image.open(path+'/fiche_plis.png').resize((1024,1024))
-
-
-    if neutre==0:
+    if id=="obs1":
+        image3 = image2
+        vis = Image.open(path+'/fiche_fond.png').resize((1024,1024))
+        poster = Image.open(path+'/fiche_poster.png').resize((1024,1024))
+        plis = Image.open(path+'/fiche_plis.png').resize((1024,1024))
         footer = Image.open(path+'/fiche_macaron_footer.png').resize((1024,1024))
-    else:
-        footer = Image.open(path+'/fiche_macaron_footer_neutre.png').resize((1024,1024))
 
-    vis.paste(poster,(0,0),poster)
-    vis.paste(image3,(70,170))
-    vis.paste(plis,(0,0),plis)
-    vis.paste(footer,(0,0),footer)
-    final = vis.crop((0,0,1024,816)) if neutre else vis
+        vis.paste(poster,(0,0),poster)
+        vis.paste(image3,(70,170))
+        vis.paste(plis,(0,0),plis)
+        vis.paste(footer,(0,0),footer)
+        final = vis
+    else:
+        width, height = image2.size
+        image3 = image2.resize((680,int(680*float(height)/width)),Image.ANTIALIAS)
+        #image3 = image2
+        vis = Image.open(path+'/share_2_1_fond.png') #.resize((1024,512))
+        poster = Image.open(path+'/share_2_1_poster.png') #.resize((1024,512))
+        plis = Image.open(path+'/share_2_1_plis.png') #.resize((1024,512))
+        footer = Image.open(path+'/share_2_1_footer.png') #.resize((1024,512))
+        vis.paste(poster,(0,0),poster)
+        vis.paste(image3,(300,80))
+        vis.paste(plis,(0,0),plis)
+        vis.paste(footer,(0,0),footer)
+        final = vis
 
     #final = vis.resize((1024,1024))
     final.save(output,'PNG')

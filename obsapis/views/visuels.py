@@ -8,12 +8,11 @@ from obsapis.config import cache_pages_delay
 #@cache_function(expires=cache_pages_delay)
 from obsapis.controllers.visuels import get_visuel
 
-@app.route('/visuel')
-def visuel():
+@app.route('/visuels/<id>')
+def visuel(id):
     depute = request.args.get('depute',None)
-    neutre = int(request.args.get('neutre','1'))
     download = int(request.args.get('download','0'))
-    v=get_visuel(depute,neutre)
+    v=get_visuel(id,depute)
     if download==0:
         r = Response(v, mimetype="image/png")
     else:
