@@ -20,3 +20,9 @@ def visuel(id):
                        headers={"Content-Disposition":
                                     "attachment;filename=%s-%s.png" % (depute,datetime.datetime.now().strftime('%Y-%m-%d'))})
     return r
+
+@app.route('/visuels/genall')
+def genallvis():
+    for d in list(mdb.deputes.find({'depute_actif':True},{'depute_shortid':1,'_id':None}))[:10]:
+        v=get_visuel('obs2',d['depute_shortid'])
+    return "ok"
