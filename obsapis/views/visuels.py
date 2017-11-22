@@ -12,7 +12,8 @@ from obsapis.controllers.visuels import get_visuel
 def visuel(id):
     depute = request.args.get('depute',None)
     download = int(request.args.get('download','0'))
-    v=get_visuel(id,depute)
+    regen = request.args.get('regen')
+    v=get_visuel(id,depute,regen)
     if download==0:
         r = Response(v, mimetype="image/png")
     else:

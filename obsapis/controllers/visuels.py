@@ -6,7 +6,7 @@ from selenium.webdriver.chrome import service
 from PIL import Image
 import StringIO
 
-def get_visuel(id,depute):
+def get_visuel(id,depute,regen=None):
 
     dep = mdb.deputes.find_one({'depute_shortid':depute},{'depute_nom':1,'_id':None})
     if not dep:
@@ -14,7 +14,7 @@ def get_visuel(id,depute):
     path = '/'.join(app.instance_path.split('/')[:-1] +['obsapis','resources','visuels',id])
     imgpath = path+'/tous/'+depute+'.png'
     import os.path
-    if os.path.isfile(imgpath):
+    if os.path.isfile(imgpath) and not regen:
         return open(imgpath).read()
 
     options = webdriver.ChromeOptions()
