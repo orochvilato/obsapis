@@ -3,14 +3,20 @@ from obsapis import app,mdb
 
 from selenium import webdriver
 from selenium.webdriver.chrome import service
-from PIL import Image
+from PIL import Image,ImageFont,ImageDraw
 import StringIO
 
 def get_visuel(id,depute,regen=None):
-
-    dep = mdb.deputes.find_one({'depute_shortid':depute},{'depute_nom':1,'_id':None})
+    tailles = [(d,len(d['depute_nom'])) for d in mdb.deputes.find({'depute_actif':True}) ]
+    tailles.sort(key=lambda x:x[1],reverse=True)
+    print tailles[:4]
+    dep = mdb.deputes.find_one({'depute_shortid':depute},{'depute_departement':1,'depute_region':1,'depute_circo':1,'depute_nom':1,'_id':None})
     if not dep:
         return "nope"
+    circo =  "%s / %s (999) / %se circ" % (dep['depute_region'],dep['depute_departement'],dep['depute_circo'])
+    font = ImageFont.truetype("Montserrat-Bold.ttf", 14)
+    widthfactor = int(680*(float(514)/max(450,font.getsize(circo)[0])))
+    widthfactor = 680
     path = '/'.join(app.instance_path.split('/')[:-1] +['obsapis','resources','visuels',id])
     imgpath = path+'/tous/'+depute+'.png'
     import os.path
@@ -27,7 +33,7 @@ def get_visuel(id,depute,regen=None):
         size = '1000x1000'
 
     else:
-        factor = 1
+        factor = 1.2
         url = "http://dev.observatoire-democratie.fr/assemblee/deputes/%s/votes" % depute
         zone = (90,310,840,570)
         size = '1200x1000'
@@ -64,12 +70,12 @@ def get_visuel(id,depute,regen=None):
         final = vis
     else:
         width, height = image2.size
-        image3 = image2.resize((680,int(680*float(height)/width)),Image.ANTIALIAS)
+        image3 = image2.resize((widthfactor,int(widthfactor*float(height)/width)),Image.ANTIALIAS) #680
         #image3 = image2
         vis = Image.open(path+'/share_2_1_fond.png') #.resize((1024,512))
         poster = Image.open(path+'/share_2_1_poster.png') #.resize((1024,512))
         plis = Image.open(path+'/share_2_1_plis.png') #.resize((1024,512))
-        footer = Image.open(path+'/share_2_1_footer.png') #.resize((1024,512))
+        footer = Image.open(path+'/share_2_1_footer2.png') #.resize((1024,512))
         vis.paste(poster,(0,0),poster)
         vis.paste(image3,(300,80))
         vis.paste(plis,(0,0),plis)
