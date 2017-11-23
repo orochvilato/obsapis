@@ -5,10 +5,13 @@ locale.setlocale(locale.LC_ALL, 'fr_FR.utf8')
 import pymongo
 from bson import json_util
 
-from config_private import mongo_read_user,mongo_read_password
+from config_private import mongo_read_user,mongo_read_password,mongo_write_user,mongo_write_password
 
 client = pymongo.MongoClient('mongodb://%s:%s@observatoire-assemblee.orvdev.fr:27017/obsass' %(mongo_read_user,mongo_read_password))
 mdb = client.obsass
+
+clientrw = pymongo.MongoClient('mongodb://%s:%s@observatoire-assemblee.orvdev.fr:27017/obsass' %(mongo_write_user,mongo_write_password))
+mdbrw = clientrw.obsass
 
 from flask import Flask
 from flask_cors import CORS

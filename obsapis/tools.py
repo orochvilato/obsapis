@@ -1,6 +1,8 @@
 from flask import Response,request
 from bson import json_util
-from obsapis import use_cache
+from obsapis import use_cache,mdbrw
+import datetime
+
 
 def json_response(r):
     resp = Response(json_util.dumps(r))
@@ -13,6 +15,19 @@ def cache_function(expires=0):
         @wraps(f)
         def wrapped_f(*args,**kwargs):
             return use_cache(request.url,lambda:f(*args,**kwargs),expires=expires)
+        return wrapped_f
+    return wrap
+
+def logitem(name,item,fields):
+    def wrap(f):
+        @wraps(f)
+        def wrapped_f(*args,**kwargs):
+            log = dict((f,request.args.get(f)) for f in fields if request.args.get(f))
+            log.update({ 'name':name,'timestamp':datetime.datetime.now(),'ip':request.environ['REMOTE_ADDR'],'user_agent':request.headers.get('User-Agent')})
+            mdbrw.logs.insert_one(log)
+            #print args,kwargs
+            #print log
+            return f(*args,**kwargs)
         return wrapped_f
     return wrap
 

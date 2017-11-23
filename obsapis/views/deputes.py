@@ -2,7 +2,7 @@
 
 from obsapis import app,use_cache,mdb
 from flask import request
-from obsapis.tools import json_response,cache_function, getdot
+from obsapis.tools import json_response,cache_function, getdot, logitem
 import re
 import random
 import datetime
@@ -142,6 +142,7 @@ def deputeget(shortid):
 
 @app.route('/deputes')
 @app.route('/deputes/<func>')
+@logitem(name='deputes',item='func',fields=['tri','requete','region','ordre','age','groupe','csp','page','deputes'])
 @cache_function(expires=cache_pages_delay)
 def deputes(func=""):
     if func=='liste':
