@@ -3,6 +3,7 @@
 from obsapis import app,use_cache,mdb
 from flask import request
 from obsapis.tools import json_response,cache_function, getdot, logitem
+from obsapis.tools import json_response,cache_function, getdot, strip_accents, logitem
 import re
 import random
 import datetime
@@ -33,14 +34,14 @@ tri_items = {'tops': ('stats.positions.exprimes','stats.positions.dissidence','s
 
 
 deputefields = ['depute_uid','depute_id','depute_shortid','depute_region','depute_departement','depute_departement_id',
-                'depute_csp','groupe_qualite',
+                'depute_csp','groupe_qualite','depute_nom_sa',
                 'depute_circo','depute_nom','depute_contacts','groupe_abrev','groupe_libelle',
                 'depute_election','depute_profession','depute_naissance','depute_suppleant',
                 'depute_actif','depute_mandat_debut','depute_mandat_fin','depute_mandat_fin_cause',
                 'depute_bureau','depute_mandats','depute_autresmandats','depute_collaborateurs',
                 'depute_hatvp','depute_nuages','depute_place','stats']
 
-deputesfields = ['depute_uid','depute_id','depute_shortid','depute_region','depute_departement','depute_departement_id',
+deputesfields = ['depute_uid','depute_id','depute_shortid','depute_region','depute_departement','depute_departement_id','depute_nom_sa',
                  'depute_csp','depute_contacts','depute_suppleant','depute_bureau',
                 'depute_circo','depute_nom','groupe_abrev','groupe_libelle',
                 'depute_profession','depute_naissance','depute_actif','depute_place','stats']
@@ -57,7 +58,7 @@ def deputehasard():
 
     mfields = dict((f,1) for f in deputesfields)
     mfields.update({'_id':None})
-    depute = mdb.deputes.find({'depute_actif':True},mfields).skip(int(random.random()*577)).limit(1)[0]
+    depute = mdb.deputes.find({'depute_actif':True},mfields).skip(int(random.random()*576)).limit(1)[0]
 
     photo_an='http://www2.assemblee-nationale.fr/static/tribun/15/photos/'+depute['depute_uid'][2:]+'.jpg'
     depnumdep = depute['depute_departement_id'][1:] if depute['depute_departement_id'][0]=='0' else depute['depute_departement_id']
@@ -201,8 +202,11 @@ def _ajax(type_page):
     if region:
         filter['$and'].append({'depute_region':region})
     if text:
+        text = ''.join(c for c in text if not c in '[(])/\.*')
+        utext = strip_accents(text)
         regx = re.compile(text, re.IGNORECASE)
-        filter['$and'].append({'depute_nom':regx})
+        uregx = re.compile(utext, re.IGNORECASE)
+        filter['$and'].append({'$or':[{'depute_nom':regx},{'depute_nom_sa':uregx}]})
 
     sort = []
     rank = None
