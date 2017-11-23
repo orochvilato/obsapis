@@ -1,0 +1,20 @@
+<html>
+<body>
+  <h2>Général</h2>
+  <ul>{% for e in lstp %}
+    <li>{{ e[0] }} ({{ e[1] }})</li>
+   {% endfor %}</ul>
+   <h2>Députes</h2>
+   <ul>{% for e in deps %}
+     <li>{{ e[0] }} ({{ e[1] }})</li>
+   {% endfor %}</ul>
+   <h2>Filtre Groupes</h2>
+   <ul>{% for e in grps %}
+     <li>{{ e[0] }} ({{ e[1] }})</li>
+   {% endfor %}</ul>
+   <h2>Tops</h2>
+   <ul>{% for e in tri %}
+     <li>{{ e[0] }} ({{ e[1] }})</li>
+   {% endfor %}</ul>
+</body>
+</html>
