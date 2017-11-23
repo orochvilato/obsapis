@@ -15,7 +15,25 @@ def logs():
 
 @app.route('/logs2')
 def logs2():
-    return json_response(mdb.logs.find())
+    pgroup = {}
+    pgroup['n'] = {'$sum':1}
+    pgroup['_id'] = { 'groupe':'$groupe'}
+    pipeline = [{'$group':pgroup}]
+    grps = []
+    for g in mdb.logs.aggregate(pipeline):
+        _g = g['_id']['groupe']
+        if _g != None:
+            grps.append((_g,g['n']))
+
+    pgroup['_id'] = { 'depute':'$groupe'}
+
+    grps = []
+    for g in mdb.logs.aggregate(pipeline):
+        _g = g['_id']['groupe']
+        if _g != None:
+            grps.append((_g,g['n']))
+
+    return json_response(grps)
 
 @app.route('/flushlogs')
 def flushlogs():

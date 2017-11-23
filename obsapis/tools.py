@@ -23,7 +23,7 @@ def logitem(name,item,fields):
         @wraps(f)
         def wrapped_f(*args,**kwargs):
             log = dict((f,request.args.get(f)) for f in fields if request.args.get(f))
-            log.update({ 'name':name,'timestamp':datetime.datetime.now(),'ip':request.environ['REMOTE_ADDR'],'user_agent':request.headers.get('User-Agent')})
+            log.update({ 'name':name,'item':kwargs.get(item,None),'timestamp':datetime.datetime.now(),'ip':request.environ['REMOTE_ADDR'],'user_agent':request.headers.get('User-Agent')})
             mdbrw.logs.insert_one(log)
             #print args,kwargs
             #print log
