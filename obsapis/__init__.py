@@ -38,4 +38,4 @@ def use_cache(k,fct,expires=60):
         pass
     return v
 
-from views import deputes,votes,interventions,svgs,logs,scrutins,groupes,visuels
+from views import deputes,votes,interventions,svgs,logs,scrutins,groupes,visuels,extractions,commissions
