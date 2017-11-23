@@ -34,9 +34,9 @@ def presences():
     prescom = list(mdb.presences.find(com_filter).sort([('presence_date',-1)]).skip(skip).limit(nb))
 
     def countItems():
-        rcount = mdb.prescom.find(com_filter).count()
+        rcount = mdb.presences.find(com_filter).count()
         return {'totalitems':rcount}
-    cachekey= u"com%s_%s_%s" % (depute,groupe,commission)
+    cachekey= u"comm%s_%s_%s" % (depute,groupe,commission)
     counts = use_cache(cachekey,lambda:countItems(),expires=3600)
 
     import math
