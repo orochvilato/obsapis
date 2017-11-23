@@ -7,7 +7,7 @@ import datetime
 from obsapis.config import cache_pages_delay
 
 @app.route('/commissions/presences')
-@cache_function(expires=0) #cache_pages_delay)
+@cache_function(expires=cache_pages_delay)
 def presences():
 
     depute = request.args.get('depute',None)
@@ -30,7 +30,7 @@ def presences():
         com_filter = filters[0]
     else:
         com_filter = {'$and':filters}
-    
+
     prescom = list(mdb.presences.find(com_filter).sort([('presence_date',-1)]).skip(skip).limit(nb))
 
     def countItems():
