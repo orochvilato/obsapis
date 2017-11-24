@@ -6,9 +6,35 @@ import datetime
 
 from obsapis.config import cache_pages_delay
 #@cache_function(expires=cache_pages_delay)
-from obsapis.controllers.visuels import get_visuel
+from obsapis.controllers.visuels import get_visuel,genvisuelstat,maxis,getgauge
 
-@app.route('/visuels/<id>')
+@app.route('/longs')
+def longs():
+    return json_response(maxis())
+
+
+@app.route('/gauge')
+def getgs():
+    return Response(getgauge(), mimetype='image/png')
+
+
+@app.route('/visuels/stat')
+def genvisuel():
+    depute = request.args.get('depute',None)
+    stat = request.args.get('stat','participation')
+
+
+    download = int(request.args.get('download','0'))
+    v=genvisuelstat(depute,stat)
+    if download==0:
+        r = Response(v, mimetype="image/png")
+    else:
+        r = Response(v, mimetype="image/png",
+                       headers={"Content-Disposition":
+                                    "attachment;filename=%s-%s.png" % (depute,datetime.datetime.now().strftime('%Y-%m-%d'))})
+    return r
+
+app.route('/visuels/<id>')
 def visuel(id):
     depute = request.args.get('depute',None)
     download = int(request.args.get('download','0'))
