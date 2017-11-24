@@ -35,13 +35,14 @@ def genvisuelstat(depute,stat):
     params = {'participation':{'type':'gauge','field':'stats.positions.exprimes','label':['Participation aux','scrutins publics']},
               'commission':{'type':'gauge','field':'stats.commissions.present','label':['Présence en','commission']},
               'absent':{'type':'gauge','field':'stats.positions.absent','label':['Absence lors des','scrutins publics']},
-              'motspreferes':{'type':'texte','field':'depute_nuages','label':['Ses mots','préférés']}
+              'motspreferes':{'type':'texte','field':'depute_nuages','label':['Ses mots','préférés']},
               }
+    stats = stat.split(',')
     fields = {'depute_photo':1,'depute_naissance':1,'groupe_abrev':1,'groupe_libelle':1,'depute_departement':1,'depute_region':1,'depute_circo':1,'depute_nom':1,'_id':None}
     fields.update(dict((p['field'],1) for p in params.values()))
     dep = mdb.deputes.find_one({'depute_shortid':depute},fields)
 
-    if not dep or not stat in params.keys():
+    if not dep:
         return "nope"
     if dep['depute_region']==dep['depute_departement']:
         circo =  "%s (999) / %se circ" % (dep['depute_departement'],dep['depute_circo'])
@@ -89,9 +90,12 @@ def genvisuelstat(depute,stat):
     dategen = 'Généré le %s' % datetime.datetime.now().strftime('%d/%m/%Y à %H:%M')
     d.text((840,570),dategen.decode('utf8'),font=fontgen,fill=(10,10,10,255))
     fontlabel = ImageFont.truetype("Montserrat-Bold.ttf", 34)
-    if params[stat]['type']=='gauge':
-        statimage = Image.open(path+'/assets/%s/%d.png' % (stat,int(getdot(dep,params[stat]['field'])))).resize((300,300),Image.ANTIALIAS)
+    vis.paste(poster,(0,0),poster)
+    vis.paste(photo,(70,139))
 
+    if len(stats)==1 and params[stat]['type']=='gauge':
+        statimage = Image.open(path+'/assets/%s/%d.png' % (stat,round(getdot(dep,params[stat]['field']),0))).resize((300,300),Image.ANTIALIAS)
+        vis.paste(statimage,(340,220))
         for i,l in enumerate(params[stat]['label']):
             d.text((660,282+i*45),l.decode('utf8'), font=fontlabel,fill=(130,205,226,255))
     elif stat=='motspreferes':
@@ -108,12 +112,18 @@ def genvisuelstat(depute,stat):
             #for i,l in enumerate(params[stat]['label']):
             #    d.text((760,282+i*45),l.decode('utf8'), font=fontlabel,fill=(130,205,226,255))
             d.text((400,485),"Ses mots préférés".decode('utf8'), font=fontlabel,fill=(130,205,226,255))
+    elif len(stats)==2:
+        fontlabel = ImageFont.truetype("Montserrat-Bold.ttf", 28)
+        for j,stat in enumerate(stats):
+            if stat in params.keys():
+                statimage = Image.open(path+'/assets/%s/%d.png' % (stat,round(getdot(dep,params[stat]['field']),0))).resize((250,250),Image.ANTIALIAS)
+                vis.paste(statimage,(350+315*j,200))
+                for i,l in enumerate(params[stat]['label']):
+                    w,h = fontlabel.getsize(l.decode('utf8'))
+                    d.text((350+315*j+(250-w)/2,445+i*45),l.decode('utf8'), font=fontlabel,fill=(130,205,226,255))
 
-    vis.paste(poster,(0,0),poster)
     vis.paste(textes,(0,0),textes)
-    vis.paste(photo,(70,139))
-    if params[stat]['type']=="gauge":
-        vis.paste(statimage,(340,220))
+
     vis.paste(plis,(0,0),plis)
     vis.paste(footer,(0,0),footer)
     final = vis
