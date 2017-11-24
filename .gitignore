@@ -2,3 +2,4 @@ config_private.py
 .pyenv/
 *.pyc
 logs.html
+*.wsgi
