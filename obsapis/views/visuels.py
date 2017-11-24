@@ -26,12 +26,14 @@ def genvisuel():
 
     download = int(request.args.get('download','0'))
     v=genvisuelstat(depute,stat)
+    headers = {'Cache-Control':'no-cache, no-store, must-revalidate','Pragma':'no-cache'}
     if download==0:
-        r = Response(v, mimetype="image/png")
+        r = Response(v, mimetype="image/png",headers=headers)
     else:
+        headers.update({"Content-Disposition":
+                     "attachment;filename=%s-%s.png" % (depute,datetime.datetime.now().strftime('%Y-%m-%d'))})
         r = Response(v, mimetype="image/png",
-                       headers={"Content-Disposition":
-                                    "attachment;filename=%s-%s.png" % (depute,datetime.datetime.now().strftime('%Y-%m-%d'))})
+                       headers=headers)
     return r
 
 app.route('/visuels/<id>')

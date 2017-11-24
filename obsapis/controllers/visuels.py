@@ -6,6 +6,7 @@ from selenium import webdriver
 from selenium.webdriver.chrome import service
 from PIL import Image,ImageFont,ImageDraw
 import StringIO
+import datetime
 
 def maxis():
     maxcirco = []
@@ -83,7 +84,9 @@ def genvisuelstat(depute,stat):
     for i,l in enumerate(params[stat]['label']):
         d.text((660,282+i*45),l, font=fontlabel,fill=(130,205,226,255))
 
-
+    fontgen = ImageFont.truetype("Montserrat-Regular.ttf", 11)
+    dategen = 'Généré le %s' % datetime.datetime.now().strftime('%d/%m/%Y à %H:%M')
+    d.text((840,570),dategen.decode('utf8'),font=fontgen,fill=(10,10,10,255))
 
     vis.paste(poster,(0,0),poster)
     vis.paste(textes,(0,0),textes)
