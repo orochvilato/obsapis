@@ -28,9 +28,10 @@ def maxis():
     return dict(circo=maxcirco[:10],nom=maxnom[:10],gp=maxgp[:10])
 
 def genvisuelstat(depute,stat):
-    params = {'participation':{'field':'stats.positions.exprimes','label':['Participation aux','scrutins publics']},
-              'commission':{'field':'stats.commissions.present','label':['Présence en','commission']},
-              'absent':{'field':'stats.positions.absent','label':['Absence lors des','scrutins publics']}
+    params = {'participation':{'type':'gauge','field':'stats.positions.exprimes','label':['Participation aux','scrutins publics']},
+              'commission':{'type':'gauge','field':'stats.commissions.present','label':['Présence en','commission']},
+              'absent':{'type':'gauge','field':'stats.positions.absent','label':['Absence lors des','scrutins publics']},
+              'motspreferes':{'type':'texte','field':'depute_nuages','label':['Ses mots','préférés']}
               }
     fields = {'depute_photo':1,'depute_naissance':1,'groupe_abrev':1,'groupe_libelle':1,'depute_departement':1,'depute_region':1,'depute_circo':1,'depute_nom':1,'_id':None}
     fields.update(dict((p['field'],1) for p in params.values()))
@@ -60,8 +61,6 @@ def genvisuelstat(depute,stat):
     plis = Image.open(vispath+'/obs_share_square_plis.png')
     footer = Image.open(vispath+'/obs_share_square_footer.png')
 
-    statimage = Image.open(path+'/assets/%s/%d.png' % (stat,int(getdot(dep,params[stat]['field'])))).resize((300,300),Image.ANTIALIAS)
-
     # make a blank image for the text, initialized to transparent text color
     textes = Image.new('RGBA',(1024,1024))
     # get a drawing context
@@ -82,19 +81,33 @@ def genvisuelstat(depute,stat):
     nom_x,nom_y = circ_x,circ_y+h
     d.rectangle(((nom_x, nom_y), (nom_x+nom_w+2*6, nom_y+nom_h+2*nom_pad)), fill=(33,53,88,255))
     d.text((nom_x+6,nom_y+nom_pad-3), dep['depute_nom'], font=fontnom, fill=(255,255,255,255))
-
-    fontlabel = ImageFont.truetype("Montserrat-Bold.ttf", 34)
-    for i,l in enumerate(params[stat]['label']):
-        d.text((660,282+i*45),l.decode('utf8'), font=fontlabel,fill=(130,205,226,255))
-
     fontgen = ImageFont.truetype("Montserrat-Regular.ttf", 11)
     dategen = 'Généré le %s' % datetime.datetime.now().strftime('%d/%m/%Y à %H:%M')
     d.text((840,570),dategen.decode('utf8'),font=fontgen,fill=(10,10,10,255))
+    fontlabel = ImageFont.truetype("Montserrat-Bold.ttf", 34)
+    if params[stat]['type']=='gauge':
+        statimage = Image.open(path+'/assets/%s/%d.png' % (stat,int(getdot(dep,params[stat]['field'])))).resize((300,300),Image.ANTIALIAS)
+
+        for i,l in enumerate(params[stat]['label']):
+            d.text((660,282+i*45),l.decode('utf8'), font=fontlabel,fill=(130,205,226,255))
+    elif stat=='motspreferes':
+        fontmot1 = ImageFont.truetype("Montserrat-Bold.ttf", 60)
+        fontmot2 = ImageFont.truetype("Montserrat-Bold.ttf", 45)
+        fontmot3 = ImageFont.truetype("Montserrat-Bold.ttf", 40)
+        if dep['depute_nuages']:
+            mots = [x[0] for x in dep['depute_nuages']['noms'][:3]]
+            d.text((320,200),"1. "+mots[0],font=fontmot1,fill=(33,53,88,255))
+            d.text((320,270),"2. "+mots[1],font=fontmot2,fill=(33,53,88,255))
+            d.text((320,320),"3. "+mots[2],font=fontmot3,fill=(33,53,88,255))
+            for i,l in enumerate(params[stat]['label']):
+                d.text((800,282+i*45),l.decode('utf8'), font=fontlabel,fill=(130,205,226,255))
+
 
     vis.paste(poster,(0,0),poster)
     vis.paste(textes,(0,0),textes)
     vis.paste(photo,(70,139))
-    vis.paste(statimage,(340,220))
+    if params[stat]['type']=="gauge":
+        vis.paste(statimage,(340,220))
     vis.paste(plis,(0,0),plis)
     vis.paste(footer,(0,0),footer)
     final = vis
@@ -197,9 +210,9 @@ def get_visuel(id,depute,regen=None,neutre=None):
 
 
     image = Image.open(StringIO.StringIO(driver.get_screenshot_as_png()))
-
     image2 = image.crop((factor*zone[0],factor*zone[1],factor*zone[2],factor*zone[3]))
     output = StringIO.StringIO()
+
     if id=="obs1":
         image3 = image2
         vis = Image.open(path+'/fiche_fond.png').resize((1024,1024))
