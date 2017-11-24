@@ -109,18 +109,30 @@ def genvisuelstat(depute,stat):
             for i in range(1,5):
                 d.text((360,270+(i-1)*45),"%d. %s" % (1+i,maj1l(mots[i])),font=fontmot,fill=(33,53,88,255))
 
-            #for i,l in enumerate(params[stat]['label']):
-            #    d.text((760,282+i*45),l.decode('utf8'), font=fontlabel,fill=(130,205,226,255))
             d.text((400,485),"Ses mots préférés".decode('utf8'), font=fontlabel,fill=(130,205,226,255))
     elif len(stats)==2:
+        fontmot1 = ImageFont.truetype("Montserrat-Bold.ttf", 36)
+        fontmot = ImageFont.truetype("Montserrat-Bold.ttf", 25)
         fontlabel = ImageFont.truetype("Montserrat-Bold.ttf", 28)
         for j,stat in enumerate(stats):
+            label = True
             if stat in params.keys():
-                statimage = Image.open(path+'/assets/%s/%d.png' % (stat,round(getdot(dep,params[stat]['field']),0))).resize((250,250),Image.ANTIALIAS)
-                vis.paste(statimage,(350+315*j,200))
-                for i,l in enumerate(params[stat]['label']):
-                    w,h = fontlabel.getsize(l.decode('utf8'))
-                    d.text((350+315*j+(250-w)/2,445+i*45),l.decode('utf8'), font=fontlabel,fill=(130,205,226,255))
+                if params[stat]['type']=='gauge':
+                    statimage = Image.open(path+'/assets/%s/%d.png' % (stat,round(getdot(dep,params[stat]['field']),0))).resize((250,250),Image.ANTIALIAS)
+                    vis.paste(statimage,(350+315*j,200))
+                elif stat=='motspreferes':
+                    if dep['depute_nuages']:
+                        mots = [x[0] for x in dep['depute_nuages']['noms'][:5]]
+                        d.text((350+315*j,220),"1. "+maj1l(mots[0]),font=fontmot1,fill=(255,0,82,255))
+                        for i in range(1,5):
+                            d.text((350+315*j,270+(i-1)*40),"%d. %s" % (1+i,maj1l(mots[i])),font=fontmot,fill=(33,53,88,255))
+                        d.text((350+315*j,445),"Ses mots préférés".decode('utf8'), font=fontlabel,fill=(130,205,226,255))
+                        label = False
+
+                if label:
+                    for i,l in enumerate(params[stat]['label']):
+                        w,h = fontlabel.getsize(l.decode('utf8'))
+                        d.text((350+315*j+(250-w)/2,445+i*45),l.decode('utf8'), font=fontlabel,fill=(130,205,226,255))
 
     vis.paste(textes,(0,0),textes)
 
