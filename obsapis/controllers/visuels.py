@@ -36,7 +36,7 @@ def genvisuelstat(depute,stat):
     fields.update(dict((p['field'],1) for p in params.values()))
     dep = mdb.deputes.find_one({'depute_shortid':depute},fields)
 
-    if not dep:
+    if not dep or not stat in params.keys():
         return "nope"
     if dep['depute_region']==dep['depute_departement']:
         circo =  "%s (999) / %se circ" % (dep['depute_departement'],dep['depute_circo'])
