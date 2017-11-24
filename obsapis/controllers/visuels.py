@@ -28,7 +28,10 @@ def maxis():
     return dict(circo=maxcirco[:10],nom=maxnom[:10],gp=maxgp[:10])
 
 def genvisuelstat(depute,stat):
-    params = {'participation':{'field':'stats.positions.exprimes','label':['participation aux','scrutins publics']}}
+    params = {'participation':{'field':'stats.positions.exprimes','label':['Participation aux','scrutins publics']},
+              'commission':{'field':'stats.commissions.present','label':['Présence en','commission']},
+              'absent':{'field':'stats.positions.absent','label':['Absence lors des','scrutins publics']}
+              }
     fields = {'depute_photo':1,'depute_naissance':1,'groupe_abrev':1,'groupe_libelle':1,'depute_departement':1,'depute_region':1,'depute_circo':1,'depute_nom':1,'_id':None}
     fields.update(dict((p['field'],1) for p in params.values()))
     dep = mdb.deputes.find_one({'depute_shortid':depute},fields)
@@ -82,7 +85,7 @@ def genvisuelstat(depute,stat):
 
     fontlabel = ImageFont.truetype("Montserrat-Bold.ttf", 34)
     for i,l in enumerate(params[stat]['label']):
-        d.text((660,282+i*45),l, font=fontlabel,fill=(130,205,226,255))
+        d.text((660,282+i*45),l.decode('utf8'), font=fontlabel,fill=(130,205,226,255))
 
     fontgen = ImageFont.truetype("Montserrat-Regular.ttf", 11)
     dategen = 'Généré le %s' % datetime.datetime.now().strftime('%d/%m/%Y à %H:%M')
@@ -118,8 +121,8 @@ def getgauge():
     cdservice.start()
     driver = webdriver.Chrome(chrome_options=options)
 
-    for id in ['participation']:
-        for pct in range(0,100):
+    for id in ['participation','commission','absent']:
+        for pct in range(0,101):
             imgpath = path+'/%s/%d.png' %(id,pct)
             if os.path.isfile(imgpath):
                 continue
