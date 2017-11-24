@@ -126,13 +126,13 @@ def genvisuelstat(depute,stat):
                         d.text((350+315*j,220),"1. "+maj1l(mots[0]),font=fontmot1,fill=(255,0,82,255))
                         for i in range(1,5):
                             d.text((350+315*j,270+(i-1)*40),"%d. %s" % (1+i,maj1l(mots[i])),font=fontmot,fill=(33,53,88,255))
-                        d.text((350+315*j,445),"Ses mots préférés".decode('utf8'), font=fontlabel,fill=(130,205,226,255))
+                        d.text((350+315*j,462),"Ses mots préférés".decode('utf8'), font=fontlabel,fill=(130,205,226,255)) #462
                         label = False
 
                 if label:
                     for i,l in enumerate(params[stat]['label']):
                         w,h = fontlabel.getsize(l.decode('utf8'))
-                        d.text((350+315*j+(250-w)/2,445+i*45),l.decode('utf8'), font=fontlabel,fill=(130,205,226,255))
+                        d.text((350+315*j+(250-w)/2,445+i*34),l.decode('utf8'), font=fontlabel,fill=(130,205,226,255))
 
     vis.paste(textes,(0,0),textes)
 
