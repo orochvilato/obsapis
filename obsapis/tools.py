@@ -4,6 +4,9 @@ from obsapis import use_cache,mdbrw
 import datetime
 
 
+def maj1l(x):
+    return x[0].upper()+x[1:]
+    
 def json_response(r):
     resp = Response(json_util.dumps(r))
     resp.headers['Content-Type'] = 'text/json'

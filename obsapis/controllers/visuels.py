@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from obsapis import app,mdb
-from obsapis.tools import json_response,getdot
+from obsapis.tools import json_response,getdot,maj1l
 import requests
 from selenium import webdriver
 from selenium.webdriver.chrome import service
@@ -12,7 +12,8 @@ def maxis():
     maxcirco = []
     maxnom = []
     maxgp = []
-    for dep in mdb.deputes.find({},{'depute_shortid':1,'depute_naissance':1,'groupe_abrev':1,'groupe_libelle':1,'depute_departement':1,'depute_region':1,'depute_circo':1,'depute_nom':1,'_id':None}):
+    maxmot = []
+    for dep in mdb.deputes.find({},{'depute_nuages':1,'depute_shortid':1,'depute_naissance':1,'groupe_abrev':1,'groupe_libelle':1,'depute_departement':1,'depute_region':1,'depute_circo':1,'depute_nom':1,'_id':None}):
         id = dep['depute_shortid']
         if dep['depute_region']==dep['depute_departement']:
             circo =  "%s (999) / %se circ" % (dep['depute_departement'],dep['depute_circo'])
@@ -20,12 +21,15 @@ def maxis():
             circo =  "%s / %s (999) / %se circ" % (dep['depute_region'],dep['depute_departement'],dep['depute_circo'])
         maxcirco.append((id,len(circo)))
         maxnom.append((id,len(dep['depute_nom'])))
+        if dep['depute_nuages']:
+            maxmot.append(dep['depute_nuages']['noms'][0][0])
         gp = "%s (%s)" % (dep['groupe_libelle'],dep['groupe_abrev'])
         maxgp.append((id,len(gp)))
         maxcirco.sort(key=lambda x:x[1],reverse=True)
         maxnom.sort(key=lambda x:x[1],reverse=True)
         maxgp.sort(key=lambda x:x[1],reverse=True)
-    return dict(circo=maxcirco[:10],nom=maxnom[:10],gp=maxgp[:10])
+        maxmot.sort(reverse=True)
+    return dict(circo=maxcirco[:10],nom=maxnom[:10],gp=maxgp[:10],mot=maxmot[:10])
 
 def genvisuelstat(depute,stat):
     params = {'participation':{'type':'gauge','field':'stats.positions.exprimes','label':['Participation aux','scrutins publics']},
@@ -59,7 +63,7 @@ def genvisuelstat(depute,stat):
     vis = Image.open(vispath+'/obs_share_square_fond.png')
     poster = Image.open(vispath+'/obs_share_square_poster.png')
     plis = Image.open(vispath+'/obs_share_square_plis.png')
-    footer = Image.open(vispath+'/obs_share_square_footer.png')
+    footer = Image.open(vispath+'/obs_share_square_footer_eyeopen.png')
 
     # make a blank image for the text, initialized to transparent text color
     textes = Image.new('RGBA',(1024,1024))
@@ -91,17 +95,19 @@ def genvisuelstat(depute,stat):
         for i,l in enumerate(params[stat]['label']):
             d.text((660,282+i*45),l.decode('utf8'), font=fontlabel,fill=(130,205,226,255))
     elif stat=='motspreferes':
-        fontmot1 = ImageFont.truetype("Montserrat-Bold.ttf", 60)
-        fontmot2 = ImageFont.truetype("Montserrat-Bold.ttf", 45)
-        fontmot3 = ImageFont.truetype("Montserrat-Bold.ttf", 40)
-        if dep['depute_nuages']:
-            mots = [x[0] for x in dep['depute_nuages']['noms'][:3]]
-            d.text((320,200),"1. "+mots[0],font=fontmot1,fill=(33,53,88,255))
-            d.text((320,270),"2. "+mots[1],font=fontmot2,fill=(33,53,88,255))
-            d.text((320,320),"3. "+mots[2],font=fontmot3,fill=(33,53,88,255))
-            for i,l in enumerate(params[stat]['label']):
-                d.text((800,282+i*45),l.decode('utf8'), font=fontlabel,fill=(130,205,226,255))
+        fontmot1 = ImageFont.truetype("Montserrat-Bold.ttf", 55)
+        fontmot = ImageFont.truetype("Montserrat-Bold.ttf", 35)
 
+        if dep['depute_nuages']:
+            # 320
+            mots = [x[0] for x in dep['depute_nuages']['noms'][:5]]
+            d.text((360,200),"1. "+maj1l(mots[0]),font=fontmot1,fill=(255,0,82,255))
+            for i in range(1,5):
+                d.text((360,270+(i-1)*45),"%d. %s" % (1+i,maj1l(mots[i])),font=fontmot,fill=(33,53,88,255))
+
+            #for i,l in enumerate(params[stat]['label']):
+            #    d.text((760,282+i*45),l.decode('utf8'), font=fontlabel,fill=(130,205,226,255))
+            d.text((400,485),"Ses mots préférés".decode('utf8'), font=fontlabel,fill=(130,205,226,255))
 
     vis.paste(poster,(0,0),poster)
     vis.paste(textes,(0,0),textes)
