@@ -242,7 +242,7 @@ def genvisuelstat21(depute,stat):
                         d.text((510+220*j,150),"1. "+maj1l(mots[0]),font=fontmot1,fill=(255,0,82,255))
                         for i in range(1,5):
                             d.text((510+220*j,190+(i-1)*25),"%d. %s" % (1+i,maj1l(mots[i])),font=fontmot,fill=(33,53,88,255))
-                        d.text((510+220*j,307),"Ses mots préférés".decode('utf8'), font=fontlabel,fill=(130,205,226,255)) #462
+                        d.text((510+220*j,307),libelle, font=fontlabel,fill=(130,205,226,255)) #462
 
                         label = False
                 if label:
