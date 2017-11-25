@@ -6,7 +6,7 @@ import datetime
 
 from obsapis.config import cache_pages_delay
 #@cache_function(expires=cache_pages_delay)
-from obsapis.controllers.visuels import get_visuel,genvisuelstat,genvisuelstat21,maxis,getgauge
+from obsapis.controllers.visuels import get_visuel,genvisuelstat,genvisuelstat21,genvisuelstat21clean,maxis,getgauge
 
 @app.route('/longs')
 def longs():
@@ -44,7 +44,10 @@ def genvisuel21():
 
 
     download = int(request.args.get('download','0'))
-    v=genvisuelstat21(depute,stat)
+    if 'clean' in request.args:
+        v=genvisuelstat21clean(depute,stat)
+    else:
+        v=genvisuelstat21(depute,stat)
     headers = {'Cache-Control':'no-cache, no-store, must-revalidate','Pragma':'no-cache'}
     if download==0:
         r = Response(v, mimetype="image/png",headers=headers)

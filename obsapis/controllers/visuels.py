@@ -7,6 +7,12 @@ from selenium.webdriver.chrome import service
 from PIL import Image,ImageFont,ImageDraw
 import StringIO
 import datetime
+params = {'participation':{'type':'gauge','field':'stats.positions.exprimes','label':['Participation aux','scrutins publics']},
+          'commission':{'type':'gauge','field':'stats.commissions.present','label':['Présence en','commission']},
+          'absent':{'type':'gauge','field':'stats.positions.absent','label':['Absence lors des','scrutins publics']},
+          'motspreferes':{'type':'texte','field':'depute_nuages','label':['Ses mots','préférés']},
+          'verbespreferes':{'type':'texte','field':'depute_nuages','label':['Ses verbes','préférés']},
+          }
 
 def maxis():
     maxcirco = []
@@ -145,12 +151,6 @@ def genvisuelstat(depute,stat):
 
 
 def genvisuelstat21(depute,stat):
-    params = {'participation':{'type':'gauge','field':'stats.positions.exprimes','label':['Participation aux','scrutins publics']},
-              'commission':{'type':'gauge','field':'stats.commissions.present','label':['Présence en','commission']},
-              'absent':{'type':'gauge','field':'stats.positions.absent','label':['Absence lors des','scrutins publics']},
-              'motspreferes':{'type':'texte','field':'depute_nuages','label':['Ses mots','préférés']},
-              'verbespreferes':{'type':'texte','field':'depute_nuages','label':['Ses verbes','préférés']},
-              }
     stats = stat.split(',')
     fields = {'depute_photo':1,'depute_naissance':1,'groupe_abrev':1,'groupe_libelle':1,'depute_departement':1,'depute_region':1,'depute_circo':1,'depute_nom':1,'_id':None}
     fields.update(dict((p['field'],1) for p in params.values()))
@@ -202,53 +202,36 @@ def genvisuelstat21(depute,stat):
     d.text((nom_x+6,nom_y+nom_pad-1), dep['depute_nom'], font=fontnom, fill=(255,255,255,255))
     fontgen = ImageFont.truetype("Montserrat-Regular.ttf", 11)
     dategen = 'Généré le %s' % datetime.datetime.now().strftime('%d/%m/%Y à %H:%M')
-    d.text((840,570),dategen.decode('utf8'),font=fontgen,fill=(10,10,10,255))
+    d.text((840,367),dategen.decode('utf8'),font=fontgen,fill=(50,50,50,255))
     fontlabel = ImageFont.truetype("Montserrat-Bold.ttf", 34)
     vis.paste(poster,(0,0),poster)
     vis.paste(photo,(314,100))
 
-    if len(stats)==1 and params[stat]['type']=='gauge':
-        statimage = Image.open(path+'/assets/%s/%d.png' % (stat,round(getdot(dep,params[stat]['field']),0))).resize((300,300),Image.ANTIALIAS)
-        vis.paste(statimage,(340,220))
-        for i,l in enumerate(params[stat]['label']):
-            d.text((660,282+i*45),l.decode('utf8'), font=fontlabel,fill=(130,205,226,255))
-    elif stat=='motspreferes':
-        fontmot1 = ImageFont.truetype("Montserrat-Bold.ttf", 55)
-        fontmot = ImageFont.truetype("Montserrat-Bold.ttf", 35)
 
-        if dep['depute_nuages']:
-            # 320
-            mots = [x[0] for x in dep['depute_nuages']['noms'][:5]]
-            d.text((360,200),"1. "+maj1l(mots[0]),font=fontmot1,fill=(255,0,82,255))
-            for i in range(1,5):
-                d.text((360,270+(i-1)*45),"%d. %s" % (1+i,maj1l(mots[i])),font=fontmot,fill=(33,53,88,255))
+    fontmot1 = ImageFont.truetype("Montserrat-Bold.ttf", 27)
+    fontmot = ImageFont.truetype("Montserrat-Bold.ttf", 20)
+    fontlabel = ImageFont.truetype("Montserrat-Bold.ttf", 18)
+    for j,stat in enumerate(stats):
+        label = True
+        if stat in params.keys():
+            if params[stat]['type']=='gauge':
+                statimage = Image.open(path+'/assets/%s/%d.png' % (stat,round(getdot(dep,params[stat]['field']),0))).resize((140,140),Image.ANTIALIAS)
+                vis.paste(statimage,(510+220*j,150))
+            elif stat=='motspreferes' or stat=='verbespreferes':
+                if dep['depute_nuages']:
+                    typemot = 'noms' if stat=='motspreferes' else 'verbes'
+                    libelle = "Ses mots préférés".decode('utf8') if stat=='motspreferes' else "Ses verbes préférés".decode('utf8')
+                    mots = [x[0] for x in dep['depute_nuages'][typemot][:5]]
+                    d.text((510+220*j,150),"1. "+maj1l(mots[0]),font=fontmot1,fill=(255,0,82,255))
+                    for i in range(1,5):
+                        d.text((510+220*j,190+(i-1)*25),"%d. %s" % (1+i,maj1l(mots[i])),font=fontmot,fill=(33,53,88,255))
+                    d.text((510+220*j,307),libelle, font=fontlabel,fill=(130,205,226,255)) #462
 
-            d.text((400,485),"Ses mots préférés".decode('utf8'), font=fontlabel,fill=(130,205,226,255))
-    elif len(stats)==2:
-        fontmot1 = ImageFont.truetype("Montserrat-Bold.ttf", 27)
-        fontmot = ImageFont.truetype("Montserrat-Bold.ttf", 20)
-        fontlabel = ImageFont.truetype("Montserrat-Bold.ttf", 18)
-        for j,stat in enumerate(stats):
-            label = True
-            if stat in params.keys():
-                if params[stat]['type']=='gauge':
-                    statimage = Image.open(path+'/assets/%s/%d.png' % (stat,round(getdot(dep,params[stat]['field']),0))).resize((140,140),Image.ANTIALIAS)
-                    vis.paste(statimage,(510+220*j,150))
-                elif stat=='motspreferes' or stat=='verbespreferes':
-                    if dep['depute_nuages']:
-                        typemot = 'noms' if stat=='motspreferes' else 'verbes'
-                        libelle = "Ses mots préférés".decode('utf8') if stat=='motspreferes' else "Ses verbes préférés".decode('utf8')
-                        mots = [x[0] for x in dep['depute_nuages'][typemot][:5]]
-                        d.text((510+220*j,150),"1. "+maj1l(mots[0]),font=fontmot1,fill=(255,0,82,255))
-                        for i in range(1,5):
-                            d.text((510+220*j,190+(i-1)*25),"%d. %s" % (1+i,maj1l(mots[i])),font=fontmot,fill=(33,53,88,255))
-                        d.text((510+220*j,307),libelle, font=fontlabel,fill=(130,205,226,255)) #462
-
-                        label = False
-                if label:
-                    for i,l in enumerate(params[stat]['label']):
-                        w,h = fontlabel.getsize(l.decode('utf8'))
-                        d.text((510+220*j+(150-w)/2,295+i*24),l.decode('utf8'), font=fontlabel,fill=(130,205,226,255))
+                    label = False
+            if label:
+                for i,l in enumerate(params[stat]['label']):
+                    w,h = fontlabel.getsize(l.decode('utf8'))
+                    d.text((510+220*j+(150-w)/2,295+i*24),l.decode('utf8'), font=fontlabel,fill=(130,205,226,255))
 
     vis.paste(textes,(0,0),textes)
 
@@ -258,6 +241,97 @@ def genvisuelstat21(depute,stat):
     final.save(output,'PNG')
     #final.save(imgpath,'PNG')
     return output.getvalue()
+
+def genvisuelstat21clean(depute,stat):
+    stats = stat.split(',')
+    fields = {'depute_photo':1,'depute_naissance':1,'groupe_abrev':1,'groupe_libelle':1,'depute_departement':1,'depute_region':1,'depute_circo':1,'depute_nom':1,'_id':None}
+    fields.update(dict((p['field'],1) for p in params.values()))
+    dep = mdb.deputes.find_one({'depute_shortid':depute},fields)
+
+    if not dep:
+        return "nope"
+    if dep['depute_region']==dep['depute_departement']:
+        circo =  "%s (999) / %se circ" % (dep['depute_departement'],dep['depute_circo'])
+    else:
+        circo =  "%s / %s (999) / %se circ" % (dep['depute_region'],dep['depute_departement'],dep['depute_circo'])
+    gp = "%s (%s)" % (dep['groupe_libelle'],dep['groupe_abrev'])
+
+
+    from base64 import b64decode
+
+    photo = StringIO.StringIO(b64decode(dep['depute_photo']))
+    photo = Image.open(photo)
+    photo = photo.resize((int(1.3*photo.size[0]),int(1.3*photo.size[1])))
+
+    output = StringIO.StringIO()
+    path = '/'.join(app.instance_path.split('/')[:-1] +['obsapis','resources','visuels'])
+    vispath = path+'/visuelstat21clean'
+
+    vis = Image.open(vispath+'/share_obs_clean.png')
+
+    # make a blank image for the text, initialized to transparent text color
+    textes = Image.new('RGBA',(1024,1024))
+    # get a drawing context
+    d = ImageDraw.Draw(textes)
+    # draw text, half opacity
+
+    h = 40
+    fontcirco = ImageFont.truetype("Montserrat-Bold.ttf", 16)
+    circ_w,circ_h = fontcirco.getsize(circo)
+    circ_pad = (h - circ_h)/2
+    circ_x,circ_y = -5+photo.size[1],20
+    d.rectangle(((circ_x, circ_y), (circ_x+circ_w+2*6, circ_y+circ_h+2*circ_pad)), fill=(255,0,82,255))
+    d.text((circ_x+6,circ_y+circ_pad), circo, font=fontcirco, fill=(255,255,255,255))
+
+    fontnom = ImageFont.truetype("Montserrat-Bold.ttf", 24)
+    nom_w,nom_h = fontnom.getsize(dep['depute_nom'])
+    nom_pad = (h- nom_h)/2
+    nom_x,nom_y = circ_x,circ_y+h
+    d.rectangle(((nom_x, nom_y), (nom_x+nom_w+2*6, nom_y+nom_h+2*nom_pad)), fill=(33,53,88,255))
+    d.text((nom_x+6,nom_y+nom_pad-1), dep['depute_nom'], font=fontnom, fill=(255,255,255,255))
+    fontgen = ImageFont.truetype("Montserrat-Regular.ttf", 13)
+    dategen = 'Généré le %s' % datetime.datetime.now().strftime('%d/%m/%Y à %H:%M')
+    d.text((830,476),dategen.decode('utf8'),font=fontgen,fill=(255,255,255,255))
+    fontlabel = ImageFont.truetype("Montserrat-Bold.ttf", 34)
+
+    vis.paste(photo,(50,60))
+
+
+    fontmot1 = ImageFont.truetype("Montserrat-Bold.ttf", 34)
+    fontmot = ImageFont.truetype("Montserrat-Bold.ttf", 28)
+    fontlabel = ImageFont.truetype("Montserrat-Bold.ttf", 22)
+    for j,stat in enumerate(stats):
+        label = True
+        if stat in params.keys():
+            if params[stat]['type']=='gauge':
+                statimage = Image.open(path+'/assets/%s/%d.png' % (stat,round(getdot(dep,params[stat]['field']),0))).resize((250,250),Image.ANTIALIAS)
+                vis.paste(statimage,(310+330*j,135))
+            elif stat=='motspreferes' or stat=='verbespreferes':
+                if dep['depute_nuages']:
+                    typemot = 'noms' if stat=='motspreferes' else 'verbes'
+                    libelle = "Ses mots préférés".decode('utf8') if stat=='motspreferes' else "Ses verbes préférés".decode('utf8')
+                    mots = [x[0] for x in dep['depute_nuages'][typemot][:5]]
+                    d.text((310+330*j,135),"1. "+maj1l(mots[0]),font=fontmot1,fill=(255,0,82,255))
+                    for i in range(1,5):
+                        d.text((310+330*j,190+(i-1)*42),"%d. %s" % (1+i,maj1l(mots[i])),font=fontmot,fill=(33,53,88,255))
+                    d.text((310+330*j,392),libelle, font=fontlabel,fill=(130,205,226,255)) #462
+
+                    label = False
+            if label:
+                for i,l in enumerate(params[stat]['label']):
+                    w,h = fontlabel.getsize(l.decode('utf8'))
+                    d.text((310+330*j+(250-w)/2,380+i*28),l.decode('utf8'), font=fontlabel,fill=(130,205,226,255))
+
+    vis.paste(textes,(0,0),textes)
+
+    final = vis
+    final.save(output,'PNG')
+    #final.save(imgpath,'PNG')
+    return output.getvalue()
+
+
+
+
 
 
 
