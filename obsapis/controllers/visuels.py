@@ -149,6 +149,7 @@ def genvisuelstat21(depute,stat):
               'commission':{'type':'gauge','field':'stats.commissions.present','label':['Présence en','commission']},
               'absent':{'type':'gauge','field':'stats.positions.absent','label':['Absence lors des','scrutins publics']},
               'motspreferes':{'type':'texte','field':'depute_nuages','label':['Ses mots','préférés']},
+              'verbespreferes':{'type':'texte','field':'depute_nuages','label':['Ses verbes','préférés']},
               }
     stats = stat.split(',')
     fields = {'depute_photo':1,'depute_naissance':1,'groupe_abrev':1,'groupe_libelle':1,'depute_departement':1,'depute_region':1,'depute_circo':1,'depute_nom':1,'_id':None}
@@ -174,10 +175,10 @@ def genvisuelstat21(depute,stat):
     path = '/'.join(app.instance_path.split('/')[:-1] +['obsapis','resources','visuels'])
     vispath = path+'/visuelstat21'
 
-    vis = Image.open(vispath+'/share_2_1_fond.png')
-    poster = Image.open(vispath+'/share_2_1_poster.png')
-    plis = Image.open(vispath+'/share_2_1_plis.png')
-    footer = Image.open(vispath+'/share_2_1_footer2.png')
+    vis = Image.open(vispath+'/share_2-1_fond.png')
+    poster = Image.open(vispath+'/share_2-1_poster.png')
+    plis = Image.open(vispath+'/share_2-1_plis.png')
+    footer = Image.open(vispath+'/share_2-1_footer.png')
 
     # make a blank image for the text, initialized to transparent text color
     textes = Image.new('RGBA',(1024,1024))
@@ -233,15 +234,17 @@ def genvisuelstat21(depute,stat):
                 if params[stat]['type']=='gauge':
                     statimage = Image.open(path+'/assets/%s/%d.png' % (stat,round(getdot(dep,params[stat]['field']),0))).resize((140,140),Image.ANTIALIAS)
                     vis.paste(statimage,(510+220*j,150))
-                elif stat=='motspreferes':
+                elif stat=='motspreferes' or stat=='verbespreferes':
                     if dep['depute_nuages']:
-                        mots = [x[0] for x in dep['depute_nuages']['noms'][:5]]
+                        typemot = 'noms' if stat=='motspreferes' else 'verbes'
+                        libelle = "Ses mots préférés".decode('utf8') if stat=='motspreferes' else "Ses verbes préférés".decode('utf8')
+                        mots = [x[0] for x in dep['depute_nuages'][typemot][:5]]
                         d.text((510+220*j,150),"1. "+maj1l(mots[0]),font=fontmot1,fill=(255,0,82,255))
                         for i in range(1,5):
                             d.text((510+220*j,190+(i-1)*25),"%d. %s" % (1+i,maj1l(mots[i])),font=fontmot,fill=(33,53,88,255))
                         d.text((510+220*j,307),"Ses mots préférés".decode('utf8'), font=fontlabel,fill=(130,205,226,255)) #462
-                        label = False
 
+                        label = False
                 if label:
                     for i,l in enumerate(params[stat]['label']):
                         w,h = fontlabel.getsize(l.decode('utf8'))
