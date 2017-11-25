@@ -38,22 +38,19 @@ def maxis():
     return dict(circo=maxcirco[:10],nom=maxnom[:10],gp=maxgp[:10],mot=maxmot[:10])
 
 def genvisuelstat(depute,stat):
-    params = {'participation':{'type':'gauge','field':'stats.positions.exprimes','label':['Participation aux','scrutins publics']},
-              'commission':{'type':'gauge','field':'stats.commissions.present','label':['Présence en','commission']},
-              'absent':{'type':'gauge','field':'stats.positions.absent','label':['Absence lors des','scrutins publics']},
-              'motspreferes':{'type':'texte','field':'depute_nuages','label':['Ses mots','préférés']},
-              }
+
     stats = stat.split(',')
-    fields = {'depute_photo':1,'depute_naissance':1,'groupe_abrev':1,'groupe_libelle':1,'depute_departement':1,'depute_region':1,'depute_circo':1,'depute_nom':1,'_id':None}
+    fields = {'depute_photo':1,'depute_naissance':1,'groupe_abrev':1,'groupe_libelle':1,'depute_departement':1,'depute_departement_id':1,'depute_region':1,'depute_circo':1,'depute_nom':1,'_id':None}
     fields.update(dict((p['field'],1) for p in params.values()))
     dep = mdb.deputes.find_one({'depute_shortid':depute},fields)
 
     if not dep:
         return "nope"
+    numdep = dep['depute_departement_id'][1:] if dep['depute_departement_id'][0]=='0' else dep['depute_departement_id']
     if dep['depute_region']==dep['depute_departement']:
-        circo =  "%s (999) / %se circ" % (dep['depute_departement'],dep['depute_circo'])
+        circo =  "%s (%s) / %se circ" % (dep['depute_departement'],numdep,dep['depute_circo'])
     else:
-        circo =  "%s / %s (999) / %se circ" % (dep['depute_region'],dep['depute_departement'],dep['depute_circo'])
+        circo =  "%s / %s (%s) / %se circ" % (dep['depute_region'],dep['depute_departement'],numdep,dep['depute_circo'])
     gp = "%s (%s)" % (dep['groupe_libelle'],dep['groupe_abrev'])
 
 
@@ -152,16 +149,19 @@ def genvisuelstat(depute,stat):
 
 def genvisuelstat21(depute,stat):
     stats = stat.split(',')
-    fields = {'depute_photo':1,'depute_naissance':1,'groupe_abrev':1,'groupe_libelle':1,'depute_departement':1,'depute_region':1,'depute_circo':1,'depute_nom':1,'_id':None}
+    fields = {'depute_photo':1,'depute_naissance':1,'groupe_abrev':1,'groupe_libelle':1,'depute_departement_id':1,'depute_departement':1,'depute_region':1,'depute_circo':1,'depute_nom':1,'_id':None}
     fields.update(dict((p['field'],1) for p in params.values()))
     dep = mdb.deputes.find_one({'depute_shortid':depute},fields)
 
     if not dep:
         return "nope"
+
+    numdep = dep['depute_departement_id'][1:] if dep['depute_departement_id'][0]=='0' else dep['depute_departement_id']
     if dep['depute_region']==dep['depute_departement']:
-        circo =  "%s (999) / %se circ" % (dep['depute_departement'],dep['depute_circo'])
+        circo =  "%s (%s) / %se circ" % (dep['depute_departement'],numdep,dep['depute_circo'])
     else:
-        circo =  "%s / %s (999) / %se circ" % (dep['depute_region'],dep['depute_departement'],dep['depute_circo'])
+        circo =  "%s / %s (%s) / %se circ" % (dep['depute_region'],dep['depute_departement'],numdep,dep['depute_circo'])
+
     gp = "%s (%s)" % (dep['groupe_libelle'],dep['groupe_abrev'])
 
 
@@ -244,16 +244,19 @@ def genvisuelstat21(depute,stat):
 
 def genvisuelstat21clean(depute,stat):
     stats = stat.split(',')
-    fields = {'depute_photo':1,'depute_naissance':1,'groupe_abrev':1,'groupe_libelle':1,'depute_departement':1,'depute_region':1,'depute_circo':1,'depute_nom':1,'_id':None}
+    fields = {'depute_photo':1,'depute_naissance':1,'groupe_abrev':1,'groupe_libelle':1,'depute_departement':1,'depute_departement_id':1,'depute_region':1,'depute_circo':1,'depute_nom':1,'_id':None}
     fields.update(dict((p['field'],1) for p in params.values()))
     dep = mdb.deputes.find_one({'depute_shortid':depute},fields)
 
     if not dep:
         return "nope"
+
+    numdep = dep['depute_departement_id'][1:] if dep['depute_departement_id'][0]=='0' else dep['depute_departement_id']
     if dep['depute_region']==dep['depute_departement']:
-        circo =  "%s (999) / %se circ" % (dep['depute_departement'],dep['depute_circo'])
+        circo =  "%s (%s) / %se circ" % (dep['depute_departement'],numdep,dep['depute_circo'])
     else:
-        circo =  "%s / %s (999) / %se circ" % (dep['depute_region'],dep['depute_departement'],dep['depute_circo'])
+        circo =  "%s / %s (%s) / %se circ" % (dep['depute_region'],dep['depute_departement'],numdep,dep['depute_circo'])
+
     gp = "%s (%s)" % (dep['groupe_libelle'],dep['groupe_abrev'])
 
 
