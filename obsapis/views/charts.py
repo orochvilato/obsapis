@@ -9,6 +9,7 @@ import datetime
 import pygal
 
 @app.route('/charts/participationscrutins')
+@cache_function(expires=cache_pages_delay)
 def participationscrutins():
     data = {'pour':[],'contre':[],'abstention':[],'absent':[]}
     xlabels = []
