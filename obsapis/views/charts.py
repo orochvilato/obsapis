@@ -8,6 +8,8 @@ import random
 import datetime
 import pygal
 
+from obsapis.config import cache_pages_delay
+
 @app.route('/charts/participationscrutins')
 @cache_function(expires=cache_pages_delay)
 def participationscrutins():
