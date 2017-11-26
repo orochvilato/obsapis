@@ -15,6 +15,7 @@ def logs():
 
 @app.route('/logs2')
 def logs2():
+    #return json_response(mdb.logs.find_one())
     pgroup = {}
     pgroup['n'] = {'$sum':1}
     pgroup['_id'] = { 'groupe':'$groupe'}

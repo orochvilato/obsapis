@@ -6,7 +6,7 @@ import datetime
 
 def maj1l(x):
     return x[0].upper()+x[1:]
-    
+
 def json_response(r):
     resp = Response(json_util.dumps(r))
     resp.headers['Content-Type'] = 'text/json'
@@ -80,3 +80,12 @@ def xls_response(filename,v):
     output.headers['Content-Disposition'] = "attachment; filename=%s_%s.xls" % (filename,datetime.datetime.now().strftime('%Y-%m-%d'))
     output.headers['Content-type'] = 'application/vnd.ms-excel'
     return output
+
+def image_response(type,v,filename=None,nocache=True):
+    headers = {'Cache-Control':'no-cache, no-store, must-revalidate','Pragma':'no-cache'} if nocache else {}
+    if filename:
+        headers.update({"Content-Disposition":
+                     "attachment;filename=%s-%s.png" % (filename,datetime.datetime.now().strftime('%Y-%m-%d'))})
+    r = Response(v, mimetype="image/%s" % type,headers=headers)
+    return r
+    
