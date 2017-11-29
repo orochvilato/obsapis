@@ -6,6 +6,7 @@ from bson import json_util
 
 @app.route('/test')
 def test():
+    return json_util.dumps(mdb.groupes.find_one({'groupe_abrev':'UAI'},{'stats':1}))
     from fuzzywuzzy import fuzz
     sdesc = [(s['scrutin_dossier'],s['scrutin_dossierLibelle'],s['scrutin_desc'][20:]) for s in mdb.scrutins.find({'scrutin_dossier':{'$ne':'N/A'}},{'scrutin_dossier':1,'scrutin_dossierLibelle':1,'scrutin_desc':1,'_id':None})]
     r = []

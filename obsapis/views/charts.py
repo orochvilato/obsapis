@@ -41,8 +41,9 @@ def classements():
 
 @app.route('/charts/groupesstats/<stat>')
 def groupesstat(stat):
-    params = {'nbmots':{'legende':'Nombre de mots','titre':u'Nombre de mots prononcés en session par député','xaxis':'Nombre de mots'},
-              'nbitvs':{'legende':"Nombre d'interventions",'titre':u"Nombre d'interventions en session par député",'xaxis':u"Nombre d'interventions"}}
+    pardepute = 'pardepute' in request.args.keys()
+    params = {'nbmots':{'legende':'Nombre de mots','titre':u'Nombre de mots prononcés en session','xaxis':u'Nombre de mots'},
+              'nbitvs':{'legende':"Nombre d'interventions",'titre':u"Nombre d'interventions en session",'xaxis':u"Nombre d'interventions"}}
     libelles = {'FI':u'France Insoumise',
                 'REM':u'République en Marche',
                 'UAI': u'UDI, Agir et Indépendants',
@@ -74,15 +75,17 @@ def groupesstat(stat):
     custom_style = Style(
           font_family="'Montserrat', sans-serif;",
           major_label_font_size=15,
+          title_font_size=18,
+          value_font_size=11,
           colors=['#25a87e','#e23d21','#213558','#bbbbbb']
           )
     nbmembres = dict((g['groupe_abrev'],g['groupe_nbmembres']) for g in mdb.groupes.find({},{'groupe_nbmembres':1,'groupe_abrev':1,'_id':None}))
-    for g,s in grps.iteritems():
-        grps[g] = s/nbmembres[g]
     stats = sorted(grps.items(),key=lambda x:x[1])
-    histo_chart = pygal.HorizontalStackedBar(show_legend=False,x_label_rotation=0,width=1024,height=512,human_readable=True, x_title=params[stat]['xaxis'],y_title="Groupes parlementaires",style=custom_style)
-    histo_chart.title = params[stat]['titre']+u'\n par groupe parlementaire (au %s)' % (datetime.datetime.now().strftime('%d/%m/%Y'))
-    histo_chart.add('total', [stat[1] for stat in stats])
+    pardep =u" par député" if pardepute else ""
+    histo_chart = pygal.HorizontalBar(print_values=True,show_x_labels=False,show_legend=True,x_label_rotation=0,width=1024,height=512,human_readable=True,y_title="Groupes parlementaires",style=custom_style)
+    histo_chart.title = params[stat]['titre']+pardep+u'\n par groupe parlementaire (au %s)' % (datetime.datetime.now().strftime('%d/%m/%Y'))
+    histo_chart.add( params[stat]['xaxis'], [stat[1] for stat in stats])
+    histo_chart.add(u'nombre de députés', [nbmembres[stat[0]] for stat in stats])
     #histo_chart.add('par député', [stat[2] for stat in stats])
 
     histo_chart.x_labels = [libelles[stat[0]] for stat in stats]
@@ -94,6 +97,69 @@ def groupesstat(stat):
     histo_chart.render_to_png(chart)
     return image_response('png',chart.getvalue())
 
+
+@app.route('/charts/groupesstats')
+def groupesstats():
+
+    params = {'nbmots':{'legende':'Nombre de mots','titre':u'Nombre de mots prononcés en session','xaxis':u'Nombre de mots'},
+              'nbitvs':{'legende':"Nombre d'interventions",'titre':u"Nombre d'interventions en session",'xaxis':u"Nombre d'interventions"}}
+    params = {'stats.nbmots':{'legende':'Nombre de mots'},
+              'stats.nbitvs':{'legende':"Nombre d'interventions"},
+              'groupe_nbmembres':{'legende':'Nombre de membres'}}
+              #'stats.positions.exprimes':{'legende':'Participation aux\nscrutins publics'}}
+
+    grporder = ('FI','REM','LR','MODEM','GDR','NG','UAI','NI')
+    libelles = {'FI':u'France Insoumise',
+                'REM':u'République en Marche',
+                'UAI': u'UDI, Agir et Indépendants',
+                'GDR':u'Gauche Démocratique et Républicaine',
+                'NG':u'Nouvelle Gauche',
+                'MODEM':u'Mouvement Démocrate',
+                'LR':u'Les Républicains',
+                'NI':u'Députés Non Inscrits'
+                }
+    groupes =  dict((g['groupe_abrev'],g) for g in mdb.groupes.find({'groupe_abrev':{'$ne':'LC'}},{'groupe_abrev':1,'groupe_nbmembres':1,'stats':1,'_id':None}))
+
+
+    from pygal.style import Style
+    custom_style = Style(
+          font_family="'Montserrat', sans-serif;",
+          major_label_font_size=15,
+          title_font_size=18,
+          value_font_size=11,
+          colors=['#25a87e','#e23d21','#213558','#bbbbbb']
+          )
+
+    maxs = {}
+    stats = dict((item,[]) for item in params.keys())
+
+    for item in params.keys():
+        for g in reversed(grporder):
+            stats[item].append(getdot(groupes[g],item))
+        maxs[item]=max(stats[item])
+
+
+
+
+
+    histo_chart = pygal.HorizontalBar(truncate_legend=-1,print_values=True,show_x_labels=False,show_legend=True,width=1024,height=512,human_readable=True,style=custom_style)
+    histo_chart.title = "Statistiques des groupes parlementaires (au %s)" % (datetime.datetime.now().strftime('%d/%m/%Y'))
+
+    def formatter(v):
+        return lambda y:"%.0f" % (y*v)
+    for item in params.keys():
+        histo_chart.add( params[item]['legende'], [float(x)/maxs[item] for x in stats[item]], formatter=formatter(maxs[item]))
+
+    #histo_chart.add('par député', [stat[2] for stat in stats])
+
+    histo_chart.x_labels = [libelles[g] for g in reversed(grporder)]
+    #histo_chart.x_labels_major = majors
+
+
+    from StringIO import StringIO
+    chart = StringIO()
+    histo_chart.render_to_png(chart)
+    return image_response('png',chart.getvalue())
 
 
 
@@ -148,6 +214,7 @@ def votesgroupes():
     for x in 'pour','contre','abstention','absent':
         histo_chart.add('%s' % x, [stat[x] for stat in stats])
     histo_chart.x_labels = [libelles[stat['g']] for stat in stats]
+    histo_chart.y_labels = []
     #histo_chart.x_labels_major = majors
 
 
