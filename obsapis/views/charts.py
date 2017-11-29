@@ -10,6 +10,60 @@ import pygal
 
 from obsapis.config import cache_pages_delay
 
+@app.route('/charts/groupesstats/<stat>')
+def groupesstat(stat):
+    params = {'stats.nbmots':{'legende':'Nombre de mots','titre':u'Nombre de mots prononcés par les députés'},
+              'stats.nbitvs':{'legende':"Nombre d'interventions",'titre':u"Nombre d'interventions des députés"}}
+    libelles = {'FI':u'France Insoumise',
+                'REM':u'République en Marche',
+                'UAI': u'UDI, Agir et Indépendants',
+                'GDR':u'Gauche Démocratique et Républicaine',
+                'NG':u'Nouvelle Gauche',
+                'MODEM':u'Mouvement Démocrate',
+                'LR':u'Les Républicains',
+                'NI':u'Députés Non Inscrits'
+                }
+    #return json_response(mdb.votes.find_one())
+    pgroup = {}
+    pgroup['n'] = {'$sum':'$%s' % stat}
+    pgroup['_id'] = { 'groupe':'$groupe_abrev'}
+    pipeline = [{'$group':pgroup}]
+    grps = {}
+
+    for a in mdb.deputes.aggregate(pipeline):
+        g = a['_id']['groupe']
+        n = a['n']
+        if g=='LC':
+            g='UAI'
+        if not g in grps:
+            grps[g] = 0
+        grps[g] += n
+
+    stats = sorted(grps.items(),key=lambda x:x[1])
+
+    from pygal.style import Style
+    custom_style = Style(
+          font_family="'Montserrat', sans-serif;",
+          major_label_font_size=15,
+          colors=['#25a87e','#e23d21','#213558','#bbbbbb']
+          )
+
+    #return json_response(stats)
+    histo_chart = pygal.HorizontalStackedBar(show_legend=False,x_label_rotation=0,width=1024,height=512,human_readable=True, x_title='%',y_title="Groupes parlementaires",style=custom_style)
+    histo_chart.title = params[stat]['titre']+u'\n par groupe parlementaire (au %s)' % (datetime.datetime.now().strftime('%d/%m/%Y'))
+    histo_chart.add('', [stat[1] for stat in stats])
+    histo_chart.x_labels = [libelles[stat[0]] for stat in stats]
+    #histo_chart.x_labels_major = majors
+
+
+    from StringIO import StringIO
+    chart = StringIO()
+    histo_chart.render_to_png(chart)
+    return image_response('png',chart.getvalue())
+
+
+
+
 @app.route('/charts/participationgroupes')
 def votesgroupes():
     #return json_response(list(mdb.groupes.find({},{'_id':None,'groupe_abrev':1,'groupe_uid':1})))
