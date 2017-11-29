@@ -41,8 +41,8 @@ def classements():
 
 @app.route('/charts/groupesstats/<stat>')
 def groupesstat(stat):
-    params = {'stats.nbmots':{'legende':'Nombre de mots','titre':u'Nombre de mots prononcés par député'},
-              'stats.nbitvs':{'legende':"Nombre d'interventions",'titre':u"Nombre d'interventions par député"}}
+    params = {'stats.nbmots':{'legende':'Nombre de mots','titre':u'Nombre de mots prononcés en session par député','xaxis':'Nombre de mots'},
+              'stats.nbitvs':{'legende':"Nombre d'interventions",'titre':u"Nombre d'interventions en session par député",'xaxis':u"Nombre d'interventions"}}
     libelles = {'FI':u'France Insoumise',
                 'REM':u'République en Marche',
                 'UAI': u'UDI, Agir et Indépendants',
@@ -80,7 +80,7 @@ def groupesstat(stat):
     for g,s in grps.iteritems():
         grps[g] = s/nbmembres[g]
     stats = sorted(grps.items(),key=lambda x:x[1])
-    histo_chart = pygal.HorizontalStackedBar(show_legend=False,x_label_rotation=0,width=1024,height=512,human_readable=True, x_title='%',y_title="Groupes parlementaires",style=custom_style)
+    histo_chart = pygal.HorizontalStackedBar(show_legend=False,x_label_rotation=0,width=1024,height=512,human_readable=True, x_title=params[stat]['xaxis'],y_title="Groupes parlementaires",style=custom_style)
     histo_chart.title = params[stat]['titre']+u'\n par groupe parlementaire (au %s)' % (datetime.datetime.now().strftime('%d/%m/%Y'))
     histo_chart.add('total', [stat[1] for stat in stats])
     #histo_chart.add('par député', [stat[2] for stat in stats])
