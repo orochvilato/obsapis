@@ -41,8 +41,8 @@ def classements():
 
 @app.route('/charts/groupesstats/<stat>')
 def groupesstat(stat):
-    params = {'stats.nbmots':{'legende':'Nombre de mots','titre':u'Nombre de mots prononcés en session par député','xaxis':'Nombre de mots'},
-              'stats.nbitvs':{'legende':"Nombre d'interventions",'titre':u"Nombre d'interventions en session par député",'xaxis':u"Nombre d'interventions"}}
+    params = {'nbmots':{'legende':'Nombre de mots','titre':u'Nombre de mots prononcés en session par député','xaxis':'Nombre de mots'},
+              'nbitvs':{'legende':"Nombre d'interventions",'titre':u"Nombre d'interventions en session par député",'xaxis':u"Nombre d'interventions"}}
     libelles = {'FI':u'France Insoumise',
                 'REM':u'République en Marche',
                 'UAI': u'UDI, Agir et Indépendants',
@@ -54,7 +54,7 @@ def groupesstat(stat):
                 }
     #return json_response(mdb.votes.find_one())
     pgroup = {}
-    pgroup['n'] = {'$sum':'$%s' % stat}
+    pgroup['n'] = {'$sum':'$stats.%s' % stat}
     pgroup['_id'] = { 'groupe':'$groupe_abrev'}
     pipeline = [{'$group':pgroup}]
     grps = {}
