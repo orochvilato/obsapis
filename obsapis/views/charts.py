@@ -13,6 +13,7 @@ from obsapis.config import cache_pages_delay
 
 @app.route('/charts/classements')
 def classements():
+    return json_response(mdb.votes.find_one())
     pgroup = {}
     pgroup['n'] = {'$sum':1}
     pgroup['_id'] = { 'mois':{'$concat':[{'$substr':['$scrutin_date',6,4]},'-',{'$substr':['$scrutin_date',3,2]}]},'dep':'$depute_shortid','position':'$vote_position'}
@@ -40,8 +41,8 @@ def classements():
 
 @app.route('/charts/groupesstats/<stat>')
 def groupesstat(stat):
-    params = {'stats.nbmots':{'legende':'Nombre de mots','titre':u'Nombre de mots prononcés par les députés'},
-              'stats.nbitvs':{'legende':"Nombre d'interventions",'titre':u"Nombre d'interventions des députés"}}
+    params = {'stats.nbmots':{'legende':'Nombre de mots','titre':u'Nombre de mots prononcés par député'},
+              'stats.nbitvs':{'legende':"Nombre d'interventions",'titre':u"Nombre d'interventions par député"}}
     libelles = {'FI':u'France Insoumise',
                 'REM':u'République en Marche',
                 'UAI': u'UDI, Agir et Indépendants',
@@ -67,7 +68,7 @@ def groupesstat(stat):
             grps[g] = 0
         grps[g] += n
 
-    stats = sorted(grps.items(),key=lambda x:x[1])
+
 
     from pygal.style import Style
     custom_style = Style(
@@ -75,11 +76,15 @@ def groupesstat(stat):
           major_label_font_size=15,
           colors=['#25a87e','#e23d21','#213558','#bbbbbb']
           )
-
-    #return json_response(stats)
+    nbmembres = dict((g['groupe_abrev'],g['groupe_nbmembres']) for g in mdb.groupes.find({},{'groupe_nbmembres':1,'groupe_abrev':1,'_id':None}))
+    for g,s in grps.iteritems():
+        grps[g] = s/nbmembres[g]
+    stats = sorted(grps.items(),key=lambda x:x[1])
     histo_chart = pygal.HorizontalStackedBar(show_legend=False,x_label_rotation=0,width=1024,height=512,human_readable=True, x_title='%',y_title="Groupes parlementaires",style=custom_style)
     histo_chart.title = params[stat]['titre']+u'\n par groupe parlementaire (au %s)' % (datetime.datetime.now().strftime('%d/%m/%Y'))
-    histo_chart.add('', [stat[1] for stat in stats])
+    histo_chart.add('total', [stat[1] for stat in stats])
+    #histo_chart.add('par député', [stat[2] for stat in stats])
+
     histo_chart.x_labels = [libelles[stat[0]] for stat in stats]
     #histo_chart.x_labels_major = majors
 
