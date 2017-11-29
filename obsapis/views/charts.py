@@ -10,6 +10,66 @@ import pygal
 
 from obsapis.config import cache_pages_delay
 
+@app.route('/charts/participationgroupes')
+def votesgroupes():
+    #return json_response(list(mdb.groupes.find({},{'_id':None,'groupe_abrev':1,'groupe_uid':1})))
+    libelles = {'FI':u'France Insoumise',
+                'REM':u'République en Marche',
+                'UAI': u'UDI, Agir et Indépendants',
+                'GDR':u'Gauche Démocratique et Républicaine',
+                'NG':u'Nouvelle Gauche',
+                'MODEM':u'Mouvement Démocrate',
+                'LR':u'Les Républicains',
+                'NI':u'Députés Non Inscrits'
+                }
+    #return json_response(mdb.votes.find_one())
+    pgroup = {}
+    pgroup['n'] = {'$sum':1}
+    pgroup['_id'] = { 'groupe':'$groupe_abrev','position':'$vote_position'}
+    pipeline = [{'$group':pgroup}]
+    grps = {}
+
+    for v in mdb.votes.aggregate(pipeline):
+        g = v['_id']['groupe']
+        p = v['_id']['position']
+        n = v['n']
+        if g=='LC':
+            g='UAI'
+        if not g in grps:
+            grps[g] = { 'absent':0,'pour':0,'contre':0,'abstention':0 }
+        grps[g][p] += n
+    stats = []
+    for g in grps:
+        stat = dict(g=g)
+        tot  = sum(grps[g].values())
+        for p in ('pour','contre','abstention','absent'):
+            stat[p]=100*float(grps[g][p])/tot
+
+        stats.append(stat)
+    stats.sort(key=lambda x:x['absent'],reverse=True)
+
+    from pygal.style import Style
+    custom_style = Style(
+          font_family="'Montserrat', sans-serif;",
+          major_label_font_size=15,
+          colors=['#25a87e','#e23d21','#213558','#bbbbbb']
+          )
+
+
+    histo_chart = pygal.HorizontalStackedBar(x_label_rotation=0,width=1024,height=512,human_readable=True, x_title='%',y_title="Groupes parlementaires",style=custom_style)
+    histo_chart.title = u'Votes des députés aux scrutins publics\n par groupe parlementaire (au %s)' % (datetime.datetime.now().strftime('%d/%m/%Y'))
+    for x in 'pour','contre','abstention','absent':
+        histo_chart.add('%s' % x, [stat[x] for stat in stats])
+    histo_chart.x_labels = [libelles[stat['g']] for stat in stats]
+    #histo_chart.x_labels_major = majors
+
+
+    from StringIO import StringIO
+    chart = StringIO()
+    histo_chart.render_to_png(chart)
+    return image_response('png',chart.getvalue())
+    return json_response(stats)
+
 @app.route('/charts/participationscrutins')
 @cache_function(expires=cache_pages_delay)
 def participationscrutins():
