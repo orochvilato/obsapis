@@ -10,6 +10,33 @@ import pygal
 
 from obsapis.config import cache_pages_delay
 
+@app.route('/charts/classements')
+def classements():
+    pgroup = {}
+    pgroup['n'] = {'$sum':1}
+    pgroup['_id'] = { 'mois':{'$concat':[{'$substr':['$scrutin_date',6,4]},'-',{'$substr':['$scrutin_date',3,2]}]},'dep':'$depute_shortid','position':'$vote_position'}
+    pipeline = [{'$group':pgroup}]
+    mois = {}
+
+    for agg in mdb.votes.aggregate(pipeline):
+        m = agg['_id']['mois']
+        d = agg['_id']['dep']
+        p = agg['_id']['position']
+        n = agg['n']
+
+
+        if not d in mois.keys():
+            mois[d] = {}
+        if not m in mois[d].keys():
+            mois[d][m] = {'absent':0,'abstention':0,'pour':0,'contre':0,'total':0}
+
+        mois[d][m][p] += n
+        mois[d][m]['total'] += n
+
+    return json_response(mois['charlottelecocq'])
+
+
+
 @app.route('/charts/participationscrutins')
 @cache_function(expires=cache_pages_delay)
 def participationscrutins():
@@ -57,7 +84,7 @@ def participationscrutins():
 
 @app.route('/charts/pyramideage')
 def pyramideage():
-    return json_response(mdb.scrutins.find_one())
+
     pgroup = {}
 
     pgroup['n'] = {'$sum':1}
