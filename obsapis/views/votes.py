@@ -22,8 +22,11 @@ def votes():
     region = request.args.get('region',None)
     depute = request.args.get('depute',None)
     position = request.args.get('position',None)
+    dissidence = int(request.args.get('dissidence','0'))
     skip = nb*page
     filters = []
+    if dissidence:
+        filters.append({'vote_dissident':True})
     if position:
         filters.append({'vote_position':position})
     if depute:
