@@ -7,11 +7,17 @@ import datetime
 from obsapis.config import cache_pages_delay
 
 
+@app.route('/interventions/derniere')
+@cache_function(expires=cache_pages_delay)
+def interventions_last():
+    itvs = list(mdb.interventions.find({'$and':[{'itv_president':False},{'depute_shortid':{'$ne':None}}]}).sort([('itv_date',-1),('session_id',-1),('itv_n',-1)]).limit(1))
+    return json_response(itvs)
 
 @app.route('/interventions')
 @cache_function(expires=cache_pages_delay)
 def interventions():
     nb = int(request.args.get('itemsperpage','25'))
+
     page = int(request.args.get('page','1'))-1
     groupe = request.args.get('groupe',request.args.get('group',None))
     search = request.args.get('requete',request.args.get('query',''))
