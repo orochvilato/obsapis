@@ -18,6 +18,8 @@ def getgs():
     return Response(getgauge(), mimetype='image/png')
 
 
+
+
 @app.route('/visuels/stat')
 def genvisuel():
     depute = request.args.get('depute',None)
@@ -58,8 +60,8 @@ def genvisuel21():
                        headers=headers)
     return r
 
-app.route('/visuels/<id>')
-def visuel(id):
+@app.route('/visuels/<id>')
+def apercu(id):
     depute = request.args.get('depute',None)
     download = int(request.args.get('download','0'))
     neutre = request.args.get('neutre')

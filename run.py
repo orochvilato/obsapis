@@ -6,7 +6,11 @@ from bson import json_util
 
 @app.route('/test')
 def test():
-    return json_util.dumps(mdb.votes.find({'vote_dissident':True}).count())
+    return json_util.dumps(mdb.amendements.find_one({'numAmend':'303'}))
+    return json_util.dumps([(d['depute_nom'],
+                             d['stats']['positions']['exprimes'],
+                             d['stats']['votesamdements']['pctpour'],
+                             d['depute_shortid']) for d in mdb.deputes.find({'groupe_abrev':'REM','stats.positions.exprimes':{'$gt':20}},{'depute_nom':1,'depute_shortid':1,'stats.positions.exprimes':1,'stats.votesamdements.pctpour':1}).sort([('stats.votesamdements.pctpour',-1)]).limit(20)])
     from fuzzywuzzy import fuzz
     sdesc = [(s['scrutin_dossier'],s['scrutin_dossierLibelle'],s['scrutin_desc'][20:]) for s in mdb.scrutins.find({'scrutin_dossier':{'$ne':'N/A'}},{'scrutin_dossier':1,'scrutin_dossierLibelle':1,'scrutin_desc':1,'_id':None})]
     r = []
