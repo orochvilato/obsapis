@@ -3,10 +3,26 @@
 from obsapis import app,mdb
 from flask import render_template
 from bson import json_util
+import xmltodict
+import requests
+import re
+from obsapis.controllers.admin.imports.documents import importdocs
+from obsapis.controllers.admin.updates.scrutins import updateScrutinsTexte
+
+@app.route('/docs')
+def docsan():
+    importdocs()
+    return "ok"
+
+@app.route('/updateScrutins')
+def updScrutins():
+    updateScrutinsTexte()
+    return "ok"
 
 @app.route('/test')
 def test():
-    return json_util.dumps(mdb.amendements.find_one({'numAmend':'303'}))
+    return json_util.dumps(mdb.scrutins.find_one())
+    return json_util.dumps(list(mdb.amendements.find({'numAmend':'311'})))
     return json_util.dumps([(d['depute_nom'],
                              d['stats']['positions']['exprimes'],
                              d['stats']['votesamdements']['pctpour'],
@@ -27,4 +43,5 @@ def test():
 
 
 if __name__ == "__main__":
+
     app.run(debug=True)
