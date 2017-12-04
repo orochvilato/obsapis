@@ -17,6 +17,7 @@ from obsapis.controllers.admin.updates.scrutins import updateScrutinsTexte
 def updateScrutinsRefs():
     importdocs()
     updateScrutinsTexte()
+    return "ok"
 
 #@app.route('/charts/participationgroupes')
 #def votesgroupes():
