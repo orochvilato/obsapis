@@ -59,7 +59,7 @@ def votes():
     for v in mdb.votes.find(vote_filter).sort('scrutin_num',-1).skip(skip).limit(nb):
         v['scrutin_sort'] = scrutins_data[v['scrutin_num']]['sort']
         if scrutins_data[v['scrutin_num']]['urlAmendement']:
-            v['scrutin_desc'] = re.sub(r'([0-9]+)',r'<a href="'+scrutins_data[v['scrutin_num']]['urlAmendement']+r'">\1</a>',v['scrutin_desc'],1)
+            v['scrutin_desc'] = re.sub(r'([0-9]+)',r'<a target="_blank" href="'+scrutins_data[v['scrutin_num']]['urlAmendement']+r'">\1</a>',v['scrutin_desc'],1)
 
         votes.append(v)
 
