@@ -38,7 +38,6 @@ def importdocs():
 
             offset += nb
     for d in docs:
-        print d
         ops.append(UpdateOne({'numero':d['numero']},{'$set':d},upsert=True))
     if ops:
         mdbrw.documentsan.bulk_write(ops)

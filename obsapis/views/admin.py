@@ -13,7 +13,7 @@ from obsapis.config import cache_pages_delay
 from obsapis.controllers.admin.imports.documents import importdocs
 from obsapis.controllers.admin.updates.scrutins import updateScrutinsTexte
 
-@app.route('/admin/updateScrutinsRefs'):
+@app.route('/admin/updateScrutinsRefs')
 def updateScrutinsRefs():
     importdocs()
     updateScrutinsTexte()

@@ -38,12 +38,12 @@ def use_cache(k,fct,expires=60):
         pass
     return v
 
-from views import deputes,votes,interventions,svgs,logs,scrutins,groupes,visuels,extractions,commissions,charts
+from views import deputes,votes,interventions,svgs,logs,scrutins,groupes,visuels,extractions,commissions,charts,admin
 
 @app.route('/testerror')
 def testerror():
     1/0
-    
+
 if 1: #enable_logging
     import logging
     from cStringIO import StringIO
