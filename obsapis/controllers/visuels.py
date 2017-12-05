@@ -492,7 +492,7 @@ def visuelvotecle(num):
           plot_background='transparent',
           colors=['#25a87e','#e23d21','#213558','#bbbbbb']
           )
-    pie_chart = pygal.Pie(inner_radius=.4,style=custom_style,show_legend=False,margin=0,width=512,height=380)
+    pie_chart = pygal.Pie(inner_radius=.5,style=custom_style,show_legend=False,margin=0,width=512,height=380)
     for pos in ('pour','contre','abstention','absent'):
         pie_chart.add("%d %s" % (positions[pos],pos), round(100*float(positions[pos])/positions['total'],1))
 
@@ -513,37 +513,50 @@ def visuelvotecle(num):
     # get a drawing context
     d = ImageDraw.Draw(textes)
     # draw text, half opacity
+    o_x = 25
+    o_y = 25
+    fontlegend  = ImageFont.truetype("Montserrat-SemiBold.ttf", 16)
+    legendx,legendy = (o_x+675,o_y+195)
 
+    colors = ( (37,168,126,255),(226,61,33,255),(33,53,88,255),(187,187,187,255))
+    for i,pos in enumerate(('pour','contre','abstention','absent')):
+        d.rectangle(((legendx,legendy+i*26),(legendx+20,legendy+20+i*26)),colors[i])
+        d.text((legendx+26,legendy+1+i*26),"%s (%d)" % (pos,positions[pos]),font=fontlegend,fill=(33,53,88,255))
+        #pie_chart.add(, round(100*float(positions[pos])/positions['total'],1))
     fontthemesize = 16
     fontnomsize=20
     fontdossize=16
 
     fonttheme = ImageFont.truetype("Montserrat-Bold.ttf", fontthemesize)
     themew,themeh = fonttheme.getsize(scrutin['theme'])
-    d.rectangle(((20,20), (themew+28, 20+fontthemesize+12)), fill=(255,0,82,255))
-    d.text((24,24), scrutin['theme'], font=fonttheme, fill=(255,255,255,255))
+    d.rectangle(((o_x,o_y), (themew+o_x+8, o_y+fontthemesize+12)), fill=(255,0,82,255))
+    d.text((o_x+4,o_y+4), scrutin['theme'], font=fonttheme, fill=(255,255,255,255))
 
     fontdos = ImageFont.truetype("Montserrat-Bold.ttf", fontdossize)
     nomw,nomh = fontdos.getsize(scrutin['scrutin_dossierLibelle'])
-    d.rectangle(((20, 20+fontthemesize+12), (nomw+28,20+fontthemesize+12+fontdossize+12)), fill=(33,53,88,255))
-    d.text((24,20+fontthemesize+16), scrutin['scrutin_dossierLibelle'], font=fontdos, fill=(255,255,255,255))
+    d.rectangle(((o_x, o_y+fontthemesize+12), (nomw+o_x+8,o_y+fontthemesize+12+fontdossize+12)), fill=(33,53,88,255))
+    d.text((o_x+4,o_y+fontthemesize+16), scrutin['scrutin_dossierLibelle'], font=fontdos, fill=(255,255,255,255))
 
     fontnom = ImageFont.truetype("Montserrat-Bold.ttf", fontnomsize)
     nom = scrutin['nom'].upper()
 
-    y = 30+fontthemesize+12+fontdossize+12+4
-    x = 20
-    for word in nom.split(' '):
-        wordw,wordh = fontnom.getsize(word+' ')
-        if x+wordw>512:
-            x = 20
-            y += fontnomsize+4
-        d.text((x,y), word+' ', font=fontnom, fill=(33,53,88,255))
-        x += wordw
 
-
+    def drawwrappedtext(img,txt,x,y,maxwidth,lineheight,font,color):
+        _y = y
+        _x = x
+        for word in txt.split(' '):
+            wordw,wordh = font.getsize(word+' ')
+            if _x+wordw>maxwidth:
+                _x = x
+                _y += lineheight
+            d.text((_x,_y), word+' ', font=font, fill=color)
+            _x += wordw
+        return _y + lineheight
+    y = drawwrappedtext(img=d,txt=nom,font=fontnom,color=(33,53,88,255),x=o_x,y=o_y+10+fontthemesize+12+fontdossize+12+4,maxwidth=512,lineheight=fontnomsize+4)
+    fontdesc = ImageFont.truetype("Montserrat-Regular.ttf", 16)
+    drawwrappedtext(img=d,txt=scrutin['desc'],x=o_x,y=y+10,maxwidth=512,lineheight=22,color=(33,53,88,255),font=fontdesc)
     vis.paste(textes,(0,0),textes)
-    vis.paste(imchart,(512,70),imchart)
+    vis.paste(imchart,(512,o_y+56),imchart)
 
     final = vis
     final.save(output,'PNG')
