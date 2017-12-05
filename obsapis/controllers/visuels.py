@@ -1,12 +1,14 @@
 # -*- coding: utf-8 -*-
 from obsapis import app,mdb
-from obsapis.tools import json_response,getdot,maj1l
+from obsapis.tools import json_response,image_response,getdot,maj1l,use_cache
 import requests
 from selenium import webdriver
 from selenium.webdriver.chrome import service
 from PIL import Image,ImageFont,ImageDraw
 import StringIO
 import datetime
+import pygal
+
 params = {'participation':{'type':'gauge','field':'stats.positions.exprimes','label':['Participation aux','scrutins publics']},
           'commission':{'type':'gauge','field':'stats.commissions.present','label':['Présence en','commission']},
           'absent':{'type':'gauge','field':'stats.positions.absent','label':['Absence lors des','scrutins publics']},
@@ -471,3 +473,82 @@ def get_visuel(id,depute,regen=None,neutre=None):
     final.save(imgpath,'PNG')
     driver.quit()
     return output.getvalue()
+
+@app.route('/visuels/votecle/<int:num>')
+def visuelvotecle(num):
+    scrutins_cles = use_cache('scrutins_cles',lambda:getScrutinsCles(),expires=3600)
+    scrutins_positions = use_cache('scrutins_positions',lambda:getScrutinsPositions(),expires=36000)
+    scrutin = mdb.scrutins.find_one({'scrutin_num':num})
+    scrutin.update(scrutins_cles[num])
+    positions = scrutin['scrutin_positions']['assemblee']
+    #return json_response(dict(s=scrutin))
+    from pygal.style import Style
+    custom_style = Style(
+          font_family="'Montserrat', sans-serif;",
+          major_label_font_size=15,
+          title_font_size=18,
+          value_font_size=11,
+          background='transparent',
+          plot_background='transparent',
+          colors=['#25a87e','#e23d21','#213558','#bbbbbb']
+          )
+    pie_chart = pygal.Pie(inner_radius=.4,style=custom_style,show_legend=False,margin=0,width=512,height=380)
+    for pos in ('pour','contre','abstention','absent'):
+        pie_chart.add("%d %s" % (positions[pos],pos), round(100*float(positions[pos])/positions['total'],1))
+
+
+    chart = StringIO.StringIO()
+    pie_chart.render_to_png(chart)
+
+    output = StringIO.StringIO()
+    path = '/'.join(app.instance_path.split('/')[:-1] +['obsapis','resources','visuels'])
+    vispath = path+'/visuelstat21clean'
+
+    vis = Image.open(vispath+'/share_obs_clean.png')
+    imchart = Image.open(chart)
+
+
+    # make a blank image for the text, initialized to transparent text color
+    textes = Image.new('RGBA',(1024,512))
+    # get a drawing context
+    d = ImageDraw.Draw(textes)
+    # draw text, half opacity
+
+    fontthemesize = 16
+    fontnomsize=20
+    fontdossize=16
+
+    fonttheme = ImageFont.truetype("Montserrat-Bold.ttf", fontthemesize)
+    themew,themeh = fonttheme.getsize(scrutin['theme'])
+    d.rectangle(((20,20), (themew+28, 20+fontthemesize+12)), fill=(255,0,82,255))
+    d.text((24,24), scrutin['theme'], font=fonttheme, fill=(255,255,255,255))
+
+    fontdos = ImageFont.truetype("Montserrat-Bold.ttf", fontdossize)
+    nomw,nomh = fontdos.getsize(scrutin['scrutin_dossierLibelle'])
+    d.rectangle(((20, 20+fontthemesize+12), (nomw+28,20+fontthemesize+12+fontdossize+12)), fill=(33,53,88,255))
+    d.text((24,20+fontthemesize+16), scrutin['scrutin_dossierLibelle'], font=fontdos, fill=(255,255,255,255))
+
+    fontnom = ImageFont.truetype("Montserrat-Bold.ttf", fontnomsize)
+    nom = scrutin['nom'].upper()
+
+    y = 30+fontthemesize+12+fontdossize+12+4
+    x = 20
+    for word in nom.split(' '):
+        wordw,wordh = fontnom.getsize(word+' ')
+        if x+wordw>512:
+            x = 20
+            y += fontnomsize+4
+        d.text((x,y), word+' ', font=fontnom, fill=(33,53,88,255))
+        x += wordw
+
+
+    vis.paste(textes,(0,0),textes)
+    vis.paste(imchart,(512,70),imchart)
+
+    final = vis
+    final.save(output,'PNG')
+    #final.save(imgpath,'PNG')
+    return image_response('png',output.getvalue())
+
+
+    return image_response('png',chart.getvalue())

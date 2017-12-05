@@ -39,6 +39,7 @@ def classements():
 
 
 
+    
 @app.route('/charts/groupesstats/<stat>')
 def groupesstat(stat):
     pardepute = 'pardepute' in request.args.keys()
