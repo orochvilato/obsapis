@@ -9,6 +9,9 @@ import StringIO
 import datetime
 import pygal
 
+from obsapis.controllers.scrutins import getScrutinsCles
+from obsapis.controllers.scrutins import getScrutinsPositions
+
 params = {'participation':{'type':'gauge','field':'stats.positions.exprimes','label':['Participation aux','scrutins publics']},
           'commission':{'type':'gauge','field':'stats.commissions.present','label':['Présence en','commission']},
           'absent':{'type':'gauge','field':'stats.positions.absent','label':['Absence lors des','scrutins publics']},
