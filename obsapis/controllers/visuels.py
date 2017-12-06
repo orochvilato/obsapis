@@ -491,6 +491,7 @@ def visuelvotecle(num):
           major_label_font_size=15,
           title_font_size=18,
           value_font_size=11,
+          opacity=1,
           background='transparent',
           plot_background='transparent',
           colors=['#25a87e','#e23d21','#213558','#bbbbbb']
