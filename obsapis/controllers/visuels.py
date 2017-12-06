@@ -483,6 +483,8 @@ def visuelvotecle(num,groupe=None):
     scrutins_cles = use_cache('scrutins_cles',lambda:getScrutinsCles(),expires=3600)
     scrutins_positions = use_cache('scrutins_positions',lambda:getScrutinsPositions(),expires=36000)
     scrutin = mdb.scrutins.find_one({'scrutin_num':num})
+    if not scrutin or not num in scrutins_cles:
+        return ""
     scrutin.update(scrutins_cles[num])
     positions = scrutin['scrutin_positions'][groupe if groupe else 'assemblee']
     #return json_response(positions)
