@@ -518,8 +518,8 @@ def visuelvotecle(num):
     # draw text, half opacity
     o_x = 25
     o_y = 25
-    fontlegendb = ImageFont.truetype("Montserrat-Bold.ttf", 20)
-    fontlegend  = ImageFont.truetype("Montserrat-SemiBold.ttf", 16)
+    fontlegendb = ImageFont.truetype("Montserrat-SemiBold.ttf", 20)
+    fontlegend  = ImageFont.truetype("Montserrat-Regular.ttf", 16)
     legendx,legendy = (o_x+675,o_y+155)
 
     colors = ( (37,168,126,255),(226,61,33,255),(33,53,88,255),(187,187,187,255))
