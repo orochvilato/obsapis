@@ -516,8 +516,8 @@ def visuelvotecle(num):
     # get a drawing context
     d = ImageDraw.Draw(textes)
     # draw text, half opacity
-    o_x = 25
-    o_y = 25
+    o_x = 30
+    o_y = 30
     fontlegendb = ImageFont.truetype("Montserrat-SemiBold.ttf", 20)
     fontlegend  = ImageFont.truetype("Montserrat-Regular.ttf", 16)
     legendx,legendy = (o_x+675,o_y+155)
@@ -596,7 +596,7 @@ def visuelvotecle(num):
     fontdesc = ImageFont.truetype("Montserrat-Regular.ttf", 16)
     drawjustifiedtext(img=d,txt=scrutin['desc'],x=o_x,y=y+10,maxwidth=480,lineheight=22,color=(33,53,88,255),font=fontdesc)
     vis.paste(textes,(0,0),textes)
-    vis.paste(imchart,(512,5),imchart)
+    vis.paste(imchart,(517,5),imchart)
 
     final = vis
     final.save(output,'PNG')
