@@ -477,13 +477,14 @@ def get_visuel(id,depute,regen=None,neutre=None):
     driver.quit()
     return output.getvalue()
 
-@app.route('/visuels/votecle/<int:num>')
-def visuelvotecle(num):
+
+def visuelvotecle(num,groupe=None):
+    groupeslibs = dict((g['groupe_abrev'],g['groupe_libelle']) for g in mdb.groupes.find({},{'groupe_abrev':1,'groupe_libelle':1}))
     scrutins_cles = use_cache('scrutins_cles',lambda:getScrutinsCles(),expires=3600)
     scrutins_positions = use_cache('scrutins_positions',lambda:getScrutinsPositions(),expires=36000)
     scrutin = mdb.scrutins.find_one({'scrutin_num':num})
     scrutin.update(scrutins_cles[num])
-    positions = scrutin['scrutin_positions']['assemblee']
+    positions = scrutin['scrutin_positions'][groupe if groupe else 'assemblee']
     #return json_response(positions)
     from pygal.style import Style
     custom_style = Style(
@@ -498,7 +499,7 @@ def visuelvotecle(num):
           )
     pie_chart = pygal.Pie(inner_radius=.5,style=custom_style,show_legend=False,margin=0,width=512,height=440)
     for pos in ('pour','contre','abstention','absent'):
-        pie_chart.add("%d %s" % (positions[pos],pos), round(100*float(positions[pos])/positions['total'],1))
+        pie_chart.add("%d %s" % (positions.get(pos,0),pos), positions.get(pos,0))
 
 
     chart = StringIO.StringIO()
@@ -511,7 +512,10 @@ def visuelvotecle(num):
     vis = Image.open(vispath+'/share_obs_clean.png')
     imchart = Image.open(chart)
 
-
+    cropcircle = Image.new('RGBA',(400,400))
+    cc = ImageDraw.Draw(cropcircle)
+    cc.ellipse((0, 0, 400, 400), fill = 'white')
+    ccircle = cropcircle.resize((220,220),Image.ANTIALIAS)
     # make a blank image for the text, initialized to transparent text color
     textes = Image.new('RGBA',(1024,512))
     # get a drawing context
@@ -530,7 +534,7 @@ def visuelvotecle(num):
             d.rectangle(((legendx-4,_ly),(legendx+24,_ly+28)),colors[i])
             d.text((legendx+30,_ly+2),"%s (%d)" % (pos,positions[pos]),font=fontlegendb,fill=(33,53,88,255))
             _ly += 34
-        else:
+        elif positions.get(pos,0)>0:
             d.rectangle(((legendx,_ly),(legendx+20,_ly+20)),colors[i])
             d.text((legendx+26,_ly),"%s (%d)" % (pos,positions[pos]),font=fontlegend,fill=(33,53,88,255))
             _ly += 26
@@ -538,16 +542,18 @@ def visuelvotecle(num):
     fontthemesize = 16
     fontnomsize=20
     fontdossize=16
-
+    title = groupeslibs[groupe] if groupe else scrutin['theme']
     fonttheme = ImageFont.truetype("Montserrat-Bold.ttf", fontthemesize)
-    themew,themeh = fonttheme.getsize(scrutin['theme'])
+    themew,themeh = fonttheme.getsize(title)
     d.rectangle(((o_x,o_y), (themew+o_x+14, o_y+fontthemesize+12)), fill=(255,0,82,255))
-    d.text((o_x+8,o_y+4), scrutin['theme'], font=fonttheme, fill=(255,255,255,255))
+    d.text((o_x+8,o_y+4), title, font=fonttheme, fill=(255,255,255,255))
 
     fontdos = ImageFont.truetype("Montserrat-Bold.ttf", fontdossize)
     nomw,nomh = fontdos.getsize(scrutin['scrutin_dossierLibelle'])
     #d.rectangle(((o_x, o_y+fontthemesize+12), (nomw+o_x+8,o_y+fontthemesize+12+fontdossize+12)), fill=(33,53,88,255))
     #d.text((o_x+4,o_y+fontthemesize+16), scrutin['scrutin_dossierLibelle'], font=fontdos, fill=(255,255,255,255))
+
+
 
     fontnom = ImageFont.truetype("Montserrat-Bold.ttf", fontnomsize)
     nom = scrutin['nom'].upper()
@@ -596,13 +602,12 @@ def visuelvotecle(num):
     #y = drawwrappedtext(img=d,txt=nom,font=fontnom,color=(33,53,88,255),x=o_x,y=o_y+10+fontthemesize+12+fontdossize+12+4,maxwidth=512,lineheight=fontnomsize+4)
     fontdesc = ImageFont.truetype("Montserrat-Regular.ttf", 16)
     drawjustifiedtext(img=d,txt=scrutin['desc'],x=o_x,y=y+10,maxwidth=480,lineheight=22,color=(33,53,88,255),font=fontdesc)
-    vis.paste(textes,(0,0),textes)
     vis.paste(imchart,(517,10),imchart)
+    vis.paste(ccircle,(663,120),ccircle)
+    vis.paste(textes,(0,0),textes)
+
 
     final = vis
     final.save(output,'PNG')
     #final.save(imgpath,'PNG')
-    return image_response('png',output.getvalue())
-
-
-    return image_response('png',chart.getvalue())
+    return output.getvalue()

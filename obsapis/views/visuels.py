@@ -1,12 +1,12 @@
 from obsapis import app,use_cache,mdb
 from flask import request, Response
-from obsapis.tools import json_response,cache_function
+from obsapis.tools import json_response,cache_function,image_response
 import re
 import datetime
 
 from obsapis.config import cache_pages_delay
 #@cache_function(expires=cache_pages_delay)
-from obsapis.controllers.visuels import get_visuel,genvisuelstat,genvisuelstat21,genvisuelstat21clean,maxis,getgauge
+from obsapis.controllers.visuels import get_visuel,genvisuelstat,genvisuelstat21,genvisuelstat21clean,maxis,getgauge,visuelvotecle
 
 @app.route('/longs')
 def longs():
@@ -17,7 +17,10 @@ def longs():
 def getgs():
     return Response(getgauge(), mimetype='image/png')
 
-
+@app.route('/visuels/votecle/<int:num>')
+def visvotcle(num):
+    groupe=request.args.get('groupe',None)
+    return image_response('png',visuelvotecle(num,groupe))
 
 
 @app.route('/visuels/stat')
