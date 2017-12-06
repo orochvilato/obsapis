@@ -495,7 +495,7 @@ def visuelvotecle(num):
           plot_background='transparent',
           colors=['#25a87e','#e23d21','#213558','#bbbbbb']
           )
-    pie_chart = pygal.Pie(inner_radius=.5,style=custom_style,show_legend=False,margin=0,width=512,height=450)
+    pie_chart = pygal.Pie(inner_radius=.5,style=custom_style,show_legend=False,margin=0,width=512,height=440)
     for pos in ('pour','contre','abstention','absent'):
         pie_chart.add("%d %s" % (positions[pos],pos), round(100*float(positions[pos])/positions['total'],1))
 
@@ -516,11 +516,11 @@ def visuelvotecle(num):
     # get a drawing context
     d = ImageDraw.Draw(textes)
     # draw text, half opacity
-    o_x = 30
+    o_x = 40
     o_y = 30
     fontlegendb = ImageFont.truetype("Montserrat-SemiBold.ttf", 20)
     fontlegend  = ImageFont.truetype("Montserrat-Regular.ttf", 16)
-    legendx,legendy = (o_x+675,o_y+155)
+    legendx,legendy = (o_x+675,o_y+145)
 
     colors = ( (37,168,126,255),(226,61,33,255),(33,53,88,255),(187,187,187,255))
     _ly = legendy
@@ -596,7 +596,7 @@ def visuelvotecle(num):
     fontdesc = ImageFont.truetype("Montserrat-Regular.ttf", 16)
     drawjustifiedtext(img=d,txt=scrutin['desc'],x=o_x,y=y+10,maxwidth=480,lineheight=22,color=(33,53,88,255),font=fontdesc)
     vis.paste(textes,(0,0),textes)
-    vis.paste(imchart,(517,5),imchart)
+    vis.paste(imchart,(517,10),imchart)
 
     final = vis
     final.save(output,'PNG')
