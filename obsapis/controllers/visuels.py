@@ -565,15 +565,36 @@ def visuelvotecle(num):
             _x += wordw
         return _y + lineheight
 
+    def drawjustifiedtext(img,txt,x,y,maxwidth,lineheight,font,color,eval=False):
+        _y = y
+        _words = []
+        for word in txt.split(' '):
+            _sentence = ' '.join(_words+[word])
+            sentw,senth = font.getsize(_sentence)
+            if sentw>maxwidth:
+                _sentence = ''.join(_words)
+                sentw,senth = font.getsize(_sentence)
+                spacew = float((maxwidth-sentw))/(len(_words)-1)
+                _x = x
+                if not eval:
+                    for w in _words:
+                        ww,wh = font.getsize(w)
+                        d.text((_x,_y),w,font=font,fill=color)
+                        _x += ww + spacew
+                _y += lineheight
+                _x = x
+                _words = []
+            _words.append(word+' ')
+        return _y + lineheight
 
     y = drawwrappedtext(eval=True,img=d,txt=scrutin['scrutin_dossierLibelle'],x=o_x+8,y=o_y+fontthemesize+16+4, font=fontdos, maxwidth=512,lineheight=fontdossize+6,color=(255,255,255,255))
     d.rectangle(((o_x, o_y+fontthemesize+12), (min((nomw+o_x+14,512)),y+2)),fill=(33,53,88,255))
-    y = 8+drawwrappedtext(img=d,txt=scrutin['scrutin_dossierLibelle'],x=o_x+8,y=o_y+fontthemesize+18, font=fontdos, maxwidth=512,lineheight=fontdossize+6,color=(255,255,255,255))
+    y = 12+drawwrappedtext(img=d,txt=scrutin['scrutin_dossierLibelle'],x=o_x+8,y=o_y+fontthemesize+18, font=fontdos, maxwidth=512,lineheight=fontdossize+6,color=(255,255,255,255))
 
     y = drawwrappedtext(img=d,txt=nom,font=fontnom,color=(33,53,88,255),x=o_x,y=y,maxwidth=512,lineheight=fontnomsize+4)
     #y = drawwrappedtext(img=d,txt=nom,font=fontnom,color=(33,53,88,255),x=o_x,y=o_y+10+fontthemesize+12+fontdossize+12+4,maxwidth=512,lineheight=fontnomsize+4)
     fontdesc = ImageFont.truetype("Montserrat-Regular.ttf", 16)
-    drawwrappedtext(img=d,txt=scrutin['desc'],x=o_x,y=y+10,maxwidth=512,lineheight=22,color=(33,53,88,255),font=fontdesc)
+    drawjustifiedtext(img=d,txt=scrutin['desc'],x=o_x,y=y+10,maxwidth=480,lineheight=22,color=(33,53,88,255),font=fontdesc)
     vis.paste(textes,(0,0),textes)
     vis.paste(imchart,(512,5),imchart)
 
