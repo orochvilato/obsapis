@@ -39,7 +39,7 @@ def classements():
 
 
 
-    
+
 @app.route('/charts/groupesstats/<stat>')
 def groupesstat(stat):
     pardepute = 'pardepute' in request.args.keys()
@@ -161,6 +161,76 @@ def groupesstats():
     chart = StringIO()
     histo_chart.render_to_png(chart)
     return image_response('png',chart.getvalue())
+
+
+@app.route('/charts/comparestats/<elts>')
+def comparestats(elts):
+    elts = elts.split(',')
+    items = {'vote':{'legende':'% de vote au scrutins publics','valeur':{'G':'stats.positions.exprimes','D':'stats.positions.exprimes'}},
+             'commission':{'legende':u'% de présence en commission','valeur':{'G':'stats.commissions.toutes.present','D':'stats.commissions.present'}},
+             'amendements':{'legende':u"Nombre d'amendements (par député)",'valeur':{'G':'stats.amendements.rediges','D':'stats.amendements.rediges'},'ponderation':True},
+             'nbmots':{'legende':u'Nombre de mots (par député)','valeur':{'G':'stats.nbmots','D':'stats.nbmots'},'ponderation':True},
+               'nbitvs':{'legende':u"Nombre d'interventions (par député)",'valeur':{'G':'stats.nbitvs','D':'stats.nbitvs'},'ponderation':True},
+               }
+    statorder = ['nbmots','nbitvs','amendements','commission','vote']
+    depstats = dict((d['depute_shortid'],d) for d in mdb.deputes.find({'depute_shortid':{'$in':elts}},{'depute_nomcomplet':1,'depute_shortid':1,'stats':1,'_id':None}))
+    gpstats = dict((g['groupe_abrev'],g) for g in mdb.groupes.find({'groupe_abrev':{'$in':elts}},{'groupe_abrev':1,'groupe_libelle':1,'stats':1,'groupe_nbmembres':1,'_id':None}))
+    titres = {}
+    valeurs = {}
+    for e in elts:
+        valeurs[e]=[]
+        if e in depstats.keys():
+            titres[e] = depstats[e]['depute_nomcomplet']
+            nb = 1
+            v = 'D'
+            stats = depstats[e]
+        elif e in gpstats.keys():
+            titres[e] = gpstats[e]['groupe_libelle']
+
+            nb = gpstats[e]['groupe_nbmembres']
+            v = 'G'
+            stats = gpstats[e]
+        for it in statorder:
+            itdef = items[it]
+            pond = nb if itdef.get('ponderation',False) else 1
+            valeurs[e].append(getdot(stats,itdef['valeur'][v])/pond)
+
+
+    from pygal.style import Style
+    custom_style = Style(
+          font_family="'Montserrat', sans-serif;",
+          major_label_font_size=15,
+          title_font_size=18,
+          value_font_size=11,
+          colors=['#25a87e','#e23d21','#213558','#bbbbbb']
+          )
+
+    maxs = {}
+    for i,st in enumerate(statorder):
+        maxs[st] = max([valeurs[e][i] for e in elts])
+    #return json_response({'titres':titres,'valeurs':valeurs,'maxs':maxs})
+
+
+    histo_chart = pygal.HorizontalBar(truncate_legend=-1,print_values=True,show_x_labels=False,show_legend=True,width=1024,height=512,human_readable=True,style=custom_style)
+    histo_chart.title = u"Comparaison activité (au %s)" % (datetime.datetime.now().strftime('%d/%m/%Y'))
+
+    def formatter(v):
+        return lambda y:"%.0f" % (y*v)
+    for elt in elts:
+        histo_chart.add( titres[elt], [{'value':float(x)/maxs[statorder[i]],'formatter':formatter(maxs[statorder[i]])} for i,x in enumerate(valeurs[elt])])
+
+    #histo_chart.add('par député', [stat[2] for stat in stats])
+
+    histo_chart.x_labels = [items[item]['legende'] for item in statorder]
+    #histo_chart.x_labels_major = majors
+
+
+    from StringIO import StringIO
+    chart = StringIO()
+    histo_chart.render_to_png(chart)
+    return image_response('png',chart.getvalue())
+
+
 
 
 
