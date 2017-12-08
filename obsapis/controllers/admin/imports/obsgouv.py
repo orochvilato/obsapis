@@ -51,32 +51,32 @@ def import_obsgouv_gdoc():
                         periode = ' (du '+row[21].value.strftime('%d/%m/%Y') + ' au '+(row[22].value.strftime('%d/%m/%Y') if row[22].value else '?')+')'
                     else:
                         periode = ""
-                    entites[id] = dict(nom=row[2].value,type="cabinet")
+                    entites[id] = dict(id=id,nom=row[2].value,type="cabinet")
                 liens.append(dict(source=cpersonne,target=ccabinet,type="personne-cabinet",desc="%s%s" % (row[1].value,periode)))
             if row[4].value and row[4].value!=cetude:
                 id = normalize(row[4].value)
                 cetude = id
                 if not id in entites.keys():
-                    entites[id] = dict(nom=row[4].value,type='etude')
+                    entites[id] = dict(id=id,nom=row[4].value,type='etude')
                 liens.append(dict(source=cpersonne,target=cetude,type="personne-etude",desc=row[3].value))
             if row[7].value and row[7].value!=corganisme:
                 id = normalize(row[7].value)
                 corganisme = id
                 if not id in entites.keys():
-                    entites[id] = dict(nom=row[7].value,type='organisme')
+                    entites[id] = dict(id=id,nom=row[7].value,type='organisme')
                 liens.append(dict(source=cpersonne,target=corganisme,type="personne-organisme",desc=(row[6].value or '')+(" (%s)" % row[5].value if row[5].value else '')))
             if row[10].value and row[10].value!=cpolitique:
                 id = normalize(row[10].value)
                 cpolitique = id
                 if not id in entites.keys():
-                    entites[id] = dict(nom=row[10].value,type='politique')
+                    entites[id] = dict(id=id,nom=row[10].value,type='politique')
                 liens.append(dict(source=cpersonne,target=cpolitique,type="personne-politique",desc=(row[9].value or '')+(" (%s)" % row[8].value if row[8].value else '')))
             if row[11].value and row[11].value!=cparti:
                 id = normalize(row[11].value)
                 cparti = id
                 if not id in entites.keys():
-                    entites[id] = dict(nom=row[11].value,type='parti')
+                    entites[id] = dict(id=id,nom=row[11].value,type='parti')
                 liens.append(dict(source=cpersonne,target=cparti,type="personne-parti",desc=row[12].value))
             irow += 1
 
-    return dict(entites=entites,liens=liens)
+    return dict(entites=entites.values(),liens=liens)
