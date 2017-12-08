@@ -5,6 +5,7 @@ from obsapis import mdb
 def getScrutinsCles():
     from openpyxl import load_workbook
     from cStringIO import StringIO
+    import markdown
     import requests
 
     r =requests.get("https://docs.google.com/spreadsheets/d/1lZ5aMIaglRh6_BK66AYkXzi9guJaMij9RlpSoO4dnIw/export?format=xlsx&id=1lZ5aMIaglRh6_BK66AYkXzi9guJaMij9RlpSoO4dnIw")
@@ -19,7 +20,7 @@ def getScrutinsCles():
             elts.append([a.value for a in row])
         for e in elts:
             if e[2] != None:
-                scles[int(e[0])] = dict(num=int(e[0]),nom=e[1],desc=e[2],theme=e[3],lien=e[4],lien_texte=e[5],lien_source=e[6],niveau=n+1)
+                scles[int(e[0])] = dict(num=int(e[0]),nom=e[1],desc=markdown.markdown(e[2]),theme=e[3],lien=e[4],lien_texte=e[5],lien_source=e[6],niveau=n+1)
     return scles
 
 def getScrutinsPositions():
