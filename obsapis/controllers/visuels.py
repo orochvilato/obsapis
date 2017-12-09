@@ -600,14 +600,14 @@ def visuelvotecle(num,groupe=None):
         width = 0
         # remplacer les liens par du gras
         txt = re.sub(r'\[([^\]]+)\]\([^\)]+\)',r'**\1**',txt)
-
+        txt = u"""La proposition de loi déposée par le député **Michel Zumkeller** et le groupe UDI, Agir et Indépendants a pour but de taxer à hauteur de 5% les transferts entre clubs. Cette taxe serait payée si les transferts étaient supérieurs à plusieurs millions d'euros afin de financer les plus petites équipes. _La proposition de loi est repoussée par une **motion de rejet préalable** de **Richard Ferrand (LREM)**_."""
         for word in txt.split(' '):
             if len(word)>2 and word[0:2]=='**':
                 bold = True
-            elif word[0]=='*':
+            elif word[0]=='*' or word[0]=='_':
                 italic = True
             font = fontsel(fontbase,fontsize,bold,italic)
-            _w = word.replace('*','')
+            _w = word.replace('*','').replace('_','')
             w = ' '+_w if len(line)>0 else _w
             ww,wh = font.getsize(w)
             if width+ww<=maxwidth:
@@ -615,7 +615,7 @@ def visuelvotecle(num,groupe=None):
                 width += ww
             else:
                 whitespace = float(maxwidth-width)/(len(line)-1)
-                
+
                 w1 = line[0]
                 _line = [(0,w1[1],w1[2])]
                 wsp = 0
@@ -628,7 +628,7 @@ def visuelvotecle(num,groupe=None):
 
             if len(word)>2 and word[-2:]=='**':
                 bold = False
-            elif word[-1]=='*':
+            elif word[-1]=='*' or word[-1]=='_':
                 italic = False
             font = fontsel(fontbase,fontsize,bold,italic)
 
