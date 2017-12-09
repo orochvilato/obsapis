@@ -600,7 +600,7 @@ def visuelvotecle(num,groupe=None):
         width = 0
         # remplacer les liens par du gras
         txt = re.sub(r'\[([^\]]+)\]\([^\)]+\)',r'**\1**',txt)
-        txt = u"""La proposition de loi déposée par le député **Michel Zumkeller** et le groupe UDI, Agir et Indépendants a pour but de taxer à hauteur de 5% les transferts entre clubs. Cette taxe serait payée si les transferts étaient supérieurs à plusieurs millions d'euros afin de financer les plus petites équipes. _La proposition de loi est repoussée par une **motion de rejet préalable** de **Richard Ferrand (LREM)**_."""
+        
         for word in txt.split(' '):
             if len(word)>2 and word[0:2]=='**':
                 bold = True
