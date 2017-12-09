@@ -594,6 +594,8 @@ def visuelvotecle(num,groupe=None):
                 _x = x
                 _words = []
             _words.append(word+' ')
+        if _words:
+            d.text((_x,_y),''.join(_words),font=font,fill=color)
         return _y + lineheight
 
     y = drawwrappedtext(eval=True,img=d,txt=scrutin['scrutin_dossierLibelle'],x=o_x+8,y=o_y+fontthemesize+16+4, font=fontdos, maxwidth=512,lineheight=fontdossize+6,color=(255,255,255,255))
