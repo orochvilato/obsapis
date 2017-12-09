@@ -8,6 +8,7 @@ from PIL import Image,ImageFont,ImageDraw
 import StringIO
 import datetime
 import pygal
+import re
 
 from obsapis.controllers.scrutins import getScrutinsCles
 from obsapis.controllers.scrutins import getScrutinsPositions
@@ -574,29 +575,72 @@ def visuelvotecle(num,groupe=None):
             _x += wordw
         return _y + lineheight
 
-    def drawjustifiedtext(img,txt,x,y,maxwidth,lineheight,font,color,eval=False):
-        _y = y
+    def drawjustifiedtext(img,txt,x,y,maxwidth,lineheight,fontbase,fontsize,color,eval=False):
+
+
+
+        def fontsel(fontbase,fontsize,bold,italic):
+            if bold:
+                face = 'SemiBoldItalic' if italic else 'SemiBold'
+            elif italic:
+                face = 'Italic'
+            else:
+                face = 'Regular'
+
+            return ImageFont.truetype(fontbase+'-'+face+'.ttf',fontsize)
+        #txt = "ceci **est** un *test* "+txt+" et ceci **aussi** *est un test*"
         _words = []
+        _y = y
+
+        bold = False
+        italic= False
+        font = fontsel(fontbase,fontsize,bold,italic)
+        lines = []
+        line = []
+        width = 0
+        # remplacer les liens par du gras
+        txt = re.sub(r'\[([^\]]+)\]\([^\)]+\)',r'**\1**',txt)
+
         for word in txt.split(' '):
-            _sentence = ' '.join(_words+[word])
-            sentw,senth = font.getsize(_sentence)
-            if sentw>maxwidth:
-                _sentence = ''.join(_words)
-                sentw,senth = font.getsize(_sentence)
-                spacew = float((maxwidth-sentw))/(len(_words)-1)
-                _x = x
-                if not eval:
-                    for w in _words:
-                        ww,wh = font.getsize(w)
-                        d.text((_x,_y),w,font=font,fill=color)
-                        _x += ww + spacew
-                _y += lineheight
-                _x = x
-                _words = []
-            _words.append(word+' ')
-        if _words:
-            d.text((_x,_y),''.join(_words),font=font,fill=color)
-        return _y + lineheight
+            if len(word)>2 and word[0:2]=='**':
+                bold = True
+            elif word[0]=='*':
+                italic = True
+            font = fontsel(fontbase,fontsize,bold,italic)
+            _w = word.replace('*','')
+            w = ' '+_w if len(line)>0 else _w
+            ww,wh = font.getsize(w)
+            if width+ww<=maxwidth:
+                line.append((width,font,w))
+                width += ww
+            else:
+                whitespace = float(maxwidth-width)/(len(line)-1)
+                
+                w1 = line[0]
+                _line = [(0,w1[1],w1[2])]
+                wsp = 0
+                for it in line[1:]:
+                    wsp += whitespace
+                    _line.append((it[0]+wsp,it[1],it[2]))
+                lines.append(_line)
+                width,wh = font.getsize(_w)
+                line = [(0,font,_w)]
+
+            if len(word)>2 and word[-2:]=='**':
+                bold = False
+            elif word[-1]=='*':
+                italic = False
+            font = fontsel(fontbase,fontsize,bold,italic)
+
+            #d.text((_x,_y),''.join(_words),font=font,fill=color)
+        lines.append(line)
+
+        for l in lines:
+            for w in l:
+                d.text((x+w[0],_y),w[2],font=w[1],fill=color)
+            _y += lineheight
+
+        return _y
 
     y = drawwrappedtext(eval=True,img=d,txt=scrutin['scrutin_dossierLibelle'],x=o_x+8,y=o_y+fontthemesize+16+4, font=fontdos, maxwidth=512,lineheight=fontdossize+6,color=(255,255,255,255))
     d.rectangle(((o_x, o_y+fontthemesize+12), (min((nomw+o_x+14,512)),y+2)),fill=(33,53,88,255))
@@ -605,7 +649,7 @@ def visuelvotecle(num,groupe=None):
     y = drawwrappedtext(img=d,txt=nom,font=fontnom,color=(33,53,88,255),x=o_x,y=y,maxwidth=512,lineheight=fontnomsize+4)
     #y = drawwrappedtext(img=d,txt=nom,font=fontnom,color=(33,53,88,255),x=o_x,y=o_y+10+fontthemesize+12+fontdossize+12+4,maxwidth=512,lineheight=fontnomsize+4)
     fontdesc = ImageFont.truetype("Montserrat-Regular.ttf", 16)
-    drawjustifiedtext(img=d,txt=scrutin['desc'],x=o_x,y=y+10,maxwidth=480,lineheight=22,color=(33,53,88,255),font=fontdesc)
+    drawjustifiedtext(img=d,txt=scrutin['desc'],x=o_x,y=y+10,maxwidth=480,lineheight=22,color=(33,53,88,255),fontbase='Montserrat',fontsize=16)
     vis.paste(imchart,(517,10),imchart)
     vis.paste(ccircle,(663,120),ccircle)
     vis.paste(textes,(0,0),textes)
