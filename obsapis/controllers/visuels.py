@@ -600,11 +600,12 @@ def visuelvotecle(num,groupe=None):
         width = 0
         # remplacer les liens par du gras
         txt = re.sub(r'\[([^\]]+)\]\([^\)]+\)',r'**\1**',txt)
-        
+
         for word in txt.split(' '):
-            if len(word)>2 and word[0:2]=='**':
+            kw = word.replace(',','').replace(':','').replace('.','').replace(';','')
+            if len(kw)>2 and kw[0:2]=='**':
                 bold = True
-            elif word[0]=='*' or word[0]=='_':
+            elif kw[0]=='*' or kw[0]=='_':
                 italic = True
             font = fontsel(fontbase,fontsize,bold,italic)
             _w = word.replace('*','').replace('_','')
@@ -626,9 +627,9 @@ def visuelvotecle(num,groupe=None):
                 width,wh = font.getsize(_w)
                 line = [(0,font,_w)]
 
-            if len(word)>2 and word[-2:]=='**':
+            if len(kw)>2 and kw[-2:]=='**':
                 bold = False
-            elif word[-1]=='*' or word[-1]=='_':
+            elif kw[-1]=='*' or kw[-1]=='_':
                 italic = False
             font = fontsel(fontbase,fontsize,bold,italic)
 
