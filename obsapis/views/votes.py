@@ -60,7 +60,7 @@ def votes():
         v['scrutin_sort'] = scrutins_data[v['scrutin_num']]['sort']
         if scrutins_data[v['scrutin_num']]['urlAmendement']:
             v['scrutin_desc'] = re.sub(r'([0-9]+)',r'<a target="_blank" href="'+scrutins_data[v['scrutin_num']]['urlAmendement']+r'">\1</a>',v['scrutin_desc'],1)
-
+        v['scrutin_dossierLibelle'] = v['scrutin_dossierLibelle'].replace(u'\u0092',"'") # pb apostrophe
         votes.append(v)
 
     def countItems():

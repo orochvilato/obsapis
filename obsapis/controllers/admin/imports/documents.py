@@ -30,11 +30,14 @@ def importdocs():
                 title = doc.xpath('h3/text()')
                 if title:
                     r = re.match(url[1],title[0].replace('&nbsp;',' ').strip())
+                    desc = doc.xpath('p/text()')
+                    if desc:
+                        desc = desc[0]
                     if r:
                         r = r.groups()
                         sublinks = doc.xpath('ul/li/a/@href')#.extract()
                         if sublinks:
-                            docs.append(dict(numero=(url[2] % int(r[1])).upper(),titre=r[0],document=sublinks[1],dossier=sublinks[0]))
+                            docs.append(dict(numero=(url[2] % int(r[1])).upper(),titre=r[0],document=sublinks[1],dossier=sublinks[0],description=desc))
 
             offset += nb
     for d in docs:
