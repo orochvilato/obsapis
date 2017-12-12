@@ -103,6 +103,7 @@ def deputeget(shortid):
     s_cles = OrderedDict()
     for v in votes_cles:
         v.update(scrutins_cles[v['scrutin_num']])
+        v['scrutin_dossierLibelle'] = v['scrutin_dossierLibelle'].replace(u'\u0092',"'")
         if not v['theme'] in s_cles:
             s_cles[v['theme']] = []
         s_cles[v['theme']].append(v)
