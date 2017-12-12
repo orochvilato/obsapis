@@ -487,6 +487,7 @@ def visuelvotecle(num,groupe=None):
     if not scrutin or not num in scrutins_cles:
         return ""
     scrutin.update(scrutins_cles[num])
+    scrutin['scrutin_dossierLibelle'] = scrutin['scrutin_dossierLibelle'].replace(u'\u0092',"'")
     positions = scrutin['scrutin_positions'][groupe if groupe else 'assemblee']
     #return json_response(positions)
     from pygal.style import Style
@@ -552,6 +553,7 @@ def visuelvotecle(num,groupe=None):
     d.text((o_x+8,o_y+4), title, font=fonttheme, fill=(255,255,255,255))
 
     fontdos = ImageFont.truetype("Montserrat-Bold.ttf", fontdossize)
+
     nomw,nomh = fontdos.getsize(scrutin['scrutin_dossierLibelle'])
     #d.rectangle(((o_x, o_y+fontthemesize+12), (nomw+o_x+8,o_y+fontthemesize+12+fontdossize+12)), fill=(33,53,88,255))
     #d.text((o_x+4,o_y+fontthemesize+16), scrutin['scrutin_dossierLibelle'], font=fontdos, fill=(255,255,255,255))
