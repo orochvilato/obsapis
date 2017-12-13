@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from obsapis import app,mdb
+from obsapis import app,mdb,mdbrw
 from flask import render_template
 from bson import json_util
 import xmltodict
@@ -10,6 +10,7 @@ from obsapis.controllers.admin.imports.documents import importdocs
 from obsapis.controllers.admin.updates.scrutins import updateScrutinsTexte
 
 
+
 @app.route('/updateScrutins')
 def updScrutins():
     updateScrutinsTexte()
@@ -17,7 +18,7 @@ def updScrutins():
 
 @app.route('/test')
 def test():
-    return json_util.dumps(mdb.scrutins.find_one({'scrutin_num':341}))
+    #return json_util.dumps(mdb.documentsan.find_one({'numero':'450'}))
     return json_util.dumps(list(mdb.amendements.find({'numAmend':'311'})))
     return json_util.dumps([(d['depute_nom'],
                              d['stats']['positions']['exprimes'],

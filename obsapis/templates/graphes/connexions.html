@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>Liens entre les députés</title>
+<style>
+.node {
+          stroke: #fff;
+          stroke-width: 1.5px;
+      }
+
+      .link {
+          stroke: #999;
+          stroke-opacity: .8;
+      }
+
+      .group {
+          stroke: #fff;
+          stroke-width: 1.5px;
+          opacity: 0.2;
+        }
+</style>
+</head>
+<body>
+<h2>Liens entre les députés</h2>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/4.12.0/d3.min.js"></script>
+<script src="/static/js/cola.min.js"></script>
+
+<script>
+    var width = 960,
+        height = 500;
+
+    var color = d3.scaleOrdinal(d3.schemeCategory20);
+
+    var cola = cola.d3adaptor(d3)
+        .size([width, height]);
+
+    var svg = d3.select("body").append("svg")
+        .attr("width", width)
+        .attr("height", height);
+
+    d3.json("connections.json", function (error, graph) {
+        var groupMap = {};
+            graph.nodes.forEach(function (v, i) {
+                var g = v.group;
+                if (typeof groupMap[g] == 'undefined') {
+                    groupMap[g] = [];
+                }
+                groupMap[g].push(i);
+
+                v.width = v.height = 10;
+            });
+
+        var groups = [];
+            for (var g in groupMap) {
+                groups.push({ id: g, leaves: groupMap[g] });
+            }
+
+        cola
+            .nodes(graph.nodes)
+            .links(graph.links)
+            .groups(groups)
+            .jaccardLinkLengths(50,0.8)
+            .avoidOverlaps(true)
+            .start(30,0,10);
+
+        var group = svg.selectAll('.group')
+                       .data(groups)
+                       .enter().append('rect')
+                       .classed('group', true)
+                       .attr('rx',5)
+                       .attr('ry',5)
+                       .style("fill", function (d) { return color(d.id); })
+                       .call(cola.drag);
+
+
+        var link = svg.selectAll(".link")
+            .data(graph.links)
+          .enter().append("line")
+            .attr("class", "link")
+            .style("stroke-width", function (d) { return 1.2*Math.sqrt(d.value); });
+
+        var node = svg.selectAll(".node")
+            .data(graph.nodes)
+          .enter().append("circle")
+            .attr("class", "node")
+            .attr("r", 8)
+            .style("fill", function (d) { return color(d.group); })
+            .call(cola.drag);
+
+        node.append("title")
+            .text(function (d) { return d.name; });
+
+        cola.on("tick", function () {
+            link.attr("x1", function (d) { return d.source.x; })
+                .attr("y1", function (d) { return d.source.y; })
+                .attr("x2", function (d) { return d.target.x; })
+                .attr("y2", function (d) { return d.target.y; });
+
+            node.attr("cx", function (d) { return d.x; })
+                .attr("cy", function (d) { return d.y; });
+
+            group
+                        .attr('x', function (d) { return d.bounds.x })
+                        .attr('y', function (d) { return d.bounds.y })
+                        .attr('width', function (d) { return d.bounds.width() })
+                        .attr('height', function(d) { return d.bounds.height() });
+
+        });
+    });
+</script>
+</body>
+</html>

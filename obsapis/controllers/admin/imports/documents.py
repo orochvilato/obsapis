@@ -1,4 +1,7 @@
-from obsapis import mdbrw
+# -*- coding: utf-8 -*-
+
+from obsapis import mdbrw,mdb
+from obsapis.tools import normalize
 from pymongo import UpdateOne
 import requests
 import re
@@ -36,11 +39,45 @@ def importdocs():
                     if r:
                         r = r.groups()
                         sublinks = doc.xpath('ul/li/a/@href')#.extract()
-                        if sublinks:
-                            docs.append(dict(numero=(url[2] % int(r[1])).upper(),titre=r[0],document=sublinks[1],dossier=sublinks[0],description=desc))
+                        if len(sublinks)==2:
+                            docs.append(dict(numero=(url[2] % int(r[1])).upper(),titre=r[0],document='http://www2.assemblee-nationale.fr'+sublinks[1],dossier=sublinks[0],description=desc))
 
             offset += nb
+    depute_shortids = mdb.deputes.distinct('depute_shortid')
+    done = [ doc['numero'] for doc in mdb.documentsan.find({'type':{'$ne':None}},{'numero':1,'_id':None})]
     for d in docs:
+        if d['numero'] in done:
+            pass
+            #continue
+        if d['description'][:18]==u'Proposition de loi':
+            r = requests.get(d['document'])
+
+            from lxml import etree
+            parser = etree.HTMLParser()
+            page   = etree.fromstring(r.content, parser)
+
+            deputes = []
+            print "----",d['numero'],"----"
+            p = page.xpath(u'//p[text()[contains(.,"présentée par")]]/following-sibling::p/text()')
+            if p and u'd\xe9put\xe9' in ''.join(p):
+                noms = []
+                for _p in p:
+                    if u"d\xe9put\xe9" in _p:
+                        break
+                    noms.append(_p)
+                noms = ' '.join(noms)
+                p = noms.replace(' et ',',').replace(u'\xa0',' ').replace('MM. ','').replace('M. ','').replace('Mme ','')
+                for dep in p.split(','):
+                    norm = normalize(unicode(dep))
+                    if norm in depute_shortids:
+                        deputes.append(norm)
+                    else:
+                        pass
+                        #print dep,norm,p
+
+                d['signataires'] = deputes
+                d['type'] = 'propositionloi'
+
         ops.append(UpdateOne({'numero':d['numero']},{'$set':d},upsert=True))
     if ops:
         mdbrw.documentsan.bulk_write(ops)
