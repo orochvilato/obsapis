@@ -14,11 +14,13 @@
           stroke: #999;
           stroke-opacity: .8;
       }
-
+      .nodelabel {
+        font-size:8;
+      }
       .group {
           stroke: #fff;
           stroke-width: 1.5px;
-          opacity: 0.2;
+          opacity: 0.5;
         }
 </style>
 </head>
@@ -60,35 +62,36 @@
         cola
             .nodes(graph.nodes)
             .links(graph.links)
-            .groups(groups)
-            .jaccardLinkLengths(80,0.8)
+            .jaccardLinkLengths(140,1)
             .avoidOverlaps(true)
             .start(30,0,10);
 
-        var group = svg.selectAll('.group')
-                       .data(groups)
-                       .enter().append('rect')
-                       .classed('group', true)
-                       .attr('rx',5)
-                       .attr('ry',5)
-                       .style("fill", function (d) { return color(d.id); })
-                       .call(cola.drag);
 
 
         var link = svg.selectAll(".link")
             .data(graph.links)
           .enter().append("line")
             .attr("class", "link")
-            .style("stroke-width", function (d) { return 1.2*Math.sqrt(d.value); });
+            .style("stroke-width", function (d) { return 1.2; });
 
-        var node = svg.selectAll(".node")
-            .data(graph.nodes)
-          .enter().append("circle")
+       var node = svg.selectAll(".node")
+                .data(graph.nodes)
+              .enter().append("circle")
             .attr("class", "node")
-            .attr("r", function(d) { return 8*Math.log10(d.count); })
+            .attr("r", function(d) { return 10+8*Math.log10(d.count); })
             .style("fill", function (d) { return color(d.group); })
             .call(cola.drag);
 
+        var nodelabels = svg.selectAll(".nodelabel")
+                .data(graph.nodes)
+            .enter()
+            .append("text")
+            .attr("x",function(d){return d.x;})
+            .attr("y",function(d){return d.y;})
+            .attr("class","nodelabel")
+            .attr("stroke",function(d){ return 'black';})
+            .attr("font-size",function(d){ return 10+6*Math.log10(d.count);})
+            .text(function(d){return ((d.count>0)?d.name:'');});
 
 
         node.append("title")
@@ -106,11 +109,8 @@
             node.attr("cx", function (d) { return d.x; })
                 .attr("cy", function (d) { return d.y; });
 
-            group
-                        .attr('x', function (d) { return d.bounds.x })
-                        .attr('y', function (d) { return d.bounds.y })
-                        .attr('width', function (d) { return d.bounds.width() })
-                        .attr('height', function(d) { return d.bounds.height() });
+            nodelabels.attr("x", function(d) { return d.x; })
+                      .attr("y", function(d) { return d.y; });
 
         });
     });

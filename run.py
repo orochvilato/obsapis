@@ -18,7 +18,7 @@ def updScrutins():
 
 @app.route('/test')
 def test():
-    #return json_util.dumps(mdb.documentsan.find_one({'numero':'450'}))
+    return json_util.dumps(mdb.deputes.find_one())
     return json_util.dumps(list(mdb.amendements.find({'numAmend':'311'})))
     return json_util.dumps([(d['depute_nom'],
                              d['stats']['positions']['exprimes'],

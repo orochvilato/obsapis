@@ -21,12 +21,12 @@ def connectionsdeputes():
     return render_template('graphes/connexions.html')
 
 @app.route('/graphes/connections.json')
-@cache_function(expires=10000)
+@cache_function(expires=50000)
 def connectionsjson():
-    gsel = [0,1,2,3,4,5,7]
+    gsel = [0,4,5]
     gps = {'FI':0,'REM':1,'MODEM':2,'LR':3,'GDR':4,'NG':5,'NI':6,'UAI':7}
     counts = {}
-    depgp = dict((d['depute_shortid'],{'gn':d['groupe_abrev'],'g':gps[d['groupe_abrev']],'n':d['depute_nom']}) for d in mdb.deputes.find({},{'depute_nom':1,'depute_shortid':1,'groupe_abrev':1,'_id':None}))
+    depgp = dict((d['depute_shortid'],{'img':'http://www2.assemblee-nationale.fr/static/tribun/15/photos/'+d['depute_uid'][2:]+'.jpg','gn':d['groupe_abrev'],'g':gps[d['groupe_abrev']],'n':d['depute_nom']}) for d in mdb.deputes.find({},{'depute_nom':1,'depute_uid':1,'depute_shortid':1,'groupe_abrev':1,'_id':None}))
     shortids = dict((d['depute_id'],d['depute_shortid']) for d in mdb.deputes.find({},{'depute_id':1,'depute_shortid':1,'_id':None}))
     liens = []
     allitems = []
@@ -38,9 +38,10 @@ def connectionsjson():
                 for sig in doc['signataires'][1:]:
                     if sig:
                         counts[sig] = counts.get(sig,[])
-                        if depgp[sig1]['g']!=depgp[sig]['g'] and depgp[sig1]['g'] in gsel:
-                            counts[sig1].append(sig)
-                            counts[sig].append(sig1)
+                        if depgp[sig1]['g'] in gsel:
+                            if depgp[sig1]['g']!=depgp[sig]['g']:
+                                counts[sig1].append(sig)
+                                counts[sig].append(sig1)
                             allitems.append(sig)
                             liens.append((sig1,sig))
                 if len(counts[sig1])>0:
@@ -56,9 +57,10 @@ def connectionsjson():
                 sig2 = shortids[sig]
                 if sig2:
                     counts[sig2] = counts.get(sig2,[])
-                    if depgp[sig1]['g']!=depgp[sig2]['g'] and depgp[sig1]['g'] in gsel:
-                        counts[sig1].append(sig2)
-                        counts[sig2].append(sig1)
+                    if depgp[sig1]['g'] in gsel:
+                        if depgp[sig1]['g']!=depgp[sig2]['g']:
+                            counts[sig1].append(sig2)
+                            counts[sig2].append(sig1)
                         allitems.append(sig2)
                         liens.append((sig1,sig2))
 
@@ -72,9 +74,9 @@ def connectionsjson():
     deputes = {}
 
     counts = dict((c,len(list(set(v)))) for c,v in counts.iteritems())
-    allitems = list(set([it for it in allitems if counts[it]>2]))
+    allitems = list(set([it for it in allitems if counts[it]>0]))
     for i,d in enumerate(allitems):
-        r['nodes'].append({'id':d,'name':"%s (%s)" % (depgp[d]['n'],depgp[d]['gn']),'group':depgp[d]['g'],'count':counts.get(d,0)})
+        r['nodes'].append({'img':depgp[d]['img'],'id':d,'name':"%s (%s)" % (depgp[d]['n'],depgp[d]['gn']),'group':depgp[d]['g'],'count':counts.get(d,0)})
         deputes[d] = i
     for l,n in Counter(frozenset(x) for x in liens).items():
         if len(list(l))==2 :
