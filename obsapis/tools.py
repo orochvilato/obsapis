@@ -88,4 +88,31 @@ def image_response(type,v,filename=None,nocache=True):
                      "attachment;filename=%s-%s.png" % (filename,datetime.datetime.now().strftime('%Y-%m-%d'))})
     r = Response(v, mimetype="image/%s" % type,headers=headers)
     return r
-    
+
+import pyzmail
+from obsapis.config_private import smtp
+NOTIFY_ADDRESS = ['observatoireapi@yahoo.com']
+SMTP_HOST = smtp['host']
+
+def sendmail(sender,recipients,subject,msg='',attach=[]):
+    payload, mail_from, rcpt_to, msg_id=pyzmail.compose_mail(\
+        sender, \
+        recipients, \
+        subject, \
+        'utf-8', \
+        (msg, 'utf-8'), \
+        html=None, \
+        attachments=attach)
+
+    #[('attached content', 'text', 'plain', 'text.txt', 'utf-8')]
+    smtp_host = SMTP_HOST
+    ret=pyzmail.send_mail(payload, mail_from, rcpt_to, smtp_host)
+
+    if isinstance(ret, dict):
+        if ret:
+            print 'failed recipients:', ', '.join(ret.keys())
+    else:
+        print 'error:', ret
+
+def api_notify(subject,msg="",attach=[],recipients=NOTIFY_ADDRESS):
+    sendmail(('Observatoire API','api@observatoire-democratie.fr'),recipients,subject,msg,attach)

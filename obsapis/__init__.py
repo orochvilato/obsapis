@@ -91,3 +91,7 @@ Message:
     app.logger.addFilter(eaiContextFilter())
     app.logger.addHandler(mail_handler)
     app.logger.addHandler(eai_handler)
+
+
+import jobs
+jobs.start_scheduler()
