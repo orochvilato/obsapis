@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 from obsapis import mdbrw,mdb
 from pymongo import UpdateOne
 import requests

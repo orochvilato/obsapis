@@ -12,12 +12,16 @@ from obsapis.config import cache_pages_delay
 
 from obsapis.controllers.admin.imports.documents import importdocs
 from obsapis.controllers.admin.updates.scrutins import updateScrutinsTexte
+from obsapis.controllers.admin.updates.deputes import updateDeputesContacts
 
 @app.route('/admin/updateScrutinsRefs')
-def updateScrutinsRefs():
+def view_updateScrutinsRefs():
     importdocs()
     updateScrutinsTexte()
     return "ok"
 
+@app.route('/admin/updateDeputesContacts')
+def view_updateDeputesContacts():
+    return json_response(updateDeputesContacts())
 #@app.route('/charts/participationgroupes')
 #def votesgroupes():

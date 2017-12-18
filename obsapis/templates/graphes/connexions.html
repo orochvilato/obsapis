@@ -30,8 +30,8 @@
 <script src="/static/js/cola.min.js"></script>
 
 <script>
-    var width = 1280,
-        height = 960;
+    var width = 2048,
+        height = 2048;
 
     var color = d3.scaleOrdinal(d3.schemeCategory20);
 
@@ -91,7 +91,7 @@
             .attr("class","nodelabel")
             .attr("stroke",function(d){ return 'black';})
             .attr("font-size",function(d){ return 10+6*Math.log10(d.count);})
-            .text(function(d){return ((d.count>0)?d.name:'');});
+            .text(function(d){return ((d.count>9)?d.name:'');});
 
 
         node.append("title")
