@@ -16,20 +16,21 @@ from obsapis.controllers.admin.updates.scrutins import updateScrutinsTexte
 from collections import Counter
 
 
-@app.route('/graphes/connections')
+@app.route('/graphes/connections2')
 def connectionsdeputes():
     return render_template('graphes/connexions2.html')
 
-@app.route('/graphes/connections.json')
-@cache_function(expires=1200)
-def connectionsjson():
-    gsel = [0,4,5,7]
+@app.route('/graphes/connections2.json')
+@cache_function(expires=60)
+def connectionsjson2():
+    gsel = [0,1,2,3,4,5,7]
     gps = {'FI':0,'REM':1,'MODEM':2,'LR':3,'GDR':4,'NG':5,'NI':6,'UAI':7}
     counts = {}
     depgp = dict((d['depute_shortid'],{'img':'http://www2.assemblee-nationale.fr/static/tribun/15/photos/'+d['depute_uid'][2:]+'.jpg','gn':d['groupe_abrev'],'g':gps[d['groupe_abrev']],'n':d['depute_nom']}) for d in mdb.deputes.find({},{'depute_nom':1,'depute_uid':1,'depute_shortid':1,'groupe_abrev':1,'_id':None}))
     shortids = dict((d['depute_id'],d['depute_shortid']) for d in mdb.deputes.find({},{'depute_id':1,'depute_shortid':1,'_id':None}))
     liens = []
     allitems = []
+
     for doc in mdb.documentsan.find({'signataires':{'$ne':None}},{'numero':1,'signataires':1,'_id':None}):
         if doc['signataires']:
             sig1 = doc['signataires'][0]
@@ -72,11 +73,17 @@ def connectionsjson():
     c = Counter(frozenset(x) for x in liens).items()
     mx = max([x[1] for x in c])
 
-
+    for g in gps.keys():
+        r['nodes'].append({'id':g,'name':g,'group':gps[g],'groupe':True,'count':400})
     counts = dict((c,len(list(set(v)))) for c,v in counts.iteritems())
     allitems = list(set([it for it in allitems if counts[it]>0]))
     for i,d in enumerate(allitems):
         r['nodes'].append({'img':depgp[d]['img'],'id':d,'name':"%s (%s)" % (depgp[d]['n'],depgp[d]['gn']),'group':depgp[d]['g'],'count':counts.get(d,0)})
+
+
+    for d in depgp.keys():
+        if d in allitems:
+            r['links'].append({'source':depgp[d]['gn'],'target':d,'value':2000})
 
     for l,n in Counter(frozenset(x) for x in liens).items():
         if len(list(l))==2 :

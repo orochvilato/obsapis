@@ -13,7 +13,7 @@
 }
 
 </style>
-<svg width="960" height="600"></svg>
+<svg width="2048" height="2048"></svg>
 <script src="https://d3js.org/d3.v4.min.js"></script>
 <script>
 
@@ -31,7 +31,7 @@ var simulation = d3.forceSimulation()
        return 5+5*Math.log10(d.count);
      }));
 
-d3.json("connections.json", function(error, graph) {
+d3.json("connections2.json", function(error, graph) {
   if (error) throw error;
 
   var link = svg.append("g")
@@ -67,7 +67,7 @@ d3.json("connections.json", function(error, graph) {
       .links(graph.links);
 
   simulation.force("link").strength(function(link) {
-                  return 1/link.value; }).distance(height/4);
+                  return 1; }).distance(height/8);
 
   function ticked() {
     link
