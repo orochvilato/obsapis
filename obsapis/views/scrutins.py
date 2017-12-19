@@ -22,7 +22,11 @@ def scrutinscles():
         scrutins = scrutins.limit(nb)
     scles = []
     for s in scrutins:
+        if s['scrutin_dossierLibelle']=='N/A' and scrutins_cles[s['scrutin_num']]['dossier']:
+            dossier = scrutins_cles[s['scrutin_num']]['dossier']
+        else:
+            dossier = s['scrutin_dossierLibelle']
         scles.append(dict(desc=s['scrutin_desc'],date=s['scrutin_date'],
-                          sort=s['scrutin_sort'],dossierLibelle=s['scrutin_dossierLibelle'].replace(u'\u0092',"'"),
+                          sort=s['scrutin_sort'],dossierLibelle=dossier.replace(u'\u0092',"'"),
                           detail=scrutins_cles[s['scrutin_num']],positions=scrutins_positions[s['scrutin_num']]))
     return json_response(scles)
