@@ -487,11 +487,10 @@ def visuelvotecle(num,groupe=None):
     if not scrutin or not num in scrutins_cles:
         return ""
     scrutin.update(scrutins_cles[num])
-    print scrutin['scrutin_dossierLibelle']
     if scrutin['scrutin_dossierLibelle']!='N/A':
         scrutin['dossier'] = scrutin['scrutin_dossierLibelle']
     scrutin['dossier'] = scrutin['dossier'].replace(u'\u0092',"'")
-    print scrutin['dossier']
+
     positions = scrutin['scrutin_positions'][groupe if groupe else 'assemblee']
     #return json_response(positions)
     from pygal.style import Style
