@@ -15,7 +15,7 @@ def chart_compatdep():
     deputes = request.args.get('depute','francoisruffin').split(',')
 
     dep_cpt = mdb.deputes.find({'depute_shortid':{'$in':deputes}},{'depute_nom':1,'stats.compat':1,'_id':None})
-    radar_chart = pygal.Radar(fill=True,truncate_legend=50)
+    radar_chart = pygal.Radar(fill=True,legend_at_bottom=True,height=650,width=600)
     groupes = ['FI','GDR','NG','REM','MODEM','UAI','LR']
     radar_chart.title = u'Compatibilités vote (vote pour aux amendements)'
     radar_chart.x_labels = groupes
