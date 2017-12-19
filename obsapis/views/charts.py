@@ -10,6 +10,26 @@ import pygal
 
 from obsapis.config import cache_pages_delay
 
+@app.route('/charts/compatdepute')
+def chart_compatdep():
+    deputes = request.args.get('depute','francoisruffin').split(',')
+
+    dep_cpt = mdb.deputes.find({'depute_shortid':{'$in':deputes}},{'depute_nom':1,'stats.compat':1,'_id':None})
+    radar_chart = pygal.Radar(fill=True,truncate_legend=50)
+    groupes = ['FI','GDR','NG','REM','MODEM','UAI','LR']
+    radar_chart.title = u'Compatibilités vote (vote pour aux amendements)'
+    radar_chart.x_labels = groupes
+    for d in dep_cpt:
+        print d
+        radar_chart.add(d['depute_nom'], [d['stats']['compat'][g] for g in groupes])
+    #radar_chart.add('Firefox', [7473, 8099, 11700, 2651, 6361, 1044, 3797, 9450])
+    #radar_chart.add('Opera', [3472, 2933, 4203, 5229, 5810, 1828, 9013, 4669])
+    #radar_chart.add('IE', [43, 41, 59, 79, 144, 136, 34, 102])
+    from StringIO import StringIO
+    chart = StringIO()
+    radar_chart.render_to_png(chart)
+    return image_response('png',chart.getvalue())
+
 
 @app.route('/charts/classements')
 def classements():
