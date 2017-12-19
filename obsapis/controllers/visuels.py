@@ -487,7 +487,11 @@ def visuelvotecle(num,groupe=None):
     if not scrutin or not num in scrutins_cles:
         return ""
     scrutin.update(scrutins_cles[num])
-    scrutin['scrutin_dossierLibelle'] = scrutin['scrutin_dossierLibelle'].replace(u'\u0092',"'")
+    print scrutin['scrutin_dossierLibelle']
+    if scrutin['scrutin_dossierLibelle']!='N/A':
+        scrutin['dossier'] = scrutin['scrutin_dossierLibelle']
+    scrutin['dossier'] = scrutin['dossier'].replace(u'\u0092',"'")
+    print scrutin['dossier']
     positions = scrutin['scrutin_positions'][groupe if groupe else 'assemblee']
     #return json_response(positions)
     from pygal.style import Style
@@ -554,7 +558,7 @@ def visuelvotecle(num,groupe=None):
 
     fontdos = ImageFont.truetype("Montserrat-Bold.ttf", fontdossize)
 
-    nomw,nomh = fontdos.getsize(scrutin['scrutin_dossierLibelle'])
+    nomw,nomh = fontdos.getsize(scrutin['dossier'])
     #d.rectangle(((o_x, o_y+fontthemesize+12), (nomw+o_x+8,o_y+fontthemesize+12+fontdossize+12)), fill=(33,53,88,255))
     #d.text((o_x+4,o_y+fontthemesize+16), scrutin['scrutin_dossierLibelle'], font=fontdos, fill=(255,255,255,255))
 
@@ -645,9 +649,9 @@ def visuelvotecle(num,groupe=None):
 
         return _y
 
-    y = drawwrappedtext(eval=True,img=d,txt=scrutin['scrutin_dossierLibelle'],x=o_x+8,y=o_y+fontthemesize+16+4, font=fontdos, maxwidth=512,lineheight=fontdossize+6,color=(255,255,255,255))
+    y = drawwrappedtext(eval=True,img=d,txt=scrutin['dossier'],x=o_x+8,y=o_y+fontthemesize+16+4, font=fontdos, maxwidth=512,lineheight=fontdossize+6,color=(255,255,255,255))
     d.rectangle(((o_x, o_y+fontthemesize+12), (min((nomw+o_x+14,512)),y+2)),fill=(33,53,88,255))
-    y = 12+drawwrappedtext(img=d,txt=scrutin['scrutin_dossierLibelle'],x=o_x+8,y=o_y+fontthemesize+18, font=fontdos, maxwidth=512,lineheight=fontdossize+6,color=(255,255,255,255))
+    y = 12+drawwrappedtext(img=d,txt=scrutin['dossier'],x=o_x+8,y=o_y+fontthemesize+18, font=fontdos, maxwidth=512,lineheight=fontdossize+6,color=(255,255,255,255))
 
     y = drawwrappedtext(img=d,txt=nom,font=fontnom,color=(33,53,88,255),x=o_x,y=y,maxwidth=512,lineheight=fontnomsize+4)
     #y = drawwrappedtext(img=d,txt=nom,font=fontnom,color=(33,53,88,255),x=o_x,y=o_y+10+fontthemesize+12+fontdossize+12+4,maxwidth=512,lineheight=fontnomsize+4)
