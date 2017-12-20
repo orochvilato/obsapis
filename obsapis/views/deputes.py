@@ -55,10 +55,10 @@ deputesFI = use_cache('deputesfi',lambda:mdb.deputes.find({'groupe_abrev':'FI'})
 def deputehasard():
     from obsapis.controllers.scrutins import getScrutinsCles
     scrutins_cles = use_cache('scrutins_cles',lambda:getScrutinsCles(),expires=3600)
-
+    nbdeputes = use_cache('nbdeputes',lambda:mdb.deputes.find({'depute_actif':True}).count(),expires=3600)
     mfields = dict((f,1) for f in deputesfields)
     mfields.update({'_id':None})
-    depute = mdb.deputes.find({'depute_actif':True},mfields).skip(int(random.random()*576)).limit(1)[0]
+    depute = mdb.deputes.find({'depute_actif':True},mfields).skip(int(random.random()*nbdeputes)).limit(1)[0]
 
     photo_an='http://www2.assemblee-nationale.fr/static/tribun/15/photos/'+depute['depute_uid'][2:]+'.jpg'
     depnumdep = depute['depute_departement_id'][1:] if depute['depute_departement_id'][0]=='0' else depute['depute_departement_id']

@@ -6,6 +6,7 @@ from bson import json_util
 import xmltodict
 import requests
 import re
+from obsapis.tools import json_response
 from obsapis.controllers.admin.imports.documents import importdocs
 from obsapis.controllers.admin.updates.scrutins import updateScrutinsTexte
 
@@ -15,6 +16,35 @@ from obsapis.controllers.admin.updates.scrutins import updateScrutinsTexte
 def updScrutins():
     updateScrutinsTexte()
     return "ok"
+@app.route('/ouv')
+def ouv():
+    depgp = dict((d['depute_shortid'],{'img':'http://www2.assemblee-nationale.fr/static/tribun/15/photos/'+d['depute_uid'][2:]+'.jpg','g':d['groupe_abrev'],'n':d['depute_nom']}) for d in mdb.deputes.find({},{'depute_nom':1,'depute_uid':1,'depute_shortid':1,'groupe_abrev':1,'_id':None}))
+    shortids = dict((d['depute_id'],d['depute_shortid']) for d in mdb.deputes.find({},{'depute_id':1,'depute_shortid':1,'_id':None}))
+    depsig = {}
+    for doc in mdb.documentsan.find({'signataires':{'$ne':None}},{'numero':1,'signataires':1,'_id':None}):
+        if doc['signataires']:
+            sig1 = doc['signataires'][0]
+            if sig1:
+                for sig in doc['signataires'][1:]:
+                    if sig and depgp[sig1]['g']!=depgp[sig]['g'] and depgp[sig]['g']!='NI':
+                        if sig=='mohamedlaqhila':
+                            print doc
+
+                        depsig[sig] = depsig.get(sig,0)+1
+
+    for amd in mdb.amendements.find({},{'numAmend':1,'signataires_ids':1,'_id':None}):
+        if not amd['signataires_ids']:
+            continue
+        sig1 = shortids.get(amd['signataires_ids'][0],None)
+        if sig1:
+            for sig in amd['signataires_ids'][1:]:
+                sig2 = shortids[sig]
+                if sig2 and depgp[sig1]['g']!=depgp[sig2]['g'] and depgp[sig2]!='NI':
+                    if sig2=='mohamedlaqhila':
+                        print amd
+                    depsig[sig2] = depsig.get(sig2,0)+1
+
+    return json_response(sorted(depsig.iteritems(),key=lambda x:x[1],reverse=True))
 
 @app.route('/test')
 def test():
