@@ -8,6 +8,7 @@ import requests
 import re
 from obsapis.controllers.admin.imports.documents import importdocs
 from obsapis.controllers.admin.updates.scrutins import updateScrutinsTexte
+from obsapis.controllers.admin.updates.groupes import updateGroupesPresidents
 
 
 
@@ -18,6 +19,8 @@ def updScrutins():
 
 @app.route('/test')
 def test():
+    return json_util.dumps(updateGroupesPresidents())
+    return json_util.dumps(mdb.groupes.find_one({},{'groupe_abrev':1,'stats':1}))
     return json_util.dumps(mdb.deputes.find_one({'depute_shortid':'thierrysolere'},{'stats':1,'_id':None}))
     return json_util.dumps(list(mdb.amendements.find({'numAmend':'311'})))
     return json_util.dumps([(d['depute_nom'],

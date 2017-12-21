@@ -2,7 +2,6 @@
 
 from obsapis import app,use_cache,mdb
 from flask import request
-from obsapis.tools import json_response,cache_function, getdot, logitem
 from obsapis.tools import json_response,cache_function, getdot, strip_accents, logitem
 import re
 import random
@@ -242,7 +241,7 @@ def _ajax(type_page):
 
         return {'totalitems':rcount, 'skipped':skipped, 'skippedpct':seuil_compat}
     cachekey= u"dep%s_%s_%s_%s_%s_%s" % (type_page,age,csp if csp else csp,groupe,text,region if region else region)
-    counts = use_cache(cachekey,lambda:countItems(),expires=3600)
+    #counts = use_cache(cachekey,lambda:countItems(),expires=3600)
     counts = countItems()
     #return json.dumps(counts)
     items = []

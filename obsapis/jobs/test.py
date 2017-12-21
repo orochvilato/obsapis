@@ -9,6 +9,8 @@ definition = dict(
     )
 
 from obsapis.controllers.admin.updates.scrutins import updateScrutinsTexte
+from obsapis.controllers.admin.updates.groupes import updateGroupesRanks
 
 def job(**kwargs):
     updateScrutinsTexte()
+    updateGroupesRanks()
