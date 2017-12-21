@@ -4,9 +4,19 @@ from obsapis import mdbrw,mdb
 from pymongo import UpdateOne,TEXT
 from obsapis.tools import strip_accents
 import re
+import random
 
 def createIndexes():
     mdbrw.groupes.ensure_index([("groupe_libelle", TEXT)],default_language='french')
+
+def updateGroupesDeputeHasard():
+    ops = []
+    for g in mdb.groupes.find({},{'groupe_abrev':1,'groupe_membres':1,'_id':None}):
+
+        act_m = [ m for m in g['groupe_membres'] if m['actif']==True and m['qualite']=='membre' ]
+        dep = act_m[int(random.random()*len(act_m))]
+        photo_an='http://www2.assemblee-nationale.fr/static/tribun/15/photos/'+dep['uid'][2:]+'.jpg'
+        mdbrw.groupes.update_one({'groupe_abrev':g['groupe_abrev']},{'$set':{'depute_hasard':photo_an}})
 
 def updateGroupesPresidents():
     for g in mdb.groupes.find({},{'groupe_abrev':1,'groupe_libelle':1,'groupe_membres':1,'_id':None}):

@@ -14,3 +14,4 @@ from obsapis.controllers.admin.updates.groupes import updateGroupesRanks
 def job(**kwargs):
     updateScrutinsTexte()
     updateGroupesRanks()
+    updateGroupesDeputeHasard()

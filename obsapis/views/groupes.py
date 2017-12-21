@@ -12,7 +12,7 @@ from obsapis.config import seuil_compat,cache_pages_delay
 
 
 groupe_fields = ['president','groupe_libelle','groupe_compat','groupe_positions','groupe_nbmembres','groupe_abrev','groupe_declaration','groupe_membres','stats','groupe_nuages']
-groupes_fields = ['president','groupe_libelle','groupe_nbmembres','groupe_abrev','stats']
+groupes_fields = ['president','groupe_libelle','groupe_nbmembres','groupe_abrev','stats','depute_hasard']
 
 csp_liste = [(u"Cadres et professions intellectuelles sup\u00e9rieures",u"Cadres, Prof. Sup."), (u"Artisans, commer\u00e7ants et chefs d'entreprise",u"Artisants, Chefs d'entrep."), (u"Agriculteurs exploitants",u"Agriculteurs exploitants"),(u"Professions Interm\u00e9diaires",u"Professions Interm\u00e9diaires"),(u"Employ\u00e9s",u"Employ\u00e9s"),(u"Ouvriers",u"Ouvriers"),(u"Retrait\u00e9s",u"Retrait\u00e9s"),(u"Autres (y compris inconnu et sans profession d\u00e9clar\u00e9e)",u"Autres")]
 classeage_liste = ["70-80 ans", "60-70 ans", "50-60 ans", "40-50 ans", "30-40 ans", "20-30 ans"]
