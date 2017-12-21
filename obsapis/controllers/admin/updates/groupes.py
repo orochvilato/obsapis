@@ -27,11 +27,13 @@ def updateGroupesRanks():
 
         for stat in ['nbitvs','nbmots']:
             ranks[stat] = ranks.get(stat,[]) + [ (gp['groupe_abrev'],(gp['stats'][stat],gp['stats'][stat]))  ]
+            ranks[stat+'_depute'] = ranks.get(stat+'_depute',[]) + [ (gp['groupe_abrev'],(gp['stats'][stat+'_depute'],gp['stats'][stat+'_depute']))  ]
 
         # stats commissions
         ranks['pctcommissions'] = ranks.get('pctcommissions',[]) + [ (gp['groupe_abrev'],(gp['stats']['commissions']['toutes']['present'],gp['stats']['commissions']['toutes']['present']) if 'commissions' in gp['stats'].keys() else (None,None)) ]
         # stats amendements
         ranks['nbamendements'] = ranks.get('nbamendements',[]) + [ (gp['groupe_abrev'],(gp['stats']['amendements']['rediges'],gp['stats']['amendements']['rediges']) if 'amendements' in gp['stats'].keys() else (None,None)) ]
+        ranks['nbamendements_depute'] = ranks.get('nbamendements_depute',[]) + [ (gp['groupe_abrev'],(gp['stats']['amendements']['rediges_depute'],gp['stats']['amendements']['rediges_depute']) if 'amendements' in gp['stats'].keys() else (None,None)) ]
         ranks['pctamendements'] = ranks.get('pctamendements',[]) + [ (gp['groupe_abrev'],(gp['stats']['amendements']['adoptes'],gp['stats']['amendements']['adoptes']) if 'amendements' in gp['stats'].keys() and 'adoptes' in gp['stats']['amendements'].keys() else (None,None)) ]
         for stat,val in gp['stats']['positions'].iteritems():
             ranks[stat] = ranks.get(stat,[]) + [ (gp['groupe_abrev'],(val,val))]
