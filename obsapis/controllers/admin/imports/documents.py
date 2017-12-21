@@ -44,7 +44,7 @@ def importdocs():
 
             offset += nb
     depute_shortids = mdb.deputes.distinct('depute_shortid')
-    done = [ doc['numero'] for doc in mdb.documentsan.find({'type':{'$ne':None}},{'numero':1,'_id':None})]
+    done = [ doc['numero'] for doc in mdb.documentsan.find({},{'numero':1,'_id':None})]
     for d in docs:
         if d['numero'] in done:
             pass
@@ -58,15 +58,25 @@ def importdocs():
 
             deputes = []
             print "----",d['numero'],"----"
-            p = page.xpath(u'//p[text()[contains(.,"présentée par")]]/following-sibling::p/text()')
+            #p = page.xpath(u'//p[text()[contains(.,"présentée par")]]/following-sibling::p/text()')
+            p = page.xpath(u'//p/text()')
             if p and u'd\xe9put\xe9' in ''.join(p):
                 noms = []
-                for _p in p:
+                start = False
+                for i,_p in enumerate(p):
+                    print i,_p
                     if u"d\xe9put\xe9" in _p:
                         break
-                    noms.append(_p)
+
+                    if start:
+                        noms.append(_p)
+                    if u"pr\xe9sent\xe9e par" in _p or ((i>0) and u"pr\xe9sent\xe9e par" in p[i-1]+p[i]):
+                        start = True
+
                 noms = ' '.join(noms)
+                print "-->", noms
                 p = noms.replace(' et ',',').replace(u'\xa0',' ').replace('MM. ','').replace('M. ','').replace('Mme ','')
+                print p
                 for dep in p.split(','):
                     norm = normalize(unicode(dep))
                     if norm in depute_shortids:

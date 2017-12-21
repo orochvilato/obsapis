@@ -57,22 +57,45 @@ def dictToXls(data):
     date_format = XFStyle()
     date_format.num_format_str = 'dd/mm/YYYY'
     stream = StringIO()
-    wb = Workbook()
+    wb = Workbook(encoding='utf8')
     from datetime import datetime,date
     for sheetname in data['sheets']:
         sheet = data['data'][sheetname]
         ws = wb.add_sheet(sheetname)
         for j,field in enumerate(sheet['fields']):
-            ws.row(0).write(j,field)
+            fieldtxt = field[1] if isinstance(field,tuple) else field
+            ws.row(0).write(j,fieldtxt)
         for i,row in enumerate(sheet['data']):
             for j,field in enumerate(sheet['fields']):
-                if isinstance(row[field],date) or isinstance(row[field],datetime):
-                    ws.row(i+1).write(j,row[field],date_format)
+                fieldtxt = field[0] if isinstance(field,tuple) else field
+                f = row.get(fieldtxt,None)
+                if isinstance(f,date) or isinstance(f,datetime):
+                    ws.row(i+1).write(j,f,date_format)
                 else:
-                    ws.row(i+1).write(j,row[field])
+                    ws.row(i+1).write(j,f)
 
     wb.save(stream)
     return stream.getvalue()
+
+def dictToXlsx(data):
+    from openpyxl import Workbook
+    from openpyxl.writer.excel import save_virtual_workbook
+
+
+    wb = Workbook()
+    for sheetname in data['sheets']:
+        sheet = data['data'][sheetname]
+        ws = wb.create_sheet(title=sheetname)
+        for j,field in enumerate(sheet['fields']):
+            fieldtxt = field[1] if isinstance(field,tuple) else field
+            ws.cell(column=j+1,row=1,value=fieldtxt)
+        for i,row in enumerate(sheet['data']):
+            for j,field in enumerate(sheet['fields']):
+                fieldv = field[0] if isinstance(field,tuple) else field
+                f = row.get(fieldv,None)
+                ws.cell(column=j+1,row=2+i,value=f)
+
+    return save_virtual_workbook(wb)
 
 def xls_response(filename,v):
     import datetime
