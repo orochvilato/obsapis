@@ -1,14 +1,19 @@
 # -*- coding: utf-8 -*-
 
 from obsapis import mdbrw,mdb
-from pymongo import UpdateOne
+from pymongo import UpdateOne,TEXT
+from obsapis.tools import strip_accents
 import re
 
+def createIndexes():
+    mdbrw.groupes.ensure_index([("groupe_libelle", TEXT)],default_language='french')
+
 def updateGroupesPresidents():
-    for g in mdb.groupes.find({},{'groupe_abrev':1,'groupe_membres':1,'_id':None}):
+    for g in mdb.groupes.find({},{'groupe_abrev':1,'groupe_libelle':1,'groupe_membres':1,'_id':None}):
         president = [ m['uid'] for m in g['groupe_membres'] if m['actif']==True and m['qualite']==u'Président']
         president = mdb.deputes.find_one({'depute_uid':president[0]},{'_id':None,'depute_nom':1,'depute_shortid':1}) if president else None
-        mdbrw.groupes.update_one({'groupe_abrev':g['groupe_abrev']},{'$set':{'president':president}})
+        glibsa = strip_accents(g['groupe_libelle'])
+        mdbrw.groupes.update_one({'groupe_abrev':g['groupe_abrev']},{'$set':{'groupe_libelle_sa':glibsa,'president':president}})
     return "ok"
 def updateGroupesRanks():
     ops = []

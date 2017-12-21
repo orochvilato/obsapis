@@ -95,7 +95,7 @@ def _ajax(type_page):
         utext = strip_accents(text)
         regx = re.compile(text, re.IGNORECASE)
         uregx = re.compile(utext, re.IGNORECASE)
-        filter['$and'].append({'$or':[{'groupe_nom':regx},{'groupe_nom_sa':uregx}]})
+        filter['$and'].append({'$or':[{'groupe_libelle':regx},{'groupe_libelle_sa':uregx}]})
 
     sort = []
     rank = None
