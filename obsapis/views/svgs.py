@@ -57,7 +57,9 @@ def svgcirco():
 @app.route('/svgs/hemicycle')
 def hemicycle():
     depute = request.args.get('depute','')
-    place = mdb.deputes.find_one({'depute_shortid':depute},{'depute_place':1}).get('depute_place','')
+
+    place = mdb.deputes.find_one({'depute_shortid':depute},{'depute_place':1})
+    place = place.get('depute_place','') if place else ''
     place = request.args.get('place',place)
 
     groupe = request.args.get('groupe')
