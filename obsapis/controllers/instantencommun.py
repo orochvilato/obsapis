@@ -62,7 +62,6 @@ def visueliec1(theme,contenu):
     im = Image.open(BytesIO(img))
 
     im2 = trim(im,(250,247,238))
-    im2.save('/home/informatique/test.png')
     texte_width,texte_height = im2.size
 
 
