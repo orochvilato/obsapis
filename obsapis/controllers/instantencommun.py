@@ -18,11 +18,16 @@ def trim(im, border):
   if bbox:
     return im.crop(bbox)
 
-def visueliec1(theme,contenu):
+def visueliec1(theme,titre,couleur,contenu):
+
+    couleurs = { "violet": "#865e91",
+"bleu": "#4575b5",
+"vert": "#6bb592",
+"jaune": "#edbd45",
+"orange": "#d987df",
+"rouge": "#cc4033" }
 
 
-
-    couleur_txt = "#d9873f"
     html = """<meta charset="UTF-8">
 <html>
     <style>
@@ -56,8 +61,8 @@ def visueliec1(theme,contenu):
     'height': 675,
      'encoding': "UTF-8",
     }
-    htmlsource = html % (couleur_txt,markdown.markdown(contenu))
-
+    htmlsource = html % (couleurs[couleur],markdown.markdown(contenu))
+    print htmlsource
     img = imgkit.from_string(htmlsource,False,options=options)
     im = Image.open(BytesIO(img))
 
@@ -69,15 +74,21 @@ def visueliec1(theme,contenu):
     path = '/'.join(app.instance_path.split('/')[:-1] +['obsapis','resources','visuels'])
     vispath = path+'/instantencommun'
 
-    vis = Image.open(vispath+'/instantencommun.jpg')
+    vis = Image.open(vispath+'/iec_%s.png' % couleur)
 
-    themefont = ImageFont.truetype("Montserrat-ExtraBold.ttf", 28)
-    theme = theme.upper()
+    titre = titre.upper()
+
 
     textes = Image.new('RGBA',(675,675))
     d = ImageDraw.Draw(textes)
-    theme_w,theme_h = themefont.getsize(theme)
-    d.text((0+(370-theme_w)/2,122), theme, font=themefont, fill=(255,255,255,255))
+    reduce = 0
+    theme_w = 100000
+    while theme_w>370:
+        themefont = ImageFont.truetype("Montserrat-ExtraBold.ttf", 28-reduce)
+        theme_w,theme_h = themefont.getsize(titre)
+        reduce += 1
+
+    d.text((10+(370-theme_w)/2,122+reduce/2), titre, font=themefont, fill=(255,255,255,255))
     textes = textes.rotate(2.8,expand=1,resample=Image.BICUBIC)
 
     vis.paste(textes,(0,0),textes)

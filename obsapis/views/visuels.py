@@ -19,6 +19,15 @@ def longs():
 def getgs():
     return Response(getgauge(), mimetype='image/png')
 
+params = {'urgdem':{'titre':u'Urgence démocratique','couleur':'jaune'},
+          'urgsoc':{'titre':u'Urgence sociale','couleur':'rouge'},
+          'urgeco':{'titre':u'Urgence écologique','couleur':'vert'},
+          'paixin':{'titre':u"La paix et l'international",'couleur':'violet'},
+          'europe':{'titre':u"L'Europe en question",'couleur':'bleu'},
+          'prohum':{'titre':u"Le progrès humain",'couleur':'orange' },
+          'frohum':{'titre':u"frontières de l’humanité",'couleur':'orange'}
+         }
+
 @app.route('/visuels/iec_poc')
 def view_ies_poc():
     contenu = u"""*2,5 millions* de français vivent dans un **désert médical**.
@@ -28,13 +37,14 @@ En *10 ans* le nombre de **médecins** généralistes a baissé de *8%* et cette
 Cela entraîne une *augmentation* du recours aux **Urgences**.
 """
     theme=u"progrès humain"
-    return render_template('iec/proofofconcept.html',contenu=contenu,theme=theme)
+    return render_template('iec/proofofconcept.html',contenu=contenu,themes=params)
 
 @app.route('/visuels/iec',methods=['POST'])
 def view_visueliec():
     theme=request.form.get('theme')
     contenu=request.form.get('contenu')
-    return image_response('png',visueliec1(theme=theme,contenu=contenu),filename=theme.replace(' ',''))
+    param = params[theme]
+    return image_response('png',visueliec1(theme=theme,contenu=contenu,**param),filename=theme.replace(' ',''))
 
 @app.route('/visuels/votecle/<int:num>')
 def visvotcle(num):

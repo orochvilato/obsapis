@@ -2,7 +2,11 @@
 <body>
 <form action="/visuels/iec" method="post" id="iecform">
   <p>Theme:</p>
-  <input type="text" name="theme" value="{{ theme }}">
+  <select name="theme">
+  {% for k,v in themes.iteritems() %}
+  <option value="{{k}}">{{v['titre']}}</option>
+  {% endfor %}
+  </select>
   <p>Contenu</p>
   <textarea name="contenu" style="width:300;height:200;">{{ contenu }}</textarea>
   <input type="submit">
