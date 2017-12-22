@@ -50,6 +50,7 @@ def visueliec1(theme,contenu):
     import imgkit
     options = {
     'quiet': '',
+    "xvfb": "",
     'format':'png',
     'width': texte_width,
     'height': 675,
