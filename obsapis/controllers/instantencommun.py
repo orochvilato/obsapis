@@ -24,7 +24,7 @@ def visueliec1(theme,titre,couleur,contenu):
 "bleu": "#4575b5",
 "vert": "#6bb592",
 "jaune": "#edbd45",
-"orange": "#d987df",
+"orange": "#fa9a46",
 "rouge": "#cc4033" }
 
 
@@ -62,7 +62,7 @@ def visueliec1(theme,titre,couleur,contenu):
      'encoding': "UTF-8",
     }
     htmlsource = html % (couleurs[couleur],markdown.markdown(contenu))
-    
+
     img = imgkit.from_string(htmlsource,False,options=options)
     im = Image.open(BytesIO(img))
 
