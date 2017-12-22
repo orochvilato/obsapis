@@ -62,7 +62,7 @@ def visueliec1(theme,titre,couleur,contenu):
      'encoding': "UTF-8",
     }
     htmlsource = html % (couleurs[couleur],markdown.markdown(contenu))
-    print htmlsource
+    
     img = imgkit.from_string(htmlsource,False,options=options)
     im = Image.open(BytesIO(img))
 
