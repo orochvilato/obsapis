@@ -34,7 +34,7 @@ Cela entraîne une *augmentation* du recours aux **Urgences**.
 def view_visueliec():
     theme=request.form.get('theme')
     contenu=request.form.get('contenu')
-    return image_response('png',visueliec1(theme=theme,contenu=contenu))
+    return image_response('png',visueliec1(theme=theme,contenu=contenu),filename=theme.replace(' ',''))
 
 @app.route('/visuels/votecle/<int:num>')
 def visvotcle(num):

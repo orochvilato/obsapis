@@ -88,4 +88,3 @@ def visueliec1(theme,contenu):
     final.save(output,'PNG')
     #final.save(imgpath,'PNG')
     return output.getvalue()
-9
