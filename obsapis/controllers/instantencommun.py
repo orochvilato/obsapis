@@ -4,25 +4,66 @@ from obsapis.tools import json_response,image_response,getdot,maj1l,use_cache
 import requests
 from selenium import webdriver
 from selenium.webdriver.chrome import service
-from PIL import Image,ImageFont,ImageDraw
+from PIL import Image,ImageChops,ImageFont,ImageDraw
 import StringIO
 import datetime
 import pygal
 import re
+from io import BytesIO
 
-def visueliec1():
+def trim(im, border):
+  bg = Image.new(im.mode, im.size, border)
+  diff = ImageChops.difference(im, bg)
+  bbox = diff.getbbox()
+  if bbox:
+    return im.crop(bbox)
 
-    from pygal.style import Style
-    custom_style = Style(
-          font_family="'Montserrat', sans-serif;",
-          major_label_font_size=15,
-          title_font_size=18,
-          value_font_size=11,
-          opacity=1,
-          background='transparent',
-          plot_background='transparent',
-          colors=['#25a87e','#e23d21','#213558','#bbbbbb']
-          )
+def visueliec1(theme,contenu):
+
+
+
+    couleur_txt = "#d9873f"
+    html = """<meta charset="UTF-8">
+<html>
+    <style>
+        body {
+            background-color: #faf7ee;
+            font-family: Roboto, sans-serif;
+            font-size: 32px;
+            font-weight: 300;
+        }
+        strong,em {
+            font-weight: 500;
+        }
+        strong {
+            font-style: italic;
+        }
+        em {
+            color: %s
+        }
+
+    </style>
+    <body>%s</body>
+</html>"""
+    texte_width = 595
+    import markdown
+    import imgkit
+    options = {
+    'quiet': '',
+    'format':'png',
+    'width': texte_width,
+    'height': 675,
+     'encoding': "UTF-8",
+    }
+    htmlsource = html % (couleur_txt,markdown.markdown(contenu))
+
+    img = imgkit.from_string(htmlsource,False,options=options)
+    im = Image.open(BytesIO(img))
+
+    im2 = trim(im,(250,247,238))
+    im2.save('/home/informatique/test.png')
+    texte_width,texte_height = im2.size
+
 
     output = StringIO.StringIO()
     path = '/'.join(app.instance_path.split('/')[:-1] +['obsapis','resources','visuels'])
@@ -30,20 +71,21 @@ def visueliec1():
 
     vis = Image.open(vispath+'/instantencommun.jpg')
 
-    fontlegendb = ImageFont.truetype("Montserrat-SemiBold.ttf", 20)
-    fontlegend  = ImageFont.truetype("Montserrat-Regular.ttf", 16)
-    fontdos = ImageFont.truetype("Montserrat-Bold.ttf", fontdossize)
-    fontnom = ImageFont.truetype("Montserrat-Bold.ttf", fontnomsize)
+    themefont = ImageFont.truetype("Montserrat-ExtraBold.ttf", 28)
+    theme = theme.upper()
 
     textes = Image.new('RGBA',(675,675))
     d = ImageDraw.Draw(textes)
-    d.text((100,100), Test, font=fonttheme, fill=(255,255,255,255))
-
+    theme_w,theme_h = themefont.getsize(theme)
+    d.text((0+(370-theme_w)/2,122), theme, font=themefont, fill=(255,255,255,255))
+    textes = textes.rotate(2.8,expand=1,resample=Image.BICUBIC)
 
     vis.paste(textes,(0,0),textes)
+    vis.paste(im2,(((675-texte_width)/2),195+(450-texte_height)/2),im2)
 
 
     final = vis
     final.save(output,'PNG')
     #final.save(imgpath,'PNG')
     return output.getvalue()
+9

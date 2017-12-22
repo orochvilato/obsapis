@@ -10,6 +10,23 @@ import pygal
 
 from obsapis.config import cache_pages_delay
 
+@app.route('/charts/groupes')
+def propgroupes():
+    pie_chart = pygal.Pie(half_pie=True)
+    pie_chart.title = 'Browser usage in February 2012 (in %)'
+    pie_chart.add('IE', 19.5)
+    pie_chart.add('Firefox', 36.6)
+    pie_chart.add('Chrome', 36.3)
+    pie_chart.add('Safari', 4.5)
+    pie_chart.add('Opera', 2.3)
+    from StringIO import StringIO
+    chart = StringIO()
+    pie_chart.render_to_file(chart)
+    return image_response('svg',chart.getvalue())
+
+
+
+
 @app.route('/charts/compatdepute')
 def chart_compatdep():
     deputes = request.args.get('depute','francoisruffin').split(',')

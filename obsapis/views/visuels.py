@@ -1,5 +1,6 @@
+# -*- coding: utf-8 -*-
 from obsapis import app,use_cache,mdb
-from flask import request, Response
+from flask import request, Response, render_template
 from obsapis.tools import json_response,cache_function,image_response
 import re
 import datetime
@@ -8,6 +9,7 @@ from obsapis.config import cache_pages_delay
 #@cache_function(expires=cache_pages_delay)
 from obsapis.controllers.visuels import get_visuel,genvisuelstat,genvisuelstat21,genvisuelstat21clean,maxis,getgauge,visuelvotecle
 
+from obsapis.controllers.instantencommun import visueliec1
 @app.route('/longs')
 def longs():
     return json_response(maxis())
@@ -16,6 +18,23 @@ def longs():
 @app.route('/gauge')
 def getgs():
     return Response(getgauge(), mimetype='image/png')
+
+@app.route('/visuels/iec_poc')
+def view_ies_poc():
+    contenu = u"""*2,5 millions* de français vivent dans un **désert médical**.
+
+En *10 ans* le nombre de **médecins** généralistes a baissé de *8%* et cette **raréfaction** touche *93* départements.
+
+Cela entraîne une *augmentation* du recours aux **Urgences**.
+"""
+    theme=u"progrès humain"
+    return render_template('iec/proofofconcept.html',contenu=contenu,theme=theme)
+
+@app.route('/visuels/iec',methods=['POST'])
+def view_visueliec():
+    theme=request.form.get('theme')
+    contenu=request.form.get('contenu')
+    return image_response('png',visueliec1(theme=theme,contenu=contenu))
 
 @app.route('/visuels/votecle/<int:num>')
 def visvotcle(num):
