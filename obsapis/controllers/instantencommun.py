@@ -69,10 +69,18 @@ def visueliec1(theme,themecustom,titre,couleur,contenu,source):
     'height': 675,
      'encoding': "UTF-8",
     }
-    emolist = [ r[1:-1] for r in re.findall(r':[^:]+:',contenu)]
-    contenu = re.sub(r':([^:]+):',r'<emoji class="\1"></emoji>',contenu)
+    emolist = []
+    for e in re.findall(r':[^:]+:',contenu):
+        emo = e[1:-1].split('|')
+        if len(emo)==1:
+            size = 32
+        else:
+            size = int(emo[1])
+        emolist.append((emo[0],size))
+
+    contenu = re.sub(r':([^|:]+)(\|*[^:]*):',r'<emoji class="e\1"></emoji>',contenu)
     contenu = re.sub(r'~([^~]+)~',r'<italic>\1</italic>',contenu)
-    htmlsource = html % (couleurs[couleur],get_emojis_css(emolist,32),markdown.markdown(contenu))
+    htmlsource = html % (couleurs[couleur],get_emojis_css(emolist),markdown.markdown(contenu))
 
 
 

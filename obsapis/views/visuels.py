@@ -38,7 +38,7 @@ Cela entraîne une *augmentation* du recours aux **Urgences**.
 """
     contenu = u"""*2,5 millions* de français ~vivent~ dans un **désert médical** :innocent:.
 
-En *10 ans* le nombre de **médecins** :yum: généralistes a ~baissé~ de *8%* et cette **raréfaction** touche *93* départements.:poop: :sweat:
+En *10 ans* le nombre de **médecins** :yum: généralistes a ~baissé~ de *8%* et cette **raréfaction** touche *93* départements.:poop: :sweat|60:
 
 Cela :nerd: entraîne une :confused: *augmentation* du :slight_frown: recours aux **Urgences**.
 """
