@@ -18,7 +18,11 @@ def trim(im, border):
   if bbox:
     return im.crop(bbox)
 
+from obsapis.controllers.emojis import get_emojis_css
+
 def visueliec1(theme,titre,couleur,contenu):
+    path = '/'.join(app.instance_path.split('/')[:-1] +['obsapis','resources','visuels'])
+    vispath = path+'/instantencommun'
 
     couleurs = { "violet": "#865e91",
 "bleu": "#4575b5",
@@ -46,6 +50,7 @@ def visueliec1(theme,titre,couleur,contenu):
         em {
             color: %s
         }
+        %s
 
     </style>
     <body>%s</body>
@@ -61,7 +66,11 @@ def visueliec1(theme,titre,couleur,contenu):
     'height': 675,
      'encoding': "UTF-8",
     }
-    htmlsource = html % (couleurs[couleur],markdown.markdown(contenu))
+    emolist = [ r[1:-1] for r in re.findall(r':[^:]+:',contenu)]
+    contenu = re.sub(r':([^:]+):',r'<emoji class="\1"></emoji>',contenu)
+    htmlsource = html % (couleurs[couleur],get_emojis_css(emolist),markdown.markdown(contenu))
+
+    print htmlsource
 
     img = imgkit.from_string(htmlsource,False,options=options)
     im = Image.open(BytesIO(img))
@@ -71,8 +80,6 @@ def visueliec1(theme,titre,couleur,contenu):
 
 
     output = StringIO.StringIO()
-    path = '/'.join(app.instance_path.split('/')[:-1] +['obsapis','resources','visuels'])
-    vispath = path+'/instantencommun'
 
     vis = Image.open(vispath+'/iec_%s.png' % couleur)
 
