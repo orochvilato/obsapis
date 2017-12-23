@@ -35,5 +35,5 @@ def get_emojis_css(emojis):
         emoji64 = base64.b64encode(output.getvalue())
         output.close()
         css.append(templ_css.substitute(emoji=e,emoji64=emoji64))
-    print css
+    
     return '\n'.join(css)

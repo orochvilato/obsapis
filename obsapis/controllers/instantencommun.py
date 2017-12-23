@@ -70,7 +70,7 @@ def visueliec1(theme,titre,couleur,contenu):
     contenu = re.sub(r':([^:]+):',r'<emoji class="\1"></emoji>',contenu)
     htmlsource = html % (couleurs[couleur],get_emojis_css(emolist),markdown.markdown(contenu))
 
-    print htmlsource
+    
 
     img = imgkit.from_string(htmlsource,False,options=options)
     im = Image.open(BytesIO(img))
