@@ -20,7 +20,7 @@ def trim(im, border):
 
 from obsapis.controllers.emojis import get_emojis_css
 
-def visueliec1(theme,titre,couleur,contenu):
+def visueliec1(theme,themecustom,titre,couleur,contenu,source):
     path = '/'.join(app.instance_path.split('/')[:-1] +['obsapis','resources','visuels'])
     vispath = path+'/instantencommun'
 
@@ -50,6 +50,9 @@ def visueliec1(theme,titre,couleur,contenu):
         em {
             color: %s
         }
+        italic {
+            font-style: italic;
+        }
         %s
 
     </style>
@@ -68,6 +71,7 @@ def visueliec1(theme,titre,couleur,contenu):
     }
     emolist = [ r[1:-1] for r in re.findall(r':[^:]+:',contenu)]
     contenu = re.sub(r':([^:]+):',r'<emoji class="\1"></emoji>',contenu)
+    contenu = re.sub(r'~([^~]+)~',r'<italic>\1</italic>',contenu)
     htmlsource = html % (couleurs[couleur],get_emojis_css(emolist,32),markdown.markdown(contenu))
 
 
@@ -83,7 +87,9 @@ def visueliec1(theme,titre,couleur,contenu):
 
     vis = Image.open(vispath+'/iec_%s.png' % couleur)
 
+    titre = themecustom if themecustom else titre
     titre = titre.upper()
+
 
 
     textes = Image.new('RGBA',(675,675))
@@ -96,11 +102,17 @@ def visueliec1(theme,titre,couleur,contenu):
         reduce += 1
 
     d.text((10+(370-theme_w)/2,122+reduce/2), titre, font=themefont, fill=(255,255,255,255))
+
+
     textes = textes.rotate(2.8,expand=1,resample=Image.BICUBIC)
 
+    sourcefont = ImageFont.truetype("Montserrat-LightItalic.ttf",14)
+    sources =Image.new('RGBA',(675,675))
+    s = ImageDraw.Draw(sources)
+    s.text((55,600), 'Source : '+source, font=sourcefont, fill=(0,0,0,255))
+    vis.paste(im2,(((675-texte_width)/2),175+(450-texte_height)/2),im2)
     vis.paste(textes,(0,0),textes)
-    vis.paste(im2,(((675-texte_width)/2),195+(450-texte_height)/2),im2)
-
+    vis.paste(sources,(0,0),sources)
 
     final = vis
     final.save(output,'PNG')

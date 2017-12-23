@@ -1,5 +1,37 @@
 <html>
+<style>
+    body {
+        background-color: #faf7ee;
+        font-family: Roboto, sans-serif;
+        font-size: 32px;
+        font-weight: 300;
+    }
+    strong,em {
+        font-weight: bold;
+    }
+    strong {
+        font-style: italic;
+    }
+    em {
+        color: #4575b5;
+    }
+    italic {
+        font-style: italic;
+    }
+    td {
+      padding:5px;
+    }
+
+</style>
 <body>
+<p>Aide</p>
+<table border=1>
+<tr><td>*mot*</td><td><em>mot</em></td></tr>
+<tr><td>**mot**</td><td><strong>mot</strong></td></tr>
+<tr><td>~mot~</td><td><italic>mot</italic></td></tr>
+</table>
+
+
 <form action="/visuels/iec" method="post" id="iecform">
   <p>Theme:</p>
   <select name="theme">
@@ -7,8 +39,13 @@
   <option value="{{k}}">{{v['titre']}}</option>
   {% endfor %}
   </select>
+  <input placeholder="texte personnalisé" style="width:300;" name="themecustom" type="text" value=""></input>
+
   <p>Contenu</p>
   <textarea name="contenu" style="width:300;height:200;">{{ contenu }}</textarea>
+
+  <p>Source</p>
+  <input style="width:300;" name="source" type="text" value="{{ source }}"></input>
   <input type="submit">
 </form>
 </body>

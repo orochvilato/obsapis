@@ -36,21 +36,24 @@ En *10 ans* le nombre de **médecins** généralistes a baissé de *8%* et cette
 
 Cela entraîne une *augmentation* du recours aux **Urgences**.
 """
-    contenu = u"""*2,5 millions* de français vivent dans un **désert médical** :innocent:.
+    contenu = u"""*2,5 millions* de français ~vivent~ dans un **désert médical** :innocent:.
 
-En *10 ans* le nombre de **médecins** :yum: généralistes a baissé de *8%* et cette **raréfaction** touche *93* départements.:poop: :sweat:
+En *10 ans* le nombre de **médecins** :yum: généralistes a ~baissé~ de *8%* et cette **raréfaction** touche *93* départements.:poop: :sweat:
 
 Cela :nerd: entraîne une :confused: *augmentation* du :slight_frown: recours aux **Urgences**.
 """
     theme=u"progrès humain"
-    return render_template('iec/proofofconcept.html',contenu=contenu,themes=params)
+    source=u"Observatoire de la Démocratie"
+    return render_template('iec/proofofconcept.html',contenu=contenu,source=source,themes=params)
 
 @app.route('/visuels/iec',methods=['POST'])
 def view_visueliec():
     theme=request.form.get('theme')
+    themecustom=request.form.get('themecustom')
     contenu=request.form.get('contenu')
+    source=request.form.get('source')
     param = params[theme]
-    return image_response('png',visueliec1(theme=theme,contenu=contenu,**param),filename=theme.replace(' ',''))
+    return image_response('png',visueliec1(theme=theme,themecustom=themecustom, contenu=contenu,source=source,**param),filename=theme.replace(' ',''))
 
 @app.route('/visuels/votecle/<int:num>')
 def visvotcle(num):
