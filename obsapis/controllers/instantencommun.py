@@ -109,7 +109,8 @@ def visueliec1(theme,themecustom,titre,couleur,contenu,source):
     sourcefont = ImageFont.truetype("Montserrat-LightItalic.ttf",14)
     sources =Image.new('RGBA',(675,675))
     s = ImageDraw.Draw(sources)
-    s.text((55,600), 'Source : '+source, font=sourcefont, fill=(0,0,0,255))
+
+    s.text((((675-texte_width)/2),425+texte_height/2), 'Source : '+source, font=sourcefont, fill=(0,0,0,255))
     vis.paste(im2,(((675-texte_width)/2),175+(450-texte_height)/2),im2)
     vis.paste(textes,(0,0),textes)
     vis.paste(sources,(0,0),sources)
