@@ -608,6 +608,8 @@ def visuelvotecle(num,groupe=None):
 
         for word in txt.split(' '):
             kw = word.replace(',','').replace(':','').replace('.','').replace(';','')
+            if len(kw)==0:
+                continue
             if len(kw)>2 and kw[0:2]=='**':
                 bold = True
             elif kw[0]=='*' or kw[0]=='_':
