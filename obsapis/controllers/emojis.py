@@ -78,7 +78,16 @@ bases = {'emojis2': {'base':Image.open(path+'/emoji2.png'),
                               'night_with_stars','bridge_at_night','milky_way','stars','sparkler','fireworks','rainbow','homes','european_castle',
                               'japanese_castle','stadium','statue_of_liberty','house','house_with_garden','house_abandoned','office','department_store',
                               'post_office','european_post_office','hospital','bank','hotel','convenience_store','school','love_hotel','wedding',
-                              'classical_building','church','mosque','synagogue','kaaba','shinto_shrine','scooter','motor_scooter','canoe'
+                              'classical_building','church','mosque','synagogue','kaaba','shinto_shrine','scooter','motor_scooter','canoe',
+                              'watch','iphone','calling','computer','keyboard','desktop','printer','mouse_three_button','trackball','joystick',
+                              'compression','minidisc','floppy_disk','cd','dvd','vhs','camera','camera_with_flash','video_camera','movie_camera',
+                              'projector','film_frames','telephone_receiver','telephone','pager','fax','tv','radio','microphone2','level_slider',
+                              'control_knobs','stopwatch','timer','alarm_clock','clock','hourglass_flowing_sand','hourglass','satellite','battery','electric_plug',
+                              'bulb','flashlight','candle','wastebasket','oil','money_with_wings','dollar','yen','euro','pound','moneybag','credit_card','gem',
+                              'scales','wrench','hammer','hammer_pick','tools','pick','nut_and_bolt','gear','chains','gun','bomb','knife','dagger','crossed_swords',
+                              'shield','smoking','skull_crossbones','coffin','urn','amphora','crystal_ball','prayer_beads','barber','alembic','telescope',
+                              'microscope','hole','pill','syringe','thermometer','label','bookmark','toilet','shower','bathtub','key','key2','couch','bed',
+                              'door','bellhop','frame_photo','map','beach_umbrella','moyai','shopping_bags' 
                                ]}
         }
 defs = {}
