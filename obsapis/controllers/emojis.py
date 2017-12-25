@@ -87,7 +87,37 @@ bases = {'emojis2': {'base':Image.open(path+'/emoji2.png'),
                               'scales','wrench','hammer','hammer_pick','tools','pick','nut_and_bolt','gear','chains','gun','bomb','knife','dagger','crossed_swords',
                               'shield','smoking','skull_crossbones','coffin','urn','amphora','crystal_ball','prayer_beads','barber','alembic','telescope',
                               'microscope','hole','pill','syringe','thermometer','label','bookmark','toilet','shower','bathtub','key','key2','couch','bed',
-                              'door','bellhop','frame_photo','map','beach_umbrella','moyai','shopping_bags' 
+                              'door','bellhop','frame_photo','map','beach_umbrella','moyai','shopping_bags','balloon','flags','ribbon','gift','confetti_ball',
+                              'tada','dolls','wind_chime','crossed_flags','izakaya_lantern','envelope','envelope_with_arrow','incoming_envelope','e_mail',
+                              'love_letter','postbox','mailbox_closed','mailbox','mailbox_with_mail','mailbox_with_no_mail','package',
+                              'postal_horn','inbox_tray','outbox_tray','scroll','page_with_curl','bookmark_tabs','bar_chart','chart_with_upwards_trend',
+                              'chart_with_downwards_trend','page_facing_up','date','calendar','calendar_spiral','card_index','card_box','ballot_box',
+                              'file_cabinet','clipboard','notepad_spiral','file_folder','open_file_folder','dividers','newspaper2','newspaper','notebook',
+                              'closed_book','green_book','blue_book','orange_book','notebook_with_decorative_cover','ledger','books','book','link',
+                              'paperclip','paperclips','scissors','triangular_ruler','straight_ruler','pushpin','round_pushpin','triangular_flag_on_post',
+                              'flag_white','flag_black','closed_lock_with_key','lock','unlock','lock_with_ink_pen','pen_ballpoint','pen_fountain',
+                              'black_nib','pencil','pencil2','crayon','paintbrush','mag','mag_right','shopping_cart','100','1234','heart','yellow_heart',
+                              'green_heart','blue_heart','purple_heart','broken_heart','heart_exclamation','two_hearts','revolving_hearts','heartbeat',
+                              'heartpulse','sparkling_heart','cupid','gift_heart','heart_decoration','peace','cross','star_and_crescent','om_symbol',
+                              'wheel_of_dharma','star_of_david','six_pointed_star','menorah','yin_yang','orthodox_cross','place_of_worship','ophiuchus',
+                              'aries','taurus','gemini','cancer','leo','virgo','libra','scorpius','sagittarius','capricorn','aquarius','pisces','id',
+                              'atom','u7a7a','u5272','radioactive','biohazard','mobile_phone_off','vibration_mode','u6709','u7121','u7533','u55b6',
+                              'u6708','eight_pointed_black_star','vs','accept','white_flower','ideograph_advantage','secret','congratulations','u5408',
+                              'u6e80','u7981','a','b','ab','cl','o2','sos','no_entry','name_badge','no_entry_sign','x','o','anger','hotsprings',
+                              'no_pedestrians','do_not_litter','no_bicycles','non_potable_water','underage','no_mobile_phones','exclamation',
+                              'grey_exclamation','question','grey_question','bangbang','interrobang','low_brightness','high_brightness','trident',
+                              'fleur_de_lis','part_alternation_mark','warning','children_crossing','beginner','recycle','u6307','chart','sparkle',
+                              'eight_spoked_asterisk','negative_squared_cross_mark','white_check_mark','diamond_shape_with_a_dot_inside',
+                              'cyclone','loop','globe_with_meridians','m','atm','sa','passport_control','customs','baggage_claim','left_luggage',
+                              'wheelchair','no_smoking','wc','parking','potable_water','mens','womens','baby_symbol','restroom','put_litter_in_its_place',
+                              'cinema','signal_strength','koko','ng','ok','up','cool','new','free','zero','one','two','three','four','five','six',
+                              'seven','eight','nine','keycap_ten','arrow_forward','pause_button','play_pause','stop_button','record_button',
+                              'track_next','track_previous','fast_forward','rewind','twisted_rightwards_arrows','repeat','repeat_one','arrow_backward',
+                              'arrow_up_small','arrow_down_small','arrow_double_up','arrow_double_down','arrow_right','arrow_left','arrow_up',
+                              'arrow_down','arrow_upper_right','arrow_lower_right','arrow_lower_left','arrow_upper_left','arrow_up_down',
+                              'left_right_arrow','arrows_counterclockwise','arrow_right_hook','leftwards_arrow_with_hook','arrow_heading_up',
+                              'arrow_heading_down','hash','asterisk','information_source','abc','abcd','capital_abcd','symbols','musical_note',
+                              'notes','wavy_dash','curly_loop','heavy_check_mark','arrows_clockwise'
                                ]}
         }
 defs = {}
@@ -98,8 +128,8 @@ for base,basedef in bases.iteritems():
 def get_emojis_css(emojis):
     from string import Template
 
-    templ_css = Template("""
-        .e${emoji} {
+    templ_emo_css = Template("""
+        .e${emoji}.item${i} {
             background: url(data:image/png;base64,${emoji64}) no-repeat left center;
             background-size: 100%;
             display: inline-block;
@@ -107,19 +137,28 @@ def get_emojis_css(emojis):
             width: ${size}px;
             height: ${size}px;
         }""")
+    templ_fa_css = Template("""
+        .${icon}.item${i} {
+            margin-top: -10px;
+            font-size: ${size}px;
+        }""")
     css=[]
 
     import StringIO
-    for e,size in emojis:
-        if e in defs.keys():
-            de = defs[e]
+    for i,tpl in enumerate(emojis):
+        e,size = tpl
+        if e[0:3]=='fa-':
+            css.append(templ_fa_css.substitute(icon=e,size=size,i=i))
         else:
-            de = defs['middle_finger']
-        emoji = bases[de['base']]['base'].crop((de['x'],de['y'],de['x']+44,de['y']+44))
-        output = StringIO.StringIO()
-        emoji.save(output,'PNG')
-        emoji64 = base64.b64encode(output.getvalue())
-        output.close()
-        css.append(templ_css.substitute(emoji=e,emoji64=emoji64,size=size-4,margin=2))
+            if e in defs.keys():
+                de = defs[e]
+            else:
+                de = defs['middle_finger']
+            emoji = bases[de['base']]['base'].crop((de['x'],de['y'],de['x']+44,de['y']+44))
+            output = StringIO.StringIO()
+            emoji.save(output,'PNG')
+            emoji64 = base64.b64encode(output.getvalue())
+            output.close()
+            css.append(templ_emo_css.substitute(emoji=e,emoji64=emoji64,i=i,size=size-4,margin=2))
 
     return '\n'.join(css)

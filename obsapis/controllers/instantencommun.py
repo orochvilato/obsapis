@@ -34,6 +34,8 @@ def visueliec1(theme,themecustom,titre,couleur,contenu,source):
 
     html = """<meta charset="UTF-8">
 <html>
+    <head>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
     <style>
         body {
             background-color: #faf7ee;
@@ -56,6 +58,7 @@ def visueliec1(theme,themecustom,titre,couleur,contenu,source):
         %s
 
     </style>
+    </head>
     <body>%s</body>
 </html>"""
     texte_width = 595
@@ -70,7 +73,7 @@ def visueliec1(theme,themecustom,titre,couleur,contenu,source):
      'encoding': "UTF-8",
     }
     emolist = []
-    for e in re.findall(r':[^:]+:',contenu):
+    for i,e in enumerate(re.findall(r':[^:]+:',contenu)):
         emo = e[1:-1].split('|')
         if len(emo)==1:
             size = 32
@@ -78,10 +81,20 @@ def visueliec1(theme,themecustom,titre,couleur,contenu,source):
             size = int(emo[1])
         emolist.append((emo[0],size))
 
-    contenu = re.sub(r':([^|:]+)(\|*[^:]*):',r'<emoji class="e\1"></emoji>',contenu)
-    contenu = re.sub(r'~([^~]+)~',r'<italic>\1</italic>',contenu)
-    htmlsource = html % (couleurs[couleur],get_emojis_css(emolist),markdown.markdown(contenu))
+    _dec = re.split(r':[^:]+:',contenu)
+    newcont = _dec[0]
+    for i,txt in enumerate(_dec[1:]):
+        if emolist[i][0][0:3]=='fa-':
+            newcont += '<i class="fa %s item%d"></i>' % (emolist[i][0],i)
+        else:
+            newcont += '<emoji class="e%s item%d"></emoji>' % (emolist[i][0],i)
+        newcont += txt
 
+    contenu = newcont
+    contenu = re.sub(r'~([^~]+)~',r'<italic>\1</italic>',contenu)
+
+    htmlsource = html % (couleurs[couleur],get_emojis_css(emolist),markdown.markdown(contenu))
+    
 
 
     img = imgkit.from_string(htmlsource,False,options=options)
