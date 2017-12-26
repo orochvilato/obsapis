@@ -117,7 +117,47 @@ bases = {'emojis2': {'base':Image.open(path+'/emoji2.png'),
                               'arrow_down','arrow_upper_right','arrow_lower_right','arrow_lower_left','arrow_upper_left','arrow_up_down',
                               'left_right_arrow','arrows_counterclockwise','arrow_right_hook','leftwards_arrow_with_hook','arrow_heading_up',
                               'arrow_heading_down','hash','asterisk','information_source','abc','abcd','capital_abcd','symbols','musical_note',
-                              'notes','wavy_dash','curly_loop','heavy_check_mark','arrows_clockwise'
+                              'notes','wavy_dash','curly_loop','heavy_check_mark','arrows_clockwise','heavy_plus_sign','heavy_minus_sign',
+                              'heavy_division_sign','heavy_multiplication_x','heavy_dollar_sign','currency_exchange','copyright','registered',
+                              'tm','end','back','on','top','soon','ballot_box_with_check','radio_button','white_circle','black_circle',
+                              'red_circle','large_blue_circle','small_orange_diamond','small_blue_diamond','large_orange_diamond',
+                              'large_blue_diamond','small_red_triangle','black_small_square','white_small_square','black_large_square',
+                              'white_large_square','small_red_triangle_down','black_medium_square','white_medium_square','black_medium_small_square',
+                              'white_medium_small_square','black_square_button','white_square_button','speaker','sound','loud_sound','mute',
+                              'mega','loudspeaker','bell','no_bell','black_joker','mahjong','spades','clubs','hearts','diamonds','flower_playing_cards',
+                              'thought_balloon','anger_right','speech_balloon','clock1','clock2','clock3','clock4','clock5','clock6','clock7',
+                              'clock8','clock9','clock10','clock11','clock12','clock130','clock230','clock330','clock430','clock530','clock630',
+                              'clock730','clock830','clock930','clock1030','clock1130','clock1230','eye_in_speech_bubble','speech_left','eject',
+                              'black_heart','octagonal_sign','regional_indicator_z','regional_indicator_y','regional_indicator_x',
+                              'regional_indicator_w','regional_indicator_v','regional_indicator_u','regional_indicator_t','regional_indicator_s',
+                              'regional_indicator_r','regional_indicator_q','regional_indicator_p','regional_indicator_o','regional_indicator_n',
+                              'regional_indicator_m','regional_indicator_l','regional_indicator_k','regional_indicator_j','regional_indicator_i',
+                              'regional_indicator_h','regional_indicator_g','regional_indicator_f','regional_indicator_e','regional_indicator_d',
+                              'regional_indicator_c','regional_indicator_b','regional_indicator_a','flag_ac','flag_af','flag_al','flag_dz',
+                              'flag_ad','flag_ao','flag_ai','flag_ag','flag_ar','flag_am','flag_aw','flag_au','flag_at','flag_az','flag_bs',
+                              'flag_bh','flag_bd','flag_bb','flag_by','flag_be','flag_bz','flag_bj','flag_bm','flag_bt','flag_bo','flag_ba',
+                              'flag_bw','flag_br','flag_bn','flag_bg','flag_bf','flag_bi','flag_cv','flag_kh','flag_cm','flag_ca','flag_ky',
+                              'flag_cf','flag_td','flag_cl','flag_cn','flag_co','flag_km','flag_cg','flag_cd','flag_cr','flag_hr','flag_cu',
+                              'flag_cy','flag_cz','flag_dk','flag_dj','flag_dm','flag_do','flag_ec','flag_eg','flag_sv','flag_gq','flag_er',
+                              'flag_ee','flag_et','flag_fk','flag_fo','flag_fj','flag_fi','flag_fr','flag_pf','flag_ga','flag_gm','flag_ge',
+                              'flag_de','flag_gh','flag_gi','flag_gr','flag_gl','flag_gd','flag_gu','flag_gt','flag_gn','flag_gw','flag_gy',
+                              'flag_ht','flag_hn','flag_hk','flag_hu','flag_is','flag_in','flag_id','flag_ir','flag_iq','flag_ie','flag_il',
+                              'flag_it','flag_ci','flag_jm','flag_jp','flag_je','flag_jo','flag_kz','flag_ke','flag_ki','flag_xk','flag_kw',
+                              'flag_kg','flag_la','flag_lv','flag_lb','flag_ls','flag_lr','flag_ly','flag_li','flag_lt','flag_lu','flag_mo',
+                              'flag_mk','flag_mg','flag_mw','flag_my','flag_mv','flag_ml','flag_mt','flag_mh','flag_mr','flag_mu','flag_mx',
+                              'flag_fm','flag_md','flag_mc','flag_mn','flag_me','flag_ms','flag_ma','flag_mz','flag_mm','flag_na','flag_nr',
+                              'flag_np','flag_nl','flag_nc','flag_nz','flag_ni','flag_ne','flag_ng','flag_nu','flag_kp','flag_no','flag_om',
+                              'flag_pk','flag_pw','flag_ps','flag_pa','flag_pg','flag_py','flag_pe','flag_ph','flag_pl','flag_pt','flag_pr',
+                              'flag_qa','flag_ro','flag_ru','flag_rw','flag_sh','flag_kn','flag_lc','flag_vc','flag_ws','flag_sm','flag_st',
+                              'flag_sa','flag_sn','flag_rs','flag_sc','flag_sl','flag_sg','flag_sk','flag_si','flag_sb','flag_so','flag_za',
+                              'flag_kr','flag_es','flag_lk','flag_sd','flag_sr','flag_sz','flag_se','flag_ch','flag_sy','flag_tw','flag_tj',
+                              'flag_tz','flag_th','flag_tl','flag_tg','flag_to','flag_tt','flag_tn','flag_tr','flag_tm','flag_tv','flag_ug',
+                              'flag_ua','flag_ae','flag_gb','flag_us','flag_vi','flag_gg','flag_uy','flag_uz','flag_vu','flag_va','flag_ve',
+                              'flag_vn','flag_wf','flag_eh','flag_ye','flag_zm','flag_zw','flag_re','flag_ax','flag_ta','flag_io','flag_bq',
+                              'flag_cx','flag_gg','flag_im','flag_yt','flag_nf','flag_pn','flag_bl','flag_pm','flag_gs','flag_tk','flag_bv',
+                              'flag_hm','flag_sj','flag_um','flag_ic','flag_ea','flag_cp','flag_dg','flag_as','flag_aq','flag_vg','flag_ck',
+                              'flag_cw','flag_eu','flag_gf','flag_tf','flag_gp','flag_mq','flag_mp','flag_sx','flag_ss','flag_tc','flag_mf',
+                              'gay_pride_flag'
                                ]}
         }
 defs = {}
@@ -139,7 +179,6 @@ def get_emojis_css(emojis):
         }""")
     templ_fa_css = Template("""
         .${icon}.item${i} {
-            margin-top: -10px;
             font-size: ${size}px;
         }""")
     css=[]
