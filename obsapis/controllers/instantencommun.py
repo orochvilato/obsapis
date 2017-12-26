@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from obsapis import app,mdb
 from obsapis.tools import json_response,image_response,getdot,maj1l,use_cache
+from flask import url_for
 import requests
 from selenium import webdriver
 from selenium.webdriver.chrome import service
@@ -55,6 +56,10 @@ def visueliec1(theme,themecustom,titre,couleur,contenu,source):
         italic {
             font-style: italic;
         }
+        .test svg {
+            width:40px;
+            height:40px;
+        }
         %s
 
     </style>
@@ -94,6 +99,14 @@ def visueliec1(theme,themecustom,titre,couleur,contenu,source):
     for i,txt in enumerate(_dec[1:]):
         if emolist[i][0][0:3]=='fa-':
             newcont += '<i class="fa %s item%d"></i>' % (emolist[i][0],i)
+        elif ord(emolist[i][0][0])>255:
+            path = '/'.join(app.instance_path.split('/')[:-1] +['obsapis','resources','visuels','assets','emojis','svg'])
+            code = hex(int('0x'+repr(emolist[i][0])[4:-1],16))[2:]
+
+            svg = open(path+'/%s.svg' % code).read()
+            svg = re.sub(r'<\?[^?]+\?>','',svg)
+            newcont += '<span class="emojisvg%d">%s</span>' % (i,svg)
+
         else:
             newcont += '<emoji class="e%s item%d"></emoji>' % (emolist[i][0],i)
         newcont += txt
@@ -102,7 +115,7 @@ def visueliec1(theme,themecustom,titre,couleur,contenu,source):
     contenu = re.sub(r'~([^~]+)~',r'<italic>\1</italic>',contenu)
 
     htmlsource = html % (couleurs[couleur],get_emojis_css(emolist),markdown.markdown(contenu))
-
+    
 
     img = imgkit.from_string(htmlsource,False,options=options)
     im = Image.open(BytesIO(img))
