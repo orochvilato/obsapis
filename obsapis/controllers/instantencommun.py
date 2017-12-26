@@ -75,11 +75,19 @@ def visueliec1(theme,themecustom,titre,couleur,contenu,source):
     emolist = []
     for i,e in enumerate(re.findall(r':[^:]+:',contenu)):
         emo = e[1:-1].split('|')
-        if len(emo)==1:
-            size = 32
-        else:
-            size = int(emo[1])
-        emolist.append((emo[0],size))
+        size = 32
+        color = None
+        if len(emo)>1:
+            for _e in emo[1:]:
+                if _e[0]=='#':
+                    color = _e
+                else:
+                    try:
+                        size = int(_e)
+                    except:
+                        pass
+
+        emolist.append((emo[0],size,color))
 
     _dec = re.split(r':[^:]+:',contenu)
     newcont = _dec[0]
@@ -94,7 +102,6 @@ def visueliec1(theme,themecustom,titre,couleur,contenu,source):
     contenu = re.sub(r'~([^~]+)~',r'<italic>\1</italic>',contenu)
 
     htmlsource = html % (couleurs[couleur],get_emojis_css(emolist),markdown.markdown(contenu))
-    
 
 
     img = imgkit.from_string(htmlsource,False,options=options)

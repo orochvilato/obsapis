@@ -179,15 +179,16 @@ def get_emojis_css(emojis):
         }""")
     templ_fa_css = Template("""
         .${icon}.item${i} {
+            ${color}
             font-size: ${size}px;
         }""")
     css=[]
 
     import StringIO
     for i,tpl in enumerate(emojis):
-        e,size = tpl
+        e,size,color = tpl
         if e[0:3]=='fa-':
-            css.append(templ_fa_css.substitute(icon=e,size=size,i=i))
+            css.append(templ_fa_css.substitute(icon=e,size=size,color="color: %s;\n" % color if color else "" ,i=i))
         else:
             if e in defs.keys():
                 de = defs[e]
