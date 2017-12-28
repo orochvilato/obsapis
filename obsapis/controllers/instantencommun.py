@@ -150,7 +150,11 @@ def txt_to_img(content,width,height,themecolor,fontfamily="Roboto, sans-serif",f
                 newcont += '<i class="fa %s item%d"></i>' % (emolist[i][0],i)
             elif ord(emolist[i][0][0])>255:
                 path = '/'.join(app.instance_path.split('/')[:-1] +['obsapis','resources','visuels','assets','emojis','svg'])
-                code = hex(int('0x'+repr(emolist[i][0])[4:-1],16))[2:]
+                code = []
+                for c in emolist[i][0]:
+                    print repr(c)
+                    code.append(hex(int('0x'+repr(c)[4:-1],16))[2:])
+                code = '-'.join(code)
 
                 svg = open(path+'/%s.svg' % code).read()
                 svg = re.sub(r'<\?[^?]+\?>','',svg)
@@ -181,7 +185,7 @@ def txt_to_img(content,width,height,themecolor,fontfamily="Roboto, sans-serif",f
     return im2
 
 def visueliec1(theme,themecustom,titre,couleur,contenu,source):
-    
+
     path = '/'.join(app.instance_path.split('/')[:-1] +['obsapis','resources','visuels'])
     vispath = path+'/instantencommun'
 
@@ -261,7 +265,10 @@ def visueliec1(theme,themecustom,titre,couleur,contenu,source):
             newcont += '<i class="fa %s item%d"></i>' % (emolist[i][0],i)
         elif ord(emolist[i][0][0])>255:
             path = '/'.join(app.instance_path.split('/')[:-1] +['obsapis','resources','visuels','assets','emojis','svg'])
-            code = hex(int('0x'+repr(emolist[i][0])[4:-1],16))[2:]
+            code = []
+            for c in emolist[i][0]:
+                code.append(hex(int('0x'+repr(c)[4:-1],16))[2:])
+            code = '-'.join(code)
 
             svg = open(path+'/%s.svg' % code).read()
             svg = re.sub(r'<\?[^?]+\?>','',svg)
