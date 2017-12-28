@@ -24,9 +24,13 @@ def visuel_deputes(stat):
         f = visuelclean
         zone = dict(width=994,height=400,x=15,y=35,background="#fffdf1")
     if stat=='participation':
-        from obsapis.controllers.visuel.charts.deputes.participation import participation_globale_par_tranche_de_10 as chart
+        from obsapis.controllers.visuel.charts.deputes.scrutins import participation_globale_par_tranche_de_10 as chart
         v = f([(chart(width=zone['width'],height=zone['height'],background=zone['background']),zone['x'],zone['y'])])
-
+    elif stat=='commissions':
+        from obsapis.controllers.visuel.charts.deputes.commissions import presence_globale_par_tranche_de_10 as chart
+        v = f([(chart(width=zone['width'],height=zone['height'],background=zone['background']),zone['x'],zone['y'])])
+    else:
+        v = ""
     headers = {'Cache-Control':'no-cache, no-store, must-revalidate','Pragma':'no-cache'}
     if download==0:
         r = Response(v, mimetype="image/png",headers=headers)
