@@ -428,7 +428,6 @@ def pyramideage():
 
 @app.route('/charts/pyramidepartipation')
 def pyramideparticipation():
-    return json_response(mdb.scrutins.find_one())
     pgroup = {}
 
     pgroup['n'] = {'$sum':1}
@@ -471,4 +470,31 @@ def pyramideparticipation():
     from StringIO import StringIO
     chart = StringIO()
     pyramid_chart.render_to_png(chart)
+    return image_response('png',chart.getvalue())
+
+@app.route('/charts/participation')
+def charts_participation():
+
+    buckets = [0]*10
+    for d in mdb.deputes.find({'depute_actif':True},{'stats.positions.exprimes':1}):
+        if 'positions' in d['stats'].keys():
+            buckets[int(d['stats']['positions']['exprimes'])/10] += 1
+    #return json_response(dict(n=sum(buckets),buckets=buckets))
+
+
+    #return json_response(data)
+    from pygal.style import Style
+    custom_style = Style(
+          font_family="'Montserrat', sans-serif;"
+          )
+
+    import datetime
+    barchart = pygal.Bar(human_readable=True, show_legend=False,x_title=u'% de participation',y_title=u"nb de députés",style=custom_style)
+    barchart.title = u'Participation aux scrutins publics\n(au %s)' % (datetime.datetime.now().strftime('%d/%m/%Y'))
+    barchart.x_labels = [n*10 for n in range(10)]
+    barchart.add('nb', buckets)
+
+    from StringIO import StringIO
+    chart = StringIO()
+    barchart.render_to_png(chart)
     return image_response('png',chart.getvalue())
