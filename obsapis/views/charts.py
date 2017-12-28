@@ -491,7 +491,7 @@ def charts_participation():
     import datetime
     barchart = pygal.Bar(human_readable=True, show_legend=False,x_title=u'% de participation',y_title=u"nb de députés",style=custom_style)
     barchart.title = u'Participation aux scrutins publics\n(au %s)' % (datetime.datetime.now().strftime('%d/%m/%Y'))
-    barchart.x_labels = [n*10 for n in range(10)]
+    barchart.x_labels = ["%d-%d" % (n*10,9+n*10) for n in range(10)]
     barchart.add('nb', buckets)
 
     from StringIO import StringIO
