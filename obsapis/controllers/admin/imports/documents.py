@@ -11,6 +11,7 @@ def importdocs():
     offset = 0
     docs = []
     ops = []
+    ops_sigs = []
     urls = [('http://www2.assemblee-nationale.fr/documents/liste/(ajax)/1/(offset)/%d/(limit)/%d/(type)/depots/(legis)/15/(no_margin)/false',
             r'^(.+) - N[\xc2\xa0\xb0 ]+([0-9]+)$','%d'),
             ('http://www2.assemblee-nationale.fr/documents/liste/(ajax)/1/(offset)/%d/(limit)/%d/(type)/ta/(legis)/15/',
@@ -43,7 +44,7 @@ def importdocs():
                             docs.append(dict(numero=(url[2] % int(r[1])).upper(),titre=r[0],document='http://www2.assemblee-nationale.fr'+sublinks[1],dossier=sublinks[0],description=desc))
 
             offset += nb
-    depute_shortids = mdb.deputes.distinct('depute_shortid')
+    depute_shortids_gp = dict((d['depute_shortid'],d['groupe_abrev']) for d in mdb.deputes.find({},{'_id':None,'depute_shortid':1,'groupe_abrev':1}))
     done = [ doc['numero'] for doc in mdb.documentsan.find({},{'numero':1,'_id':None})]
     for d in docs:
         if d['numero'] in done:
@@ -64,7 +65,6 @@ def importdocs():
                 noms = []
                 start = False
                 for i,_p in enumerate(p):
-                    print i,_p
                     if u"d\xe9put\xe9" in _p:
                         break
 
@@ -74,20 +74,30 @@ def importdocs():
                         start = True
 
                 noms = ' '.join(noms)
-                print "-->", noms
                 p = noms.replace(' et ',',').replace(u'\xa0',' ').replace('MM. ','').replace('M. ','').replace('Mme ','')
-                print p
                 for dep in p.split(','):
                     norm = normalize(unicode(dep))
-                    if norm in depute_shortids:
+                    if norm in depute_shortids_gp.keys():
                         deputes.append(norm)
                     else:
                         pass
                         #print dep,norm,p
 
-                d['signataires'] = deputes
                 d['type'] = 'propositionloi'
+
+                for i,dep in enumerate(deputes):
+                    docsig = dict(d)
+                    docsig['auteur']=(i==0)
+                    docsig['role']='signataire'
+                    docsig['depute_shortid'] = dep
+                    docsig['groupe_abrev'] = depute_shortids_gp[dep]
+                    docsig['id'] = "%s_%s" % (d['numero'],dep)
+                    ops_sigs.append(UpdateOne({'id':docsig['id']},{'$set':docsig},upsert=True))
+                d['signataires'] = deputes
+
 
         ops.append(UpdateOne({'numero':d['numero']},{'$set':d},upsert=True))
     if ops:
         mdbrw.documentsan.bulk_write(ops)
+    if ops_sigs:
+        mdbrw.documentsan_signataires.bulk_write(ops_sigs)

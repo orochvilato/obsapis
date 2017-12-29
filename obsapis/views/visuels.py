@@ -38,7 +38,11 @@ Cela entraîne une *augmentation* du recours aux **Urgences**.
 """
     contenu = u""":flag_mq|44: :loudspeaker|44: :fa-binoculars|44: *:fa-birthday-cake|44:*
 
-Emoticons :ok_hand: + *font-awesome :fa-fa:*"""
+Emoticons :ok_hand: + *FontAwesome :fa-fa:*.
+
+:fa-angellist|125|#6bb592:
+"""
+
     theme=u"progrès humain"
     source=u"Observatoire de la Démocratie"
     return render_template('iec/proofofconcept.html',contenu=contenu,source=source,themes=params)

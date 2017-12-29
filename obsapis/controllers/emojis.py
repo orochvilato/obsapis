@@ -179,15 +179,23 @@ def get_emojis_css(emojis):
         }""")
     templ_fa_css = Template("""
         .${icon}.item${i} {
+            ${color}
             font-size: ${size}px;
         }""")
+    templ_emosvg_css = Template("""
+            .emojisvg{i} svg {
+                height:${size}px;
+                width:${size}px;
+            }""")
     css=[]
 
     import StringIO
     for i,tpl in enumerate(emojis):
-        e,size = tpl
+        e,size,color = tpl
+        if ord(e[0])>255:
+            css.append(templ_emosvg_css.substitute(size=size,i=i))
         if e[0:3]=='fa-':
-            css.append(templ_fa_css.substitute(icon=e,size=size,i=i))
+            css.append(templ_fa_css.substitute(icon=e,size=size,color="color: %s;\n" % color if color else "" ,i=i))
         else:
             if e in defs.keys():
                 de = defs[e]
