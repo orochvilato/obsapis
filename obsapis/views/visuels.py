@@ -88,13 +88,13 @@ def genvisuel21():
     stat = request.args.get('stat','participation')
 
 
-    download = int(request.args.get('download','0'))
+
     if 'clean' in request.args:
         v=genvisuelstat21clean(depute,stat)
     else:
         v=genvisuelstat21(depute,stat)
     headers = {'Cache-Control':'no-cache, no-store, must-revalidate','Pragma':'no-cache'}
-    if download==0:
+    if 'download' in request.args:
         r = Response(v, mimetype="image/png",headers=headers)
     else:
         headers.update({"Content-Disposition":
