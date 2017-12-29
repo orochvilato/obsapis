@@ -10,7 +10,7 @@ import re
 from obsapis.tools import json_response,xls_response,dictToXls,dictToXlsx
 from obsapis.controllers.admin.imports.documents import importdocs
 from obsapis.controllers.admin.updates.scrutins import updateScrutinsTexte
-from obsapis.controllers.admin.updates.groupes import updateGroupesDeputeHasard
+from obsapis.controllers.admin.updates.deputes import updateDeputesContacts
 
 
 @app.route('/updateScrutins')
@@ -49,7 +49,7 @@ def ouv():
 
 @app.route('/test')
 def test():
-    #updateGroupesDeputeHasard()
+    updateDeputesContacts()
     #importdocs()
     #return json_util.dumps(list(mdb.documentsan_signataires.find({'depute_shortid':'francoisruffin'})))
     return json_util.dumps(mdb.deputes.find_one({'groupe_abrev':'FI'},{'groupe_abrev':1,'depute_contacts':1}))
