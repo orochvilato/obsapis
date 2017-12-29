@@ -36,12 +36,9 @@ En *10 ans* le nombre de **médecins** généralistes a baissé de *8%* et cette
 
 Cela entraîne une *augmentation* du recours aux **Urgences**.
 """
-    contenu = u"""*2,5 millions* de français ~vivent~ dans un **désert médical** :innocent:.
+    contenu = u""":flag_mq|44: :loudspeaker|44: :fa-binoculars|44: *:fa-birthday-cake|44:*
 
-En *10 ans* le nombre de **médecins** :yum: généralistes a ~baissé~ de *8%* et cette **raréfaction** touche *93* départements.:poop: :sweat|60:
-
-Cela :nerd: entraîne une :confused: *augmentation* du :slight_frown: recours aux **Urgences**.
-"""
+Emoticons :ok_hand: + *font-awesome :fa-fa:*"""
     theme=u"progrès humain"
     source=u"Observatoire de la Démocratie"
     return render_template('iec/proofofconcept.html',contenu=contenu,source=source,themes=params)
