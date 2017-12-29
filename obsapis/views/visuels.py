@@ -82,7 +82,7 @@ def genvisuel():
 
 
 @app.route('/visuels/stat21')
-@cache_function(expires=6000)
+@cache_function(expires=600)
 def genvisuel21():
     depute = request.args.get('depute',None)
     stat = request.args.get('stat','participation')
