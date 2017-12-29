@@ -98,7 +98,7 @@ def genvisuel21():
         r = Response(v, mimetype="image/png",headers=headers)
     else:
         headers.update({"Content-Disposition":
-                     "attachment;filename=%s-%s.png" % (depute,datetime.datetime.now().strftime('%Y-%m-%d'))})
+                     "attachment;filename=obsdemocratie_%s_%s.png" % (depute,datetime.datetime.now().strftime('%Y_%m_%d'))})
         r = Response(v, mimetype="image/png",
                        headers=headers)
     return r
