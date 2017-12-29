@@ -126,7 +126,11 @@ def deputeget(shortid):
         weeks[wdat]['e']+= 1 if v['vote_position']!='absent' else 0
         dates[sdat]['e']+= 1 if v['vote_position']!='absent' else 0
 
-
+    rs = {}
+    for c in depute['depute_contacts']:
+        if c['type'] in ['twitter','facebook']:
+            rs[c['type']] = c['lien'].split('/')[-2]
+    depute['RS'] = rs
     resp = dict(dates=sorted([{"date": dat,"pct":round(float(v['e'])/v['n'],3)} for dat,v in dates.iteritems()],key=lambda x:x['date']),
                 weeks=sorted([{"week": w,"pct":100*round(float(v['e'])/v['n'],2)} for w,v in weeks.iteritems()],key=lambda x:x['week']),
                 votes_cles=s_cles,

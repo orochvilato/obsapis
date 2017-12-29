@@ -222,7 +222,7 @@ def genvisuelstat21(depute,stat):
                     'label':{True:{'x':750,'y':210,'fs':22},
                              False:{'x':510,'y':295,'fs':18}
                              },
-                    'mots':{True:{'x':510,'y':150,'space':40,'h':30,'xl':510,'yl':307,'fsmot1':30,'fsmot':22,'fslabel':20},
+                    'mots':{True:{'x':510,'y':155,'space':45,'h':30,'xl':510,'yl':307,'fsmot1':30,'fsmot':22,'fslabel':20},
                             False:{'x':510,'y':150,'space':40,'h':25,'xl':510,'yl':307,'fsmot1':27,'fsmot':20,'fslabel':18}}
                    }
     for j,stat in enumerate(stats):
@@ -245,9 +245,10 @@ def genvisuelstat21(depute,stat):
                     d.text((_ps['x']+220*j,_ps['y']),"1. "+maj1l(mots[0]),font=fontmot1,fill=(255,0,82,255))
                     for i in range(1,5):
                         d.text((_ps['x']+220*j,_ps['y']+_ps['space']+(i-1)*_ps['h']),"%d. %s" % (1+i,maj1l(mots[i])),font=fontmot,fill=(33,53,88,255))
-                    d.text((_ps['xl']+220*j,_ps['yl']),libelle, font=fontlabel,fill=(130,205,226,255)) #462
+                    if not statunique:
+                        d.text((_ps['xl']+220*j,_ps['yl']),libelle, font=fontlabel,fill=(130,205,226,255)) #462
 
-                    label = not statunique
+                    label = statunique
             if label:
                 _ps = params_stats['label'][statunique]
                 fontlabel = ImageFont.truetype("Montserrat-Bold.ttf", _ps['fs'])

@@ -52,7 +52,7 @@ def test():
     #updateGroupesDeputeHasard()
     #importdocs()
     #return json_util.dumps(list(mdb.documentsan_signataires.find({'depute_shortid':'francoisruffin'})))
-    return json_util.dumps(mdb.deputes.find_one({'groupe_abrev':'FI'},{'groupe_abrev':1,'stats':1}))
+    return json_util.dumps(mdb.deputes.find_one({'groupe_abrev':'FI'},{'groupe_abrev':1,'depute_contacts':1}))
     return json_util.dumps(mdb.deputes.find_one({'depute_shortid':'thierrysolere'},{'stats':1,'_id':None}))
     return json_util.dumps(list(mdb.amendements.find({'numAmend':'311'})))
     return json_util.dumps([(d['depute_nom'],
