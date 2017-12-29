@@ -94,7 +94,7 @@ def genvisuel21():
     else:
         v=genvisuelstat21(depute,stat)
     headers = {'Cache-Control':'no-cache, no-store, must-revalidate','Pragma':'no-cache'}
-    if 'download' in request.args:
+    if not 'download' in request.args:
         r = Response(v, mimetype="image/png",headers=headers)
     else:
         headers.update({"Content-Disposition":
