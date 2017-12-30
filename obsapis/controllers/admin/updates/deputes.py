@@ -22,12 +22,11 @@ def updateDeputesContacts():
     return "ok"
 def updateDeputesLieuNaissance():
     ops = []
-    for d in mdb.deputes.find({},{'depute_naissance':1,'_id':None}):
-        callback = lambda pat: u'\xe0 '+pat.group(1).upper()
-        d['depute_naissance'] = re.sub(r'\xe0 (.*\xa0\()',callback,a)
-        print d['depute_naissance']
-
-        #ops.append(UpdateOne({'depute_shortid':d['depute_shortid']},{'$set':{'depute_contacts':d['depute_contacts']}}))
+    import re
+    for d in mdb.deputes.find({},{'depute_shortid':1,'depute_naissance':1,'_id':None}):
+        callback = lambda pat: pat.group(1)+' '+pat.group(2).upper()
+        d['depute_naissance'] = re.sub(r'(\xe0|au|aux) (.*\xa0\()',callback,d['depute_naissance'])
+        ops.append(UpdateOne({'depute_shortid':d['depute_shortid']},{'$set':{'depute_naissance':d['depute_naissance']}}))
 
     if ops:
         mdbrw.deputes.bulk_write(ops)

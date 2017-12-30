@@ -10,7 +10,7 @@ import re
 from obsapis.tools import json_response,xls_response,dictToXls,dictToXlsx
 from obsapis.controllers.admin.imports.documents import importdocs
 from obsapis.controllers.admin.updates.scrutins import updateScrutinsTexte
-from obsapis.controllers.admin.updates.deputes import updateDeputesContacts
+from obsapis.controllers.admin.updates.deputes import updateDeputesLieuNaissance
 
 
 @app.route('/updateScrutins')
@@ -49,7 +49,7 @@ def ouv():
 
 @app.route('/test')
 def test():
-    #updateDeputesContacts()
+    updateDeputesLieuNaissance()
     #importdocs()
     #return json_util.dumps(list(mdb.logs.find({'name':'visuelstat'})))
     return json_util.dumps(mdb.votes.find_one())
