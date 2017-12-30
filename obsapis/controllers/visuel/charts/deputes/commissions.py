@@ -26,7 +26,7 @@ def presence_globale_par_tranche_de_10(width=800,height=600,background="#ffffff"
           background=background,
           plot_background='transparent',
           title_font_size=16,
-          colors = ('#ff0052','#ff0052')
+          colors = ('#1da1f3','#1da1f3','#ff0052','#ff0052')
 
           )
 

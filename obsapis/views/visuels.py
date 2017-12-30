@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from obsapis import app,use_cache,mdb
 from flask import request, Response, render_template
-from obsapis.tools import json_response,cache_function,image_response
+from obsapis.tools import json_response,cache_function,image_response, logitem
 import re
 import datetime
 
@@ -82,6 +82,7 @@ def genvisuel():
 
 
 @app.route('/visuels/stat21')
+@logitem(name='visuelstat',item=None,fields=['depute','stat'])
 @cache_function(expires=600)
 def genvisuel21():
     depute = request.args.get('depute',None)
