@@ -11,7 +11,7 @@ from obsapis.controllers.scrutins import getScrutinsData
 @app.route('/votes')
 @cache_function(expires=cache_pages_delay)
 def votes():
-    scrutins_data = use_cache('scrutins_data',lambda:getScrutinsData(),expires=300)
+    scrutins_data = use_cache('scrutins_data_new',lambda:getScrutinsData(),expires=300)
     nb = int(request.args.get('itemsperpage','25'))
     page = int(request.args.get('page','1'))-1
     groupe = request.args.get('groupe',request.args.get('group',None))
