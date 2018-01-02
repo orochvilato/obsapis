@@ -44,6 +44,7 @@ def logs2():
         _t = t['_id']['tri']
         if _t != None:
             tri.append((_t,t['n']))
+
     
     grps.sort(key=lambda x:x[1],reverse=True)
     deps.sort(key=lambda x:x[1],reverse=True)
