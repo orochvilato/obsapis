@@ -22,8 +22,8 @@ Markdown==2.6.10
 MarkupSafe==1.0
 olefile==0.44
 openpyxl==2.4.9
-pdfminer==20140328
 Pillow==4.3.0
+pkg-resources==0.0.0
 psutil==5.4.2
 pycparser==2.18
 pygal==2.4.0
@@ -35,6 +35,7 @@ pyzmail==1.0.3
 requests==2.18.4
 selenium==3.7.0
 six==1.11.0
+stripogram==1.5
 tinycss==0.4
 tzlocal==1.4
 urllib3==1.22
