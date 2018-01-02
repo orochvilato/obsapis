@@ -45,14 +45,14 @@ def logs2():
         if _t != None:
             tri.append((_t,t['n']))
 
-    
+
     grps.sort(key=lambda x:x[1],reverse=True)
     deps.sort(key=lambda x:x[1],reverse=True)
     tri.sort(key=lambda x:x[1],reverse=True)
     listetop.sort(key=lambda x:x[1],reverse=True)
     return render_template('logs2.html',grps=grps,deps=deps,lstp=listetop,tri=tri)
 
-@app.route('/flushlogs')
+@app.route('/flushlogs_nope')
 def flushlogs():
     mdbrw.logs.remove()
     return "ok"
