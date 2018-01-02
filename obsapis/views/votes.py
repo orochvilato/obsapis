@@ -62,7 +62,6 @@ def votes():
             v['scrutin_desc'] = re.sub(r'([0-9]+)',r'<a target="_blank" href="'+scrutins_data[v['scrutin_num']]['urlAmendement']+r'">\1</a>',v['scrutin_desc'],1)
         if scrutins_data[v['scrutin_num']]['scrutin_lientexte']:
             lien = scrutins_data[v['scrutin_num']]['scrutin_lientexte']
-            print v['scrutin_desc'],lien
             v['scrutin_desc'] = v['scrutin_desc'].replace(lien[0],'<a target="_blank" href="'+lien[1]+r'">'+lien[0]+'</a>')
         v['scrutin_dossierLibelle'] = v['scrutin_dossierLibelle'].replace(u'\u0092',"'") # pb apostrophe
         votes.append(v)
