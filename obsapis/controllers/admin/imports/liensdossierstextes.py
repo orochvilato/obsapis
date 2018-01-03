@@ -17,6 +17,7 @@ def import_liendossierstextes():
         for i,l in enumerate(doc):
             l = l.replace(u'1ère',u'première')
             #print l
+            search = False
             if l[0:21]==u'Assemblée nationale -':
                 if l[22:38]==u'première lecture' or l[22:38]==u'Nouvelle lecture':
                     _l = l[39:]
@@ -28,9 +29,29 @@ def import_liendossierstextes():
                     texte = _l.split(u',')[0]
                 else:
                     _l = l
-
+                search = True
                 lecture = u' '.join(l[22:].split(' ')[0:2])
-
+            if l[0:21]==u'Travaux préparatoires':
+                j = 0
+                while not (u"proposition de résolution" in _l.lower() or j>5):
+                    j += 1
+                    _l = doc[i+j].replace(u'1ère',u'première')
+                texte = _l.split(u',')[0]
+                search = True
+                lecture = ""
+            if l[0:26]==u"Commission Mixte Paritaire":
+                j = 0
+                m = None
+                print "par"
+                while not m and j<=5:
+                    j += 1
+                    m = re.search(u"sous le n° ([0-9]+) +à l'Assemblée nationale",doc[i+j])
+                    print doc[i+j],m
+                n = m.groups()[0] if m else None
+                if n:
+                    ops.append((texte,"texte de la commission mixte paritaire",docsan[n],n))
+                    print (texte,"",docsan[num])
+            if search:
                 m = re.search(u", *(TA|) +n *° *([0-9]+)[^\-]* *",_l)
                 if m:
                     if m.groups()[0]=='TA':
@@ -38,9 +59,12 @@ def import_liendossierstextes():
                     else:
                         num = m.groups()[1]
                     ops.append((texte,lecture,docsan[num],num))
-                    #print (texte,lecture,docsan[num])
+                    print (texte,lecture,docsan[num])
         return ops
-    #getDossier('http://www.assemblee-nationale.fr/15/dossiers/loi_finances_2018.asp')
+
+    dossiers = {}
+    dos = 'http://www.assemblee-nationale.fr/15/dossiers/retablissement_confiance_action_publique.asp'
+    dossiers[dos] = getDossier(dos)
     #return "ok"
     def reduire(txt):
         txt2 = txt.replace(u"  ",u" ")
@@ -50,15 +74,18 @@ def import_liendossierstextes():
             txt2 = t
         return txt2
 
-    dossiers = {}
+
     for dos in mdb.scrutins.distinct('scrutin_liendossier'):
         if dos:
-            dossiers[dos] = getDossier(dos)
+            pass
+            #dossiers[dos] = getDossier(dos)
 
     from fuzzywuzzy import fuzz
 
     ops = []
-    for s in mdb.scrutins.find({'scrutin_liendossier':{'$ne':None}}):
+    for s in mdb.scrutins.find({}): #'scrutin_liendossier':{'$ne':None}
+        if not s['scrutin_num'] in (107,):
+            continue
         score = 0
         found = None
         dos = s['scrutin_liendossier']
@@ -68,9 +95,15 @@ def import_liendossierstextes():
         if not pl:
             ttyp= 'proposition de loi'
             pl = re.search(r"(proposition de loi .*) \((.*)\)",desc)
+        if not pl:
+            ttyp='proposition de résolution'
+            pl = re.search(u"(proposition de résolution .*)",desc)
         if pl:
             lib = pl.groups()[0].strip().lower()
-            lec = pl.groups()[1].strip().lower().replace(u'1ère',u'première')
+            if len(pl.groups())>1:
+                lec = pl.groups()[1].strip().lower().replace(u'1ère',u'première')
+            else:
+                lec = ""
             if len(dossiers[dos])==1 and dossiers[dos][0][1].lower()==lec:
                 found = dossiers[dos][0]
             else:
@@ -82,7 +115,11 @@ def import_liendossierstextes():
                         if score>97:
                             found = txt
                             break
-            #print lib,lec
+
+            if found and u"texte de la commission paritaire" in desc:
+
+                ttyp = "texte de la commission paritaire"
+
         if found:
             ops.append(UpdateOne({'scrutin_num':s['scrutin_num']},{'$set':{'scrutin_lientexte':(ttyp,found[2],found[3])}}))
 
