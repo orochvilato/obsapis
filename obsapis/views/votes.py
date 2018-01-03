@@ -8,9 +8,7 @@ from obsapis.config import cache_pages_delay
 
 from obsapis.controllers.scrutins import getScrutinsData
 
-@app.route('/check')
-def check():
-    return "ouep"
+
 @app.route('/votes')
 @cache_function(expires=cache_pages_delay)
 def votes():

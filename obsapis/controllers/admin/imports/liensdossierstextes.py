@@ -37,7 +37,7 @@ def import_liendossierstextes():
                         num = "TA%04d" % int(m.groups()[1])
                     else:
                         num = m.groups()[1]
-                    ops.append((texte,lecture,docsan[num]))
+                    ops.append((texte,lecture,docsan[num],num))
                     #print (texte,lecture,docsan[num])
         return ops
     #getDossier('http://www.assemblee-nationale.fr/15/dossiers/loi_finances_2018.asp')
@@ -84,7 +84,7 @@ def import_liendossierstextes():
                             break
             #print lib,lec
         if found:
-            ops.append(UpdateOne({'scrutin_num':s['scrutin_num']},{'$set':{'scrutin_lientexte':(ttyp,found[2])}}))
+            ops.append(UpdateOne({'scrutin_num':s['scrutin_num']},{'$set':{'scrutin_lientexte':(ttyp,found[2],found[3])}}))
 
         if not found:
             print "---------------------------\n-->",s['scrutin_desc']
