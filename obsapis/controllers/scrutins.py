@@ -36,5 +36,5 @@ def getScrutinsSorts():
 def getScrutinsData():
     sdata = {}
     for s in mdb.scrutins.find({},{'scrutin_id':1,'scrutin_num':1,'_id':None,'scrutin_sort':1,'scrutin_urlAmendement':1,'scrutin_lientexte':1}):
-        sdata[s['scrutin_num']] = {'sort':s['scrutin_sort'],'urlAmendement':s.get('scrutin_urlAmendement',None),'scrutin_lientexte':s.get('scrutin_lientexte',None)}
+        sdata[s['scrutin_num']] = {'sort':s['scrutin_sort'],'urlAmendement':s.get('scrutin_urlAmendement',None),'scrutin_lientexte':s.get('scrutin_lientexte',[])}
     return sdata

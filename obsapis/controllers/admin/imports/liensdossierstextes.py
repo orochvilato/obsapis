@@ -46,10 +46,9 @@ def import_liendossierstextes():
                 while not m and j<=5:
                     j += 1
                     m = re.search(u"sous le n° ([0-9]+) +à l'Assemblée nationale",doc[i+j])
-                    print doc[i+j],m
                 n = m.groups()[0] if m else None
                 if n:
-                    ops.append((texte,"texte de la commission mixte paritaire",docsan[n],n))
+                    ops.append((texte,"texte de la commission mixte paritaire",docsan[num],num,docsan[n],n))
                     print (texte,"",docsan[num])
             if search:
                 m = re.search(u", *(TA|) +n *° *([0-9]+)[^\-]* *",_l)
@@ -59,12 +58,14 @@ def import_liendossierstextes():
                     else:
                         num = m.groups()[1]
                     ops.append((texte,lecture,docsan[num],num))
+
+
                     print (texte,lecture,docsan[num])
         return ops
 
     dossiers = {}
-    dos = 'http://www.assemblee-nationale.fr/15/dossiers/retablissement_confiance_action_publique.asp'
-    dossiers[dos] = getDossier(dos)
+    #dos = 'http://www.assemblee-nationale.fr/15/dossiers/retablissement_confiance_action_publique.asp'
+    #dossiers[dos] = getDossier(dos)
     #return "ok"
     def reduire(txt):
         txt2 = txt.replace(u"  ",u" ")
@@ -77,15 +78,14 @@ def import_liendossierstextes():
 
     for dos in mdb.scrutins.distinct('scrutin_liendossier'):
         if dos:
-            pass
-            #dossiers[dos] = getDossier(dos)
+            dossiers[dos] = getDossier(dos)
 
     from fuzzywuzzy import fuzz
-
+    print dossiers
     ops = []
     for s in mdb.scrutins.find({}): #'scrutin_liendossier':{'$ne':None}
-        if not s['scrutin_num'] in (107,):
-            continue
+        #if not s['scrutin_num'] in (107,):
+        #    continue
         score = 0
         found = None
         dos = s['scrutin_liendossier']
@@ -116,16 +116,21 @@ def import_liendossierstextes():
                             found = txt
                             break
 
-            if found and u"texte de la commission paritaire" in desc:
+            #if found and u"texte de la commission paritaire" in desc:
 
-                ttyp = "texte de la commission paritaire"
+            #    ttyp = "texte de la commission paritaire"
 
         if found:
-            ops.append(UpdateOne({'scrutin_num':s['scrutin_num']},{'$set':{'scrutin_lientexte':(ttyp,found[2],found[3])}}))
+            repl = [(ttyp,found[2],found[3])]
+            print lec
+            if lec==u'texte de la commission mixte paritaire':
+                repl.append((lec,found[4],found[5]))
+
+            ops.append(UpdateOne({'scrutin_num':s['scrutin_num']},{'$set':{'scrutin_lientexte':repl}}))
 
         if not found:
             print "---------------------------\n-->",s['scrutin_desc']
-            print dossiers[dos]
+            print dossiers.get(dos,None)
 
 
     if ops:

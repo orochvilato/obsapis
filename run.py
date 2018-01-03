@@ -183,7 +183,8 @@ def ouv():
 
 @app.route('/test')
 def test():
-    return json_response(mdb.scrutins.find_one())
+    #return json_response(mdb.deputes.find_one({'depute_shortid':'danieleobono'},{'_id':None,'depute_compat':1}))
+    return json_response(mdb.scrutins.find_one({'scrutin_num':107}))
     pgroup = {}
     pgroup['n'] = {'$sum':1}
     pgroup['_id'] = { 'depute':'$depute'}
