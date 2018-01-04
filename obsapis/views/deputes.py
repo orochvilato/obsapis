@@ -41,7 +41,7 @@ deputefields = ['depute_uid','depute_id','depute_shortid','depute_region','deput
                 'depute_hatvp','depute_nuages','depute_place','stats']
 
 deputesfields = ['depute_uid','depute_id','depute_shortid','depute_region','depute_departement','depute_departement_id','depute_nom_sa',
-                 'depute_csp','depute_contacts','depute_suppleant','depute_bureau',
+                 'depute_csp','depute_contacts','depute_suppleant','depute_bureau','depute_mandat_debut','depute_mandat_fin','depute_mandat_fin_cause',
                 'depute_circo','depute_nom','groupe_abrev','groupe_libelle',
                 'depute_profession','depute_naissance','depute_actif','depute_place','stats']
 #deputesfields  = deputefields
@@ -195,7 +195,7 @@ def _ajax(type_page):
                   'stats.election.exprimes':-1,
                   'stats.election.inscrits':-1}
 
-    filter = {'$and':[ {'depute_actif':True}]}
+    filter = {'$and':[ {'depute_actif':(not 'ancien' in request.args)}]}
 
     if csp:
         filter['$and'].append({'depute_csp':csp})
