@@ -211,7 +211,8 @@ def test():
     #return json_util.dumps(list(mdb.amendements.find({'numAmend':'426'})))
     #mdbrw.scrutins.update_one({'scrutin_num':1},{'$set':{'scrutin_groupe':'Gouvernement','scrutin_lientexte':[(u'déclaration de politique générale',
     #                                                                          'http://www.gouvernement.fr/partage/9296-declaration-de-politique-generale-du-premier-ministre-edouard-philippe',
-    #                                                                          None)]}})
+    #
+    #mdbrw.votes.update_many({'scrutin_num':1},{'$set':{'scrutin_groupe':'Gouvernement'}})
     #return json_response(mdb.deputes.find_one({'depute_shortid':'danieleobono'},{'_id':None,'depute_compat':1}))
     return json_response(mdb.scrutins.find_one({'scrutin_groupe':None}))
     return json_response(mdb.documentsan.find_one({'numero':'331'}))
