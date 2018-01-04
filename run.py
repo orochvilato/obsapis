@@ -181,10 +181,40 @@ def ouv():
 
     return json_response(sorted(depsig.iteritems(),key=lambda x:x[1],reverse=True))
 
+
+@app.route('/testcompat')
+def testcompat():
+    #return json_response(list(mdb.scrutins.find({'$and':[{'scrutin_amendement_groupe':None},{'scrutin_typedetail':'amendement'}]},{'scrutin_num':1})))
+    #for gid in ['FI','GDR','UAI','LR','MODEM','NG','REM']:
+    pgroup = {'n':{'$sum':1}}
+    pgroup['_id'] = {'depute':'$depute_shortid'}
+    pgroup['_id']['position'] ='$vote_position'
+    pgroup['_id']['groupe'] = '$scrutin_groupe'
+    pipeline = [{'$match':{'scrutin_typedetail':'amendement'}},   {"$group": pgroup }]
+
+    voteamdts = {}
+    for voteamdt in mdb.votes.aggregate(pipeline):
+            print voteamdt
+            depuid = voteamdt['_id']['depute']
+            pos = voteamdt['_id']['position']
+            gp = voteamdt['_id']['groupe']
+            if not depuid in voteamdts.keys():
+                voteamdts[depuid] = {}
+            if not gp in voteamdts[depuid].keys():
+                voteamdts[depuid][gp] = {}
+            voteamdts[depuid][gp][pos] = voteamdts[depuid][gp].get(pos,0) + voteamdt['n']
+    return json_response(voteamdts['mariechristineverdierjouclas'])
+
 @app.route('/test')
 def test():
+    #mdbrw.scrutins.update_one({'scrutin_num':324},{'$set':{'scrutin_liendossier':'http://www.assemblee-nationale.fr/15/dossiers/deuxieme_collectif_budgetaire_2017.asp'}})
+    #return json_util.dumps(list(mdb.amendements.find({'numAmend':'426'})))
+    #mdbrw.scrutins.update_one({'scrutin_num':1},{'$set':{'scrutin_lientexte':[(u'déclaration de politique générale',
+    #                                                                          'http://www.gouvernement.fr/partage/9296-declaration-de-politique-generale-du-premier-ministre-edouard-philippe',
+    #                                                                          None)]}})
     #return json_response(mdb.deputes.find_one({'depute_shortid':'danieleobono'},{'_id':None,'depute_compat':1}))
-    return json_response(mdb.scrutins.find_one({'scrutin_num':107}))
+    #return json_response(mdb.scrutins.find_one({'scrutin_groupe':None}))
+    return json_response(mdb.documentsan.find_one({'numero':'399'}))
     pgroup = {}
     pgroup['n'] = {'$sum':1}
     pgroup['_id'] = { 'depute':'$depute'}
@@ -195,7 +225,7 @@ def test():
         if _g != None:
             vdeps.append((_g,g['n']))
 
-    return json_util.dumps(vdeps)
+    return ", ".join([ "%s (%s)" % i for i in sorted(vdeps,key=lambda x:x[1],reverse=True)])
 
     #updateDeputesContacts()
     return json_util.dumps(mdb.deputes.find_one({'depute_shortid':'nicolelepeih'},{'depute_contacts':1,'_id':None}))
@@ -206,7 +236,7 @@ def test():
     print _mts
 
     return json_util.dumps(mdb.deputes.find_one({'depute_shortid':'thierrysolere'},{'stats':1,'_id':None}))
-    return json_util.dumps(list(mdb.amendements.find({'numAmend':'311'})))
+
     return json_util.dumps([(d['depute_nom'],
                              d['stats']['positions']['exprimes'],
                              d['stats']['votesamdements']['pctpour'],

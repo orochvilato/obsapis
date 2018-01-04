@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from obsapis import mdbrw,mdb
-from pymongo import UpdateOne
+from pymongo import UpdateOne,UpdateMany
 import requests
 import re
 from fuzzywuzzy import fuzz
@@ -14,18 +14,21 @@ def updateScrutinsTexte():
             docs[dos] = []
         docs[dos].append(doc['numero'])
     ops = []
-    for s in mdb.scrutins.find({'scrutin_urlAmendement':None,'scrutin_liendossier':{'$ne':None}},{'scrutin_typedetail':1,'scrutin_desc':1,'scrutin_id':1,'scrutin_num':1,'scrutin_liendossier':1}):
+    vote_ops = []
+    for s in mdb.scrutins.find({'scrutin_liendossier':{'$ne':None}},{'scrutin_typedetail':1,'scrutin_desc':1,'scrutin_id':1,'scrutin_num':1,'scrutin_liendossier':1}):
         if s['scrutin_typedetail']=='amendement':
             r = re.search(r'([0-9]+)',s['scrutin_desc'])
             if r:
                 num = r.groups()[0]
 
-
+                #print s['scrutin_liendossier']
+                #print docs[s['scrutin_liendossier']]
                 amdts = list(mdb.amendements.find({'$and':[{'instance':u"S\u00e9ance publique"},
                                                            {'urlDossierLegislatif':{'$regex':s['scrutin_liendossier']+'.*'}},
                                                            {'numInit':{'$in':docs[s['scrutin_liendossier']]}},
                                                            {'urlAmend':{'$regex':'/'+num+'.asp'}}]}))
                                                            #{'$or':[{'numAmend':num},{'numAmend':{'$regex':'.*[^0-9]'}{'$regex':'^'+num+'[^0-9].*'}},{'numAmend':{'$regex':'.*[^0-9]'+num+'$'}}]}]}))
+
 
                 if len(amdts)!=1:
                     tr = 0
@@ -44,8 +47,14 @@ def updateScrutinsTexte():
                     if amdts[0]['ratio']<100:
                         print s['scrutin_num'],num,[(a['sig'],a['ratio']) for a in amdts]
                 amdt = amdts[0]
+                if len(amdt.get('signataires_groupes',[]))>0:
+                    siggp = amdt['signataires_groupes'][0]
+                else:
+                    siggp = 'Gouvernement'
 
-                ops.append(UpdateOne({'scrutin_num':s['scrutin_num']},{'$set':{'scrutin_urlAmendement':amdt['urlAmend']}}))
+                ops.append(UpdateOne({'scrutin_num':s['scrutin_num']},{'$set':{'scrutin_groupe':siggp,'scrutin_urlAmendement':amdt['urlAmend']}}))
+                vote_ops.append(UpdateMany({'scrutin_num':s['scrutin_num']},{'$set':{'scrutin_groupe':siggp}}))
 
     if ops:
         mdbrw.scrutins.bulk_write(ops)
+        mdbrw.votes.bulk_write(vote_ops)
