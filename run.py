@@ -190,11 +190,11 @@ def testcompat():
     pgroup['_id'] = {'depute':'$depute_shortid'}
     pgroup['_id']['position'] ='$vote_position'
     pgroup['_id']['groupe'] = '$scrutin_groupe'
-    pipeline = [{'$match':{'scrutin_typedetail':'amendement'}},   {"$group": pgroup }]
+    pipeline = [{'$match':{}},   {"$group": pgroup }] #'scrutin_typedetail':'amendement'
 
     voteamdts = {}
     for voteamdt in mdb.votes.aggregate(pipeline):
-            print voteamdt
+            #print voteamdt
             depuid = voteamdt['_id']['depute']
             pos = voteamdt['_id']['position']
             gp = voteamdt['_id']['groupe']
