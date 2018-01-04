@@ -7,16 +7,35 @@ import re
 from fuzzywuzzy import fuzz
 from obsapis.tools import strip_accents
 def updateScrutinsTexte():
+    depgp = dict((d['depute_shortid'],d['groupe_abrev']) for d in mdb.deputes.find({},{'depute_shortid':1,'groupe_abrev':1,'_id':0}))
     docs = {}
+    docsgp = {}
     for doc in mdb.documentsan.find():
         dos = doc['dossier'].split('#')[0]
         if not dos in docs:
             docs[dos] = []
         docs[dos].append(doc['numero'])
+        sig = doc.get('signataires',None)
+        if sig:
+            sig = depgp[sig[0]]
+        else:
+            sig = "Gouvernement"
+        docsgp[doc['numero']] = sig
+
+
     ops = []
     vote_ops = []
-    for s in mdb.scrutins.find({'scrutin_liendossier':{'$ne':None}},{'scrutin_typedetail':1,'scrutin_desc':1,'scrutin_id':1,'scrutin_num':1,'scrutin_liendossier':1}):
-        if s['scrutin_typedetail']=='amendement':
+    for s in mdb.scrutins.find({'scrutin_liendossier':{'$ne':None}},{'scrutin_typedetail':1,'scrutin_lientexte':1,'scrutin_desc':1,'scrutin_id':1,'scrutin_num':1,'scrutin_liendossier':1}):
+        if s['scrutin_typedetail']!='amendement':
+            #print s['scrutin_lientexte'],s['scrutin_num']
+            if 'scrutin_lientexte' in s.keys():
+                gp = docsgp[s['scrutin_lientexte'][0][2]]
+            else:
+                gp = "Gouvernement"
+
+            ops.append(UpdateOne({'scrutin_num':s['scrutin_num']},{'$set':{'scrutin_groupe':gp}}))
+            vote_ops.append(UpdateMany({'scrutin_num':s['scrutin_num']},{'$set':{'scrutin_groupe':gp}}))
+        else: #Amendement
             r = re.search(r'([0-9]+)',s['scrutin_desc'])
             if r:
                 num = r.groups()[0]

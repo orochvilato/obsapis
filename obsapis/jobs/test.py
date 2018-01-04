@@ -14,8 +14,8 @@ from obsapis.controllers.admin.updates.deputes import updateDeputesContacts,upda
 from obsapis.controllers.admin.imports.liensdossierstextes import import_liendossierstextes
 
 def job(**kwargs):
-    updateScrutinsTexte()
     updateGroupesRanks()
     updateDeputesContacts()
     updateDeputesLieuNaissance()
     import_liendossierstextes()
+    updateScrutinsTexte()

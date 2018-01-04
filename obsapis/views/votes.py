@@ -17,6 +17,8 @@ def votes():
     page = int(request.args.get('page','1'))-1
     groupe = request.args.get('groupe',request.args.get('group',None))
     search = request.args.get('requete',request.args.get('query',''))
+    scrutingroupe = request.args.get('scrutingroupe',None)
+
     scrutin = request.args.get('scrutin',None)
     csp = request.args.get('csp',None)
     age = request.args.get('age',None)
@@ -26,6 +28,8 @@ def votes():
     dissidence = int(request.args.get('dissidence','0'))
     skip = nb*page
     filters = []
+    if scrutingroupe:
+        filters.append({'scrutin_groupe':scrutingroupe})
     if dissidence:
         filters.append({'vote_dissident':True})
     if position:
@@ -69,7 +73,7 @@ def votes():
     def countItems():
         rcount = mdb.votes.find(vote_filter).count()
         return {'totalitems':rcount}
-    cachekey= u"vot%s_%s_%s_%s_%s_%s_%s_%s_%s" % (depute,position,dissidence,scrutin,age,csp if csp else csp,groupe,search,region if region else region)
+    cachekey= u"vot%s_%s_%s_%s_%s_%s_%s_%s_%s_%s" % (depute,position,scrutingroupe,dissidence,scrutin,age,csp if csp else csp,groupe,search,region if region else region)
     counts = use_cache(cachekey,lambda:countItems(),expires=3600)
     regx = re.compile(search, re.IGNORECASE)
     if search:

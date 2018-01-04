@@ -209,12 +209,12 @@ def testcompat():
 def test():
     #mdbrw.scrutins.update_one({'scrutin_num':324},{'$set':{'scrutin_liendossier':'http://www.assemblee-nationale.fr/15/dossiers/deuxieme_collectif_budgetaire_2017.asp'}})
     #return json_util.dumps(list(mdb.amendements.find({'numAmend':'426'})))
-    #mdbrw.scrutins.update_one({'scrutin_num':1},{'$set':{'scrutin_lientexte':[(u'déclaration de politique générale',
+    #mdbrw.scrutins.update_one({'scrutin_num':1},{'$set':{'scrutin_groupe':'Gouvernement','scrutin_lientexte':[(u'déclaration de politique générale',
     #                                                                          'http://www.gouvernement.fr/partage/9296-declaration-de-politique-generale-du-premier-ministre-edouard-philippe',
     #                                                                          None)]}})
     #return json_response(mdb.deputes.find_one({'depute_shortid':'danieleobono'},{'_id':None,'depute_compat':1}))
-    #return json_response(mdb.scrutins.find_one({'scrutin_groupe':None}))
-    return json_response(mdb.documentsan.find_one({'numero':'399'}))
+    return json_response(mdb.scrutins.find_one({'scrutin_groupe':None}))
+    return json_response(mdb.documentsan.find_one({'numero':'331'}))
     pgroup = {}
     pgroup['n'] = {'$sum':1}
     pgroup['_id'] = { 'depute':'$depute'}

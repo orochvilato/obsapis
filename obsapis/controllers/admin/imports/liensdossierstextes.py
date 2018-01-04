@@ -42,14 +42,14 @@ def import_liendossierstextes():
             if l[0:26]==u"Commission Mixte Paritaire":
                 j = 0
                 m = None
-                print "par"
+
                 while not m and j<=5:
                     j += 1
                     m = re.search(u"sous le n° ([0-9]+) +à l'Assemblée nationale",doc[i+j])
                 n = m.groups()[0] if m else None
                 if n:
                     ops.append((texte,"texte de la commission mixte paritaire",docsan[num],num,docsan[n],n))
-                    print (texte,"",docsan[num])
+                    #print (texte,"",docsan[num])
             if search:
                 m = re.search(u", *(TA|) +n *° *([0-9]+)[^\-]* *",_l)
                 if m:
@@ -60,7 +60,7 @@ def import_liendossierstextes():
                     ops.append((texte,lecture,docsan[num],num))
 
 
-                    print (texte,lecture,docsan[num])
+                    #print (texte,lecture,docsan[num])
         return ops
 
     dossiers = {}
@@ -81,10 +81,10 @@ def import_liendossierstextes():
             dossiers[dos] = getDossier(dos)
 
     from fuzzywuzzy import fuzz
-    print dossiers
+    #print dossiers
     ops = []
     for s in mdb.scrutins.find({}): #'scrutin_liendossier':{'$ne':None}
-        #if not s['scrutin_num'] in (107,):
+        #if not s['scrutin_num'] in (321,):
         #    continue
         score = 0
         found = None
@@ -108,11 +108,12 @@ def import_liendossierstextes():
                 found = dossiers[dos][0]
             else:
                 for txt in dossiers[dos]:
-                    if txt[1].lower()==lec and fuzz.token_set_ratio(lib.lower(),txt[0].split(',')[0].lower())>97:
+                    if txt[1].lower()==lec and fuzz.token_set_ratio(lib.lower(),txt[0].split(',')[0].lower())>90:
                         score = 0
                         for subt in txt[0].lower().strip().split(','):
                             score += fuzz.token_set_ratio(subt,lib)
-                        if score>97:
+
+                        if score>90:
                             found = txt
                             break
 
@@ -122,7 +123,6 @@ def import_liendossierstextes():
 
         if found:
             repl = [(ttyp,found[2],found[3])]
-            print lec
             if lec==u'texte de la commission mixte paritaire':
                 repl.append((lec,found[4],found[5]))
 
