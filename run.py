@@ -194,7 +194,6 @@ def testcompat():
 
     voteamdts = {}
     for voteamdt in mdb.votes.aggregate(pipeline):
-            #print voteamdt
             depuid = voteamdt['_id']['depute']
             pos = voteamdt['_id']['position']
             gp = voteamdt['_id']['groupe']
@@ -213,7 +212,7 @@ def test():
     #                                                                          'http://www.gouvernement.fr/partage/9296-declaration-de-politique-generale-du-premier-ministre-edouard-philippe',
     #
     #mdbrw.votes.update_many({'scrutin_num':1},{'$set':{'scrutin_groupe':'Gouvernement'}})
-    #return json_response(mdb.deputes.find_one({'depute_shortid':'danieleobono'},{'_id':None,'depute_compat':1}))
+    return json_response(mdb.deputes.find_one({'depute_shortid':'danieleobono'}))
     return json_response(mdb.scrutins.find_one({'scrutin_groupe':None}))
     return json_response(mdb.documentsan.find_one({'numero':'331'}))
     pgroup = {}
