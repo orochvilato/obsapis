@@ -33,7 +33,7 @@ tri_items = {'tops': ('stats.positions.exprimes','stats.positions.dissidence','s
 
 
 deputefields = ['depute_uid','depute_id','depute_shortid','depute_region','depute_departement','depute_departement_id',
-                'depute_csp','groupe_qualite','depute_nom_sa',
+                'depute_csp','groupe_qualite','depute_nom_sa','depute_vote_groupe_scrutin',
                 'depute_circo','depute_nom','depute_contacts','groupe_abrev','groupe_libelle',
                 'depute_election','depute_profession','depute_naissance','depute_suppleant',
                 'depute_actif','depute_mandat_debut','depute_mandat_fin','depute_mandat_fin_cause',
