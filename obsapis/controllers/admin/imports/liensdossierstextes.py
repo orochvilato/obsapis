@@ -129,8 +129,9 @@ def import_liendossierstextes():
             ops.append(UpdateOne({'scrutin_num':s['scrutin_num']},{'$set':{'scrutin_lientexte':repl}}))
 
         if not found:
-            print "---------------------------\n-->",s['scrutin_desc']
-            print dossiers.get(dos,None)
+            print "NOT FOUND",s['scrutin_num']
+            #print "---------------------------\n-->",s['scrutin_desc']
+            #print dossiers.get(dos,None)
 
 
     if ops:

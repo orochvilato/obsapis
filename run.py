@@ -212,9 +212,13 @@ def test():
     #                                                                          'http://www.gouvernement.fr/partage/9296-declaration-de-politique-generale-du-premier-ministre-edouard-philippe',
     #
     #mdbrw.votes.update_many({'scrutin_num':1},{'$set':{'scrutin_groupe':'Gouvernement'}})
-    return json_response(mdb.deputes.find_one({'depute_shortid':'danieleobono'}))
-    return json_response(mdb.scrutins.find_one({'scrutin_groupe':None}))
-    return json_response(mdb.documentsan.find_one({'numero':'331'}))
+
+
+    #return json_response([ (d['depute_shortid'],d['depute_mandat_fin_cause']) for d in mdb.deputes.find({'depute_actif':False},{'depute_shortid':1,'depute_mandat_fin_cause':1,'_id':None})])
+    #return json_response(mdb.scrutins.find_one({'scrutin_groupe':None}))
+    #return json_response(mdb.documentsan.find_one({'numero':'331'}))
+
+    # visuels
     pgroup = {}
     pgroup['n'] = {'$sum':1}
     pgroup['_id'] = { 'depute':'$depute'}
