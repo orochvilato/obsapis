@@ -25,11 +25,12 @@ def updateScrutinsTexte():
 
     ops = []
     vote_ops = []
+    # 'scrutin_liendossier':{'$ne':None}
     for s in mdb.scrutins.find({'scrutin_liendossier':{'$ne':None}},{'scrutin_typedetail':1,'scrutin_lientexte':1,'scrutin_desc':1,'scrutin_id':1,'scrutin_num':1,'scrutin_liendossier':1}):
         if s['scrutin_typedetail']!='amendement':
             #print s['scrutin_lientexte'],s['scrutin_num']
             if 'scrutin_lientexte' in s.keys():
-                gp = docsgp[s['scrutin_lientexte'][0][2]]
+                gp = docsgp.get(s['scrutin_lientexte'][0][2],'Gouvernement')
             else:
                 gp = "Gouvernement"
 
@@ -52,7 +53,8 @@ def updateScrutinsTexte():
                 if len(amdts)!=1:
                     tr = 0
                     for a in amdts:
-                        sig = strip_accents(a['signataires'].split(',')[0].split(' et ')[0].strip()).lower().split(' ')[-1]
+                        sig = a['auteur']
+                        #sig = strip_accents(a['signataires'].split(',')[0].split(' et ')[0].strip()).lower().split(' ')[-1]
                         s_desc = strip_accents(s['scrutin_desc']).lower().replace('premier','1er')
                         a_art = strip_accents(a['designationArticle']).lower().replace('premier','1er')
 
@@ -63,15 +65,19 @@ def updateScrutinsTexte():
                         a['ratio'] = fz
                         a['sig'] = sig
                     amdts.sort(key=lambda a:a['ratio'],reverse=True)
-                    if amdts[0]['ratio']<100:
-                        print s['scrutin_num'],num,[(a['sig'],a['ratio']) for a in amdts]
+                    #if amdts[0]['ratio']<100:
+                        #print s['scrutin_num'],num,[(a['sig'],a['ratio']) for a in amdts]
                 amdt = amdts[0]
-                if len(amdt.get('signataires_groupes',[]))>0:
-                    siggp = amdt['signataires_groupes'][0]
-                else:
-                    siggp = 'Gouvernement'
-
-                ops.append(UpdateOne({'scrutin_num':s['scrutin_num']},{'$set':{'scrutin_groupe':siggp,'scrutin_urlAmendement':amdt['urlAmend']}}))
+                siggp = amdt['groupe'] if amdt['groupe'] else 'Gouvernement'
+                #if len(amdt.get('signataires_groupes',[]))>0:
+                #    siggp = amdt['signataires_groupes'][0]
+                #else:
+                #    siggp = 'Gouvernement'
+                updS = {'scrutin_groupe':siggp,'scrutin_urlAmendement':amdt['urlAmend']}
+                if amdt['urlTexteRef']:
+                    updS['scrutin_lientexte.0.1'] = amdt['urlTexteRef']
+                ops.append(UpdateOne({'scrutin_num':s['scrutin_num']},{'$set':updS}))
+                #mdbrw.scrutins.update_one({'scrutin_num':s['scrutin_num']},{'$set':updS})
                 vote_ops.append(UpdateMany({'scrutin_num':s['scrutin_num']},{'$set':{'scrutin_groupe':siggp}}))
 
     if ops:

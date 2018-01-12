@@ -6,12 +6,62 @@ from bson import json_util
 import xmltodict
 import requests
 import re
-
-from obsapis.tools import json_response,xls_response,dictToXls,dictToXlsx
+from pymongo import UpdateOne
+from obsapis.tools import json_response,xls_response,dictToXls,dictToXlsx,image_response
 from obsapis.controllers.admin.imports.documents import importdocs
+from obsapis.controllers.admin.imports.amendements import import_amendements
+from obsapis.controllers.admin.updates.amendements import update_amendements
 from obsapis.controllers.admin.updates.scrutins import updateScrutinsTexte
 from obsapis.controllers.admin.updates.deputes import updateDeputesContacts
 from obsapis.controllers.admin.imports.liensdossierstextes import import_liendossierstextes
+from obsapis.controllers.visuel.generateur import gentest
+
+@app.route('/amdc')
+def amdcs():
+    gps = {}
+    dps = {}
+    for a in mdb.amendements.find({},{'suppression':1,'auteur':1,'groupe':1,'_id':None}):
+        d = a['auteur']
+        g = a['groupe']
+        if not d in dps.keys():
+            dps[d] = {'sup':0,'n':0}
+        if not g in gps.keys():
+            gps[g] = {'sup':0,'n':0}
+        if a.get('suppression',False):
+            gps[g]['sup'] += 1
+            dps[d]['sup'] += 1
+        gps[g]['n'] += 1
+        dps[d]['n'] += 1
+
+    for k,v in gps.iteritems():
+        print k,v['sup'],v['n'],round(100*float(v['sup'])/v['n'],2)
+    for k,v in sorted(dps.iteritems(),key=lambda x:float(x[1]['sup'])/x[1]['n'] if x[1]['n'] else 0,reverse=True)[:20]:
+        print k,v['sup'],v['n']
+
+    return "ok"
+
+@app.route('/amd')
+def amds():
+    update_amendements()
+    #return "ok"
+    pgroup = {'n':{'$sum':1}}
+    pgroup['_id'] = {'depute':'$auteur'}
+    pgroup['_id']['sort'] ='$sort'
+    pipeline = [{'$match':{}},   {"$group": pgroup }] #'scrutin_typedetail':'amendement'
+
+    stat_amdts = {}
+    for amdt in mdb.amendements.aggregate(pipeline):
+        if amdt['_id']['depute']=='lisemagnier':
+            print amdt['_id']['sort'],amdt['n']
+        amd = amdt['_id']
+        if not amd['depute'] in stat_amdts.keys():
+            stat_amdts[amd['depute']] = {'rediges':0,'adoptes':0,'cosignes':0}
+        if amd['sort']==u'Adopté':
+            stat_amdts[amd['depute']]['adoptes'] += amdt['n']
+
+        stat_amdts[amd['depute']]['rediges'] += amdt['n']
+
+    return json_response(stat_amdts)
 
 @app.route('/refs')
 def refs():
@@ -204,8 +254,22 @@ def testcompat():
             voteamdts[depuid][gp][pos] = voteamdts[depuid][gp].get(pos,0) + voteamdt['n']
     return json_response(voteamdts['mariechristineverdierjouclas'])
 
+
+@app.route('/testgen')
+def viewtestgen():
+    return image_response('png',gentest())
+
 @app.route('/test')
 def test():
+    #importdocs()
+    ops = []
+    for d in mdb.documentsan.find({},{'numero':1,'dossierlien':1,'_id':None}):
+        print d['numero']
+        dossierlien = "http://www.assemblee-nationale.fr"+d['dossierlien']
+        ops.append(UpdateOne({'numero':d['numero']},{'$set':{'dossierlien':dossierlien}}))
+
+    mdbrw.documentsan.bulk_write(ops)
+    #return json_response(mdb.amendements.find({'suppression':True},{'dispositif':1}).count())
     #mdbrw.scrutins.update_one({'scrutin_num':324},{'$set':{'scrutin_liendossier':'http://www.assemblee-nationale.fr/15/dossiers/deuxieme_collectif_budgetaire_2017.asp'}})
     #return json_util.dumps(list(mdb.amendements.find({'numAmend':'426'})))
     #mdbrw.scrutins.update_one({'scrutin_num':1},{'$set':{'scrutin_groupe':'Gouvernement','scrutin_lientexte':[(u'déclaration de politique générale',
@@ -215,8 +279,9 @@ def test():
 
 
     #return json_response([ (d['depute_shortid'],d['depute_mandat_fin_cause']) for d in mdb.deputes.find({'depute_actif':False},{'depute_shortid':1,'depute_mandat_fin_cause':1,'_id':None})])
-    #return json_response(mdb.scrutins.find_one({'scrutin_groupe':None}))
-    #return json_response(mdb.documentsan.find_one({'numero':'331'}))
+    #mdbrw.scrutins.update_one({'scrutin_num':357},{'$set':{'scrutin_lientexte.0.1':'http://www.assemblee-nationale.fr/15/dossiers/jeux_olympiques_paralympiques_2024.asp#'}})
+    #return json_response(mdb.scrutins.find_one({'scrutin_num':357}))
+    return json_response(mdb.documentsan.distinct('type'))
 
     # visuels
     pgroup = {}

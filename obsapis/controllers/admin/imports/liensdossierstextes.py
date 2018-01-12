@@ -83,7 +83,7 @@ def import_liendossierstextes():
     from fuzzywuzzy import fuzz
     #print dossiers
     ops = []
-    for s in mdb.scrutins.find({}): #'scrutin_liendossier':{'$ne':None}
+    for s in mdb.scrutins.find({'scrutin_liendossier':{'$ne':None}}): #'scrutin_liendossier':{'$ne':None}
         #if not s['scrutin_num'] in (321,):
         #    continue
         score = 0
