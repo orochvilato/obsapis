@@ -5,6 +5,7 @@ from pymongo import UpdateOne
 
 def update_amendements():
     ops = []
+    return "ok"
     pgroup = {'n':{'$sum':1}}
     pgroup['_id'] = {'depute':'$auteur'}
     pgroup['_id']['sort'] ='$sort'

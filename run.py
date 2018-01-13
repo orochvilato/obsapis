@@ -42,7 +42,8 @@ def amdcs():
 
 @app.route('/amd')
 def amds():
-    update_amendements()
+    import_amendements()
+    #update_amendements()
     #return "ok"
     pgroup = {'n':{'$sum':1}}
     pgroup['_id'] = {'depute':'$auteur'}
@@ -263,12 +264,14 @@ def viewtestgen():
 def test():
     #importdocs()
     ops = []
-    for d in mdb.documentsan.find({},{'numero':1,'dossierlien':1,'_id':None}):
-        print d['numero']
-        dossierlien = "http://www.assemblee-nationale.fr"+d['dossierlien']
-        ops.append(UpdateOne({'numero':d['numero']},{'$set':{'dossierlien':dossierlien}}))
+    pgroup = {'n':{'$sum':1}}
+    pgroup['_id'] = {'depute':'$auteurs'}
 
-    mdbrw.documentsan.bulk_write(ops)
+    pipeline = [{'$match':{}}, {'$unwind':'$auteurs'},{"$group": pgroup }] #'scrutin_typedetail':'amendement'
+    return json_response(sum(d['n'] for d in mdb.documentsan.aggregate(pipeline)))
+    print len(list(mdb.documentsan.aggregate(pipeline))),mdb.documentsan.count()
+    return json_response(mdb.documentsan.find_one({'typeid':'avis'}))
+
     #return json_response(mdb.amendements.find({'suppression':True},{'dispositif':1}).count())
     #mdbrw.scrutins.update_one({'scrutin_num':324},{'$set':{'scrutin_liendossier':'http://www.assemblee-nationale.fr/15/dossiers/deuxieme_collectif_budgetaire_2017.asp'}})
     #return json_util.dumps(list(mdb.amendements.find({'numAmend':'426'})))

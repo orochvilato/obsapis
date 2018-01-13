@@ -2,14 +2,14 @@
 
 from obsapis import mdbrw,mdb
 from obsapis.tools import normalize
-from pymongo import UpdateOne,TEXT,ASCENDING
-
+from pymongo import ReplaceOne,UpdateOne,TEXT,ASCENDING
+import datetime
 import json
 import requests
 import re
 
 def get_signataires(url):
-    items = ['AUTEUR_ID','COSIGNATAIRES_ID']
+    items = ['AUTEUR_ID','COSIGNATAIRES_ID','DATE_BADAGE']
     r = requests.get(url)
     from lxml import etree
     parser = etree.HTMLParser()
@@ -19,7 +19,7 @@ def get_signataires(url):
         x = page.xpath('//meta[@name="%s"]/@content' % item)
         result[item] = x[0] if x else ''
 
-    return result['AUTEUR_ID'],result['COSIGNATAIRES_ID'].split(';')
+    return result
 def import_amendements(rebuild=False):
     mdbrw.amendements.ensure_index([("dispositif", TEXT)],default_language='french')
     mdbrw.amendements.ensure_index([("id", ASCENDING)])
@@ -27,14 +27,11 @@ def import_amendements(rebuild=False):
     leg = '15'
     from HTMLParser import HTMLParser
     html = HTMLParser()
-    gfn  = {}
-    for d in mdb.deputes.find({},{'depute_shortid':1,'depute_uid':1,'depute_nom':1,'groupe_abrev':1}):
-        g = d['groupe_abrev']
-        nom =d['depute_nom'].split(' ')
-        gfn[d['depute_uid'][2:]]= {'g':g,'id':d['depute_shortid'],'nom':d['depute_nom']}
+
+    deputes_id_gp = dict((d['depute_uid'][2:],{'id':d['depute_shortid'],'groupe':d['groupe_abrev']}) for d in mdb.deputes.find({},{'_id':None,'depute_shortid':1,'depute_uid':1,'groupe_abrev':1}))
 
     from requests import Session
-    deja_amd = dict((a['id'],a) for a in mdb.amendements.find({},{'id':1,'auteur':1,'urlTexteRef':1,'_id':None}))
+    deja_amd = dict((a['id'],a) for a in mdb.amendements.find({},{'id':1,'auteurs':1,'urlTexteRef':1,'_id':None}))
 
     sess = Session()
     r = sess.get('http://www2.assemblee-nationale.fr/recherche/amendements')
@@ -53,14 +50,20 @@ def import_amendements(rebuild=False):
         start += nb
         op_amendements = []
         for i,a in enumerate(amds[u'data_table']):
+            print i
             updt = False
             amd = dict((fields[i],_a) for i,_a in enumerate(a.split('|')))
-            if not deja_amd.get(amd['id'],{}).get('auteur',False):
-                auteur,signataires = get_signataires(amd['urlAmend'])
-                amd['signataires_ids'] = [ gfn[id]['id'] for id in signataires if id in gfn.keys()]
-                amd['signataires_groupes'] = [ gfn[id]['g'] for id in signataires if id in gfn.keys()]
-                amd['auteur'] = gfn[auteur]['id'] if auteur in gfn.keys() else auteur
-                amd['groupe'] = gfn[auteur]['g'] if auteur in gfn.keys() else None
+            if not deja_amd.get(amd['id'],{}).get('auteurs',False):
+                meta = get_signataires(amd['urlAmend'])
+                auteurs = [ deputes_id_gp[_a] for _a in meta['AUTEUR_ID'].split(';') if _a in deputes_id_gp.keys() ]
+                cosignataires = [ deputes_id_gp[_a] for _a in meta['COSIGNATAIRES_ID'].split(';') if _a in deputes_id_gp.keys() ]
+                if not auteurs:
+                    auteurs = [{'id':'Gouvernement'}]
+                amd['auteurs'] = auteurs
+                amd['cosignataires'] = cosignataires
+
+                if meta['DATE_BADAGE']:
+                    amd['date'] = datetime.datetime.strptime(meta['DATE_BADAGE'],'%d/%m/%Y')
                 print "%d/%d" % (start-nb+i,len(amds[u'data_table']))
                 updt = True
             if not deja_amd.get(amd['id'],{}).get('urlTexteRef',False):
@@ -71,9 +74,11 @@ def import_amendements(rebuild=False):
                 amd.update(amd_detail)
                 print start-nb+i,amd['id'],amd['urlTexteRef']
                 updt = True
-            #mdbrw.amendements.update_one({'id':amd['id']},{'$set':amd},upsert=True)
+
             if updt:
-                op_amendements.append(UpdateOne({'id':amd['id']},{'$set':amd},upsert=True))
+                mdbrw.amendements.replace_one({'id':amd['id']},amd,upsert=True)
+                pass
+                #op_amendements.append(ReplaceOne({'id':amd['id']},amd,upsert=True))
 
         if op_amendements:
             mdbrw.amendements.bulk_write(op_amendements)
