@@ -55,7 +55,7 @@ def import_qag():
     depsid = dict((d['depute_uid'],{'id':d['depute_shortid'],'g':d['groupe_abrev']}) for d in mdb.deputes.find({},{'depute_uid':1,'groupe_abrev':1,'depute_shortid':1,'_id':None}))
     s = requests.Session()
     dejavu = [ q['url'] for q in mdb.questions.find({},{'url':1,'_id':0})]
-    
+
     nbitems = 1000
     legislature = 15
     #return json_response(parse_question('http://questions.assemblee-nationale.fr/q15/15-395QG.htm'))

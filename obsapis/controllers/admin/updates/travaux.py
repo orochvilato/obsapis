@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from obsapis import mdbrw,mdb
-from pymongo import UpdateOne
+from pymongo import UpdateOne,ASCENDING
 from string import Template
 
 import datetime
@@ -9,7 +9,7 @@ import datetime
 def update_travaux():
     # documents
     docs = {}
-
+    mdbrw.travaux.ensure_index([("id", ASCENDING)])
     legislature = 15
     ops =[]
     s = 0
@@ -31,15 +31,17 @@ def update_travaux():
             tdoc.update(id=doc['id']+'_'+g,groupe=g,auteurs=[_a['id'] for _a in doc['auteurs'] if _a['groupe']==g])
             ops.append(UpdateOne({'id':doc['id']+'_'+g},{'$set':tdoc},upsert=True))
 
+        auteurs  =[]
         for auteur in doc['auteurs']:
             if auteur.get('groupe',None):
                 tdoc = dict(tdocbase)
+                auteurs.append(auteur['id'])
                 tdoc.update(id=doc['id']+'_'+auteur['id'],depute=auteur['id'],auteur=True)
                 ops.append(UpdateOne({'id':doc['id']+'_'+auteur['id']},{'$set':tdoc},upsert=True))
 
 
         for cosig in doc['cosignataires']:
-            if cosig.get('groupe',None):
+            if cosig.get('groupe',None) and not cosig['id'] in auteurs:
                 tdoc = dict(tdocbase)
                 tdoc.update(id=doc['id']+'_'+cosig['id'],depute=cosig['id'],auteur=False)
                 ops.append(UpdateOne({'id':doc['id']+'_'+cosig['id']},{'$set':tdoc},upsert=True))
@@ -82,18 +84,22 @@ def update_travaux():
             tamd.update(id=amd['id']+'_'+g,groupe=g,auteurs=[_a['id'] for _a in amd['auteurs'] if _a['groupe']==g])
             ops.append(UpdateOne({'id':amd['id']+'_'+g},{'$set':tamd},upsert=True))
 
+        auteurs =  []
         for auteur in amd['auteurs']:
             if auteur.get('groupe',None):
                 tamd = dict(tamdbase)
+                auteurs.append(auteur['id'])
                 tamd.update(id=amd['id']+'_'+auteur['id'],depute=auteur['id'],auteur=True)
                 ops.append(UpdateOne({'id':amd['id']+'_'+auteur['id']},{'$set':tamd},upsert=True))
 
-
         for cosig in amd['cosignataires']:
-            if cosig.get('groupe',None):
+            if cosig.get('groupe',None) and not cosig['id'] in auteurs:
                 tamd = dict(tamdbase)
                 tamd.update(id=amd['id']+'_'+cosig['id'],depute=cosig['id'],auteur=False)
                 ops.append(UpdateOne({'id':amd['id']+'_'+cosig['id']},{'$set':tamd},upsert=True))
+
+
+
         if len(ops)>500:
             print "write"
             mdbrw.travaux.bulk_write(ops)

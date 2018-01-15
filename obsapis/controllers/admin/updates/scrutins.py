@@ -10,8 +10,8 @@ def updateScrutinsTexte():
     depgp = dict((d['depute_shortid'],d['groupe_abrev']) for d in mdb.deputes.find({},{'depute_shortid':1,'groupe_abrev':1,'_id':0}))
     docs = {}
     docsgp = {}
-    for doc in mdb.documentsan.find():
-        dos = doc['dossier'].split('#')[0]
+    for doc in mdb.documentsan.find({},{'dossierlien':1,'numero':1}):
+        dos = doc['dossierlien'].split('#')[0]
         if not dos in docs:
             docs[dos] = []
         docs[dos].append(doc['numero'])
@@ -27,6 +27,7 @@ def updateScrutinsTexte():
     vote_ops = []
     # 'scrutin_liendossier':{'$ne':None}
     for s in mdb.scrutins.find({'scrutin_liendossier':{'$ne':None}},{'scrutin_typedetail':1,'scrutin_lientexte':1,'scrutin_desc':1,'scrutin_id':1,'scrutin_num':1,'scrutin_liendossier':1}):
+        #print s['scrutin_num']
         if s['scrutin_typedetail']!='amendement':
             #print s['scrutin_lientexte'],s['scrutin_num']
             if 'scrutin_lientexte' in s.keys():
@@ -40,7 +41,7 @@ def updateScrutinsTexte():
             r = re.search(r'([0-9]+)',s['scrutin_desc'])
             if r:
                 num = r.groups()[0]
-
+                #print s
                 #print s['scrutin_liendossier']
                 #print docs[s['scrutin_liendossier']]
                 amdts = list(mdb.amendements.find({'$and':[{'instance':u"S\u00e9ance publique"},
@@ -53,7 +54,7 @@ def updateScrutinsTexte():
                 if len(amdts)!=1:
                     tr = 0
                     for a in amdts:
-                        sig = a['auteur']
+                        sig = a['auteurs'][0]['id']
                         #sig = strip_accents(a['signataires'].split(',')[0].split(' et ')[0].strip()).lower().split(' ')[-1]
                         s_desc = strip_accents(s['scrutin_desc']).lower().replace('premier','1er')
                         a_art = strip_accents(a['designationArticle']).lower().replace('premier','1er')
@@ -68,7 +69,7 @@ def updateScrutinsTexte():
                     #if amdts[0]['ratio']<100:
                         #print s['scrutin_num'],num,[(a['sig'],a['ratio']) for a in amdts]
                 amdt = amdts[0]
-                siggp = amdt['groupe'] if amdt['groupe'] else 'Gouvernement'
+                siggp = amdt['auteurs'][0]['groupe'] if 'groupe' in amdt['auteurs'][0].keys() else 'Gouvernement'
                 #if len(amdt.get('signataires_groupes',[]))>0:
                 #    siggp = amdt['signataires_groupes'][0]
                 #else:

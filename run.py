@@ -8,7 +8,7 @@ import requests
 import re
 from pymongo import UpdateOne
 from obsapis.tools import json_response,xls_response,dictToXls,dictToXlsx,image_response
-from obsapis.controllers.admin.imports.documents import importdocs
+from obsapis.controllers.admin.imports.documents import import_docs
 from obsapis.controllers.admin.imports.amendements import import_amendements
 from obsapis.controllers.admin.updates.amendements import update_amendements
 from obsapis.controllers.admin.updates.scrutins import updateScrutinsTexte
@@ -265,9 +265,21 @@ def viewtestgen():
 
 @app.route('/test')
 def test():
-    #return json_response(mdb.amendements.find({'sort':u'Adopté'}).count())
+    #mdbrw.travaux.remove({'idori':'S-AMANR5L15PO717460B387N110'})
+
+    return json_response(mdb.deputes.find_one({'depute_shortid':'francoisruffin'}))
+    #mdbrw.travaux.remove({'idori':'S-AMANR5L15PO419610B155N7'})
+    #mdbrw.amendements.remove({'id':{'$in':amdlist}})
+    #mdbrw.travaux.remove({'idori':{'$in':amdlist}})
+    #import_amendements()
+    #update_travaux()
+
+    return json_response(mdb.travaux.find({'$and':[{'auteur':True},{'type':'amendement'},{'depute':'francoisruffin'}]}).count())
+
+    return json_response(list(mdb.travaux.find({'idori':'S-AMANR5L15PO419610B155N7'})))
+
+
     print mdb.travaux.count()
-    update_travaux()
     return json_response(list(t['description'] for t in mdb.travaux.find({'groupe':'FI'})))
 
     #updateDeputesTravaux()

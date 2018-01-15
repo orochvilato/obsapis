@@ -7,9 +7,9 @@ import datetime
 from obsapis.config import cache_pages_delay
 
 
-@app.route('/amendements')
+@app.route('/travaux')
 @cache_function(expires=cache_pages_delay)
-def view_amendements():
+def view_travaux():
     amd_sorts = {'retire':u'Retiré', 'tombe':u'Tombé','adopte':u'Adopté','rejete':u'Rejeté','nonsoutenu':u'Non soutenu','nonrenseigne':u'Non renseigné'}
     nb = int(request.args.get('itemsperpage','25'))
     page = int(request.args.get('page','1'))-1
@@ -18,10 +18,13 @@ def view_amendements():
     role = request.args.get('role',None)
     sort = request.args.get('sort',None)
     skip = nb*page
-    filters = []
+    amdfilters = []
+    docfilters = []
+    qfilters= []
     if sort and sort in amd_sorts.keys():
-        filters.append({'sort':amd_sorts[sort]})
+        amdfilters.append({'sort':amd_sorts[sort]})
     if depute:
+        qfilters.append({'depute':depute})
         fdep = []
         if not role or role=='auteur':
             fdep.append({'auteur':depute})
@@ -30,20 +33,29 @@ def view_amendements():
         if len(fdep)>1:
             fdep = {'$and':fdep }
         if len(fdep)>0:
-            filters.append(fdep)
+            amdfilters.append(fdep)
+            docfilters.append(fdep)
     if search:
-        filters.append({'$text':{'$search':search}})
+        amdfilters.append({'$text':{'$search':search}})
+        docfilters.append({'$text':{'$search':search}})
+        qfilters.append({'$text':{'$search':search}})
 
-    if len(filters)==0:
-        amd_filter = {}
-    elif len(filters)==1:
-        amd_filter = filters[0]
-    else:
-        amd_filter = {'$and':filters}
+    def makefilter(f):
+        if len(f)==0:
+            mf = {}
+        elif len(f)==1:
+            mf = f[0]
+        else:
+            mf = {'$and':f}
+        return f
 
-    amdts = []
 
-    for v in mdb.amendemens.find(amd_filter).sort('scrutin_num',-1).skip(skip).limit(nb):
+    amd_filter = makefilter(amdfilters)
+    doc_filter = makefilter(docfilters)
+    q_filter = makefilter(qfilters)
+    travaux = []
+
+    for a in mdb.amendements.find(amd_filter).sort('date',-1).skip(skip).limit(nb):
         v['scrutin_sort'] = scrutins_data[v['scrutin_num']]['sort']
         if scrutins_data[v['scrutin_num']]['urlAmendement']:
             v['scrutin_desc'] = re.sub(r'([0-9]+)',r'<a target="_blank" href="'+scrutins_data[v['scrutin_num']]['urlAmendement']+r'">\1</a>',v['scrutin_desc'],1)

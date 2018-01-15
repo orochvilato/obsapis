@@ -56,7 +56,7 @@ def import_amendements(rebuild=False):
             if not deja_amd.get(amd['id'],{}).get('auteurs',False):
                 meta = get_signataires(amd['urlAmend'])
                 auteurs = [ deputes_id_gp[_a] for _a in meta['AUTEUR_ID'].split(';') if _a in deputes_id_gp.keys() ]
-                cosignataires = [ deputes_id_gp[_a] for _a in meta['COSIGNATAIRES_ID'].split(';') if _a in deputes_id_gp.keys() ]
+                cosignataires = [ deputes_id_gp[_a] for _a in meta['COSIGNATAIRES_ID'].split(';') if _a in deputes_id_gp.keys() and not _a in meta['AUTEUR_ID'].split(';') ]
                 if not auteurs:
                     auteurs = [{'id':'Gouvernement'}]
                 amd['auteurs'] = auteurs

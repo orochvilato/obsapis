@@ -29,7 +29,7 @@ x="""<meta name="TITRE" content="sur le burnout visant à faire reconnaître com
                         <meta name="ID_COM_FOND" content="ID_420120">"""
 
 
-def importdocs():
+def import_docs():
     mdbrw.documentsan.ensure_index([("contenu", TEXT)],default_language='french')
     mdbrw.documentsan.ensure_index([("numero", ASCENDING)])
     legislature=15
@@ -95,7 +95,7 @@ def importdocs():
 
 
         auteurs = [ deputes_id_gp[a[3:]] for a in meta['AUTEUR_ID'].split(';') if a[3:] in deputes_id_gp.keys() ]
-        cosignataires = [ deputes_id_gp[a[3:]] for a in meta['COSIGNATAIRE_ID'].split(';') if a[3:] in deputes_id_gp.keys() ]
+        cosignataires = [ deputes_id_gp[a[3:]] for a in meta['COSIGNATAIRE_ID'].split(';') if a[3:] in deputes_id_gp.keys() and not a in meta['AUTEUR_ID'].split(';') ]
         if not auteurs:
             auteurs = [{'id':'Gouvernement'}]
         d['auteurs'] = auteurs
