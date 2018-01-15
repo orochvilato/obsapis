@@ -18,6 +18,7 @@ def parse_content(content):
 
 
 def import_qag():
+    legislature = 15
     mdbrw.questions.ensure_index([("contenu", TEXT)],default_language='french')
     mdbrw.questions.ensure_index([("id", ASCENDING)])
     def parse_question(url):
@@ -46,6 +47,7 @@ def import_qag():
                     groupe=depsid[depute]['g'],
                     ministere_interroge=min_inter,
                     ministere_attributaire=min_attri,
+                    legislature=legislature,
                     rubrique = rubrique,
                     titre = titre,
                     date = datetime.datetime.strptime(datejo,'%d/%m/%Y'),
@@ -57,7 +59,7 @@ def import_qag():
     dejavu = [ q['url'] for q in mdb.questions.find({},{'url':1,'_id':0})]
 
     nbitems = 1000
-    legislature = 15
+
     #return json_response(parse_question('http://questions.assemblee-nationale.fr/q15/15-395QG.htm'))
 
     r = s.post('http://www2.assemblee-nationale.fr/recherche/resultats_questions',data={'limit':nbitems,'legislature':legislature})
@@ -77,7 +79,7 @@ def import_qag():
         if ops:
             mdbrw.questions.bulk_write(ops)
         offset += nbitems
-        r = s.get('http://www2.assemblee-nationale.fr/recherche/resultats_questions/15/(offset)/%d/(query)/%s' % (offset,code))
+        r = s.get('http://www2.assemblee-nationale.fr/recherche/resultats_questions/%d/(offset)/%d/(query)/%s' % (legislature,offset,code))
         page = parse_content(r.content)
         questions = page.xpath('//section//article//tbody//td/a/@href')
     return "ok"

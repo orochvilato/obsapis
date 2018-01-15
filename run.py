@@ -265,16 +265,22 @@ def viewtestgen():
 
 @app.route('/test')
 def test():
-    #mdbrw.travaux.remove({'idori':'S-AMANR5L15PO717460B387N110'})
+    search = "fip"
+    txt_amd = [ a['id'] for a in mdb.amendements.find({'$text':{'$search':search}}) ]
+    txt_que = [ q['id'] for q in mdb.questions.find({'$text':{'$search':search}}) ]
+    txt_doc = [ d['id'] for d in mdb.documentsan.find({'$text':{'$search':search}}) ]
+    return json_response(txt_amd+txt_que+txt_doc)
 
-    return json_response(mdb.deputes.find_one({'depute_shortid':'francoisruffin'}))
+    #for a in mdb.amendements.find({'suppression':True},{'id':1}):
+    #    mdbrw.travaux.update_many({'idori':a['id']},{'$set':{'suppression':True}})
+
     #mdbrw.travaux.remove({'idori':'S-AMANR5L15PO419610B155N7'})
     #mdbrw.amendements.remove({'id':{'$in':amdlist}})
     #mdbrw.travaux.remove({'idori':{'$in':amdlist}})
     #import_amendements()
-    #update_travaux()
 
-    return json_response(mdb.travaux.find({'$and':[{'auteur':True},{'type':'amendement'},{'depute':'francoisruffin'}]}).count())
+    #update_travaux()
+    return json_response(list(q['description'] for q in mdb.travaux.find({'$and':[{'auteur':{'$ne':False}},{'type':'QE'},{'depute':'francoisruffin'}]})))
 
     return json_response(list(mdb.travaux.find({'idori':'S-AMANR5L15PO419610B155N7'})))
 

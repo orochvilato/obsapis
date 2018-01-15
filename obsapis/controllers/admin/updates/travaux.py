@@ -50,23 +50,12 @@ def update_travaux():
     if ops:
         mdbrw.travaux.bulk_write(ops)
 
-    r="""
-    id (D:numero),
-    depute,
-    date,
-    auteur,
-    groupe,
-    type : D:typeid,A:amendement,Q:type
-    typeLibelle
-    lien: D:doclien, A:urlAmend, Q:url
-    dossier: D:dossier, A:titreDossierLegislatif, Q: ministere_interroge/rubrique
-    description: D:fulldesc, A:Amendement n°{numAmend}/{titreDossierLegislatif}/titre(numInit) doc"""
-
+    print "done doc"
     desc = Template(u"Amendement n°${num} / ${art} / ${doc}")
     ops = []
     # ,{'id':{'$nin':deja}}]}
     for i,amd in enumerate(mdb.amendements.find({'legislature':legislature},
-                                                {'date':1,'dateDepot':1,'id':1,'urlAmend':1, 'sort':1,
+                                                {'date':1,'suppression':1,'dateDepot':1,'id':1,'urlAmend':1, 'sort':1,
                                                  'titreDossierLegislatif':1,'numAmend':1,'designationArticle':1,
                                                  'numInit':1,'auteurs':1,'cosignataires':1,'_id':1})):
         if amd['id'] in deja:
@@ -74,9 +63,8 @@ def update_travaux():
         if not 'date' in amd.keys():
             amd['date'] = datetime.datetime.strptime(amd['dateDepot'].replace('1er','1').encode('utf8'),'%d %B %Y')
 
-        print i
         tamdbase = dict(date=amd['date'],idori=amd['id'],type='amendement',sort=amd['sort'],
-                         type_libelle='Amendement',lien=amd['urlAmend'],
+                         type_libelle='Amendement',lien=amd['urlAmend'],suppression=amd.get('suppression',False),
                          dossier=amd['titreDossierLegislatif'],
                          description=desc.substitute(num=amd['numAmend'],art=amd['designationArticle'],doc=docs[amd['numInit']]))
         for g in list(set([_a['groupe'] for _a in amd['auteurs'] if 'groupe' in _a.keys()])):
@@ -101,10 +89,32 @@ def update_travaux():
 
 
         if len(ops)>500:
-            print "write"
             mdbrw.travaux.bulk_write(ops)
-            print i
             ops = []
     if ops:
         mdbrw.travaux.bulk_write(ops)
-    print "fin"
+
+    print "done amd"
+    ops = []
+    for q in mdb.questions.find({'legislature':legislature},{'date':1,'id':1,'type':1,'url':1,'ministere_interroge':1,'rubrique':1,'titre':1,'depute':1,'groupe':1}):
+        if q['id'] in deja:
+            continue
+        qbase = dict(date=q['date'],idori=q['id'],type=q['type'],
+                     type_libelle={'QE':'Question écrite','QG':'Question orale','QOSD':'Question orale sans débat'}[q['type']],
+                     lien=q['url'],
+                     dossier="%s / %s" % (q['ministere_interroge'],q['rubrique']),
+                     description=q['titre'])
+        qd = dict(qbase)
+        qd.update(id=q['id']+'_'+q['depute'], depute = q['depute'])
+        ops.append(UpdateOne({'id':q['id']+'_'+q['depute']},{'$set':qd}, upsert=True))
+
+        qg = dict(qbase)
+        qg.update(id=q['id']+'_'+q['groupe'], groupe = q['groupe'])
+        ops.append(UpdateOne({'id':q['id']+'_'+q['groupe']},{'$set':qg}, upsert=True))
+        if len(ops)>500:
+            mdbrw.travaux.bulk_write(ops)
+            ops = []
+    if ops:
+        mdbrw.travaux.bulk_write(ops)
+
+    print "don ques"

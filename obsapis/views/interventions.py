@@ -35,6 +35,7 @@ def interventions():
     if date:
         filters.append({'itv_date':date})
     if search:
+        search = '"'+search+'"'
         filters.append({'$text':{'$search':search}})
 
     if len(filters)==0:

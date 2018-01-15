@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 from obsapis import app,use_cache,mdb
 from flask import request
 from obsapis.tools import json_response,cache_function
@@ -15,30 +17,43 @@ def view_travaux():
     page = int(request.args.get('page','1'))-1
     search = request.args.get('requete',request.args.get('query',''))
     depute = request.args.get('depute',None)
-    role = request.args.get('role',None)
+    groupe= request.args.get('groupe',None)
+    cosig = request.args.get('cosignataire',None)
     sort = request.args.get('sort',None)
+    ttype = request.args.get('type',None)
+
     skip = nb*page
-    amdfilters = []
-    docfilters = []
-    qfilters= []
-    if sort and sort in amd_sorts.keys():
-        amdfilters.append({'sort':amd_sorts[sort]})
+    filters = []
+
+
+    if sort and ttype=='amendement' and sort in amd_sorts.keys():
+        filters.append({'sort':amd_sorts[sort]})
+
     if depute:
-        qfilters.append({'depute':depute})
-        fdep = []
-        if not role or role=='auteur':
-            fdep.append({'auteur':depute})
-        if not role or role=='cosignataire':
-            fdep.append({'signataires_ids': auteur})
-        if len(fdep)>1:
-            fdep = {'$and':fdep }
-        if len(fdep)>0:
-            amdfilters.append(fdep)
-            docfilters.append(fdep)
+        filters.append({'depute':depute})
+        filters.append({'auteur':False if cosig else True})
+    elif groupe:
+        filters.append({'groupe':depute})
+    else:
+        filters.append({'depute':None})
+
+    if ttype=='question':
+        filters.append({'type':{'$in':['QG','QE','QOSD']}})
+    elif ttype=='amendement':
+        filters.append({'type':'amendement'})
+    elif ttype=='document':
+        filters.append({'type':{'$nin':['QG','QE','QOSD','amendement']}})
+
     if search:
-        amdfilters.append({'$text':{'$search':search}})
-        docfilters.append({'$text':{'$search':search}})
-        qfilters.append({'$text':{'$search':search}})
+        search = '"'+search+'"'
+        def searchText():
+            txt_amd = [ a['id'] for a in mdb.amendements.find({'$text':{'$search':search}}) ]
+            txt_que = [ q['id'] for q in mdb.questions.find({'$text':{'$search':search}}) ]
+            txt_doc = [ d['id'] for d in mdb.documentsan.find({'$text':{'$search':search}}) ]
+            return txt_amd+txt_que+txt_doc
+        cachekey = u"trvtxt%s" % (search)
+        ids = use_cache(cachekey,lambda:searchText(),expires=3600)
+        filters.append({'idori':{'$in':ids}})
 
     def makefilter(f):
         if len(f)==0:
@@ -47,36 +62,21 @@ def view_travaux():
             mf = f[0]
         else:
             mf = {'$and':f}
-        return f
+        return mf
 
 
-    amd_filter = makefilter(amdfilters)
-    doc_filter = makefilter(docfilters)
-    q_filter = makefilter(qfilters)
-    travaux = []
+    tfilter = makefilter(filters)
+    print filters,tfilter
 
-    for a in mdb.amendements.find(amd_filter).sort('date',-1).skip(skip).limit(nb):
-        v['scrutin_sort'] = scrutins_data[v['scrutin_num']]['sort']
-        if scrutins_data[v['scrutin_num']]['urlAmendement']:
-            v['scrutin_desc'] = re.sub(r'([0-9]+)',r'<a target="_blank" href="'+scrutins_data[v['scrutin_num']]['urlAmendement']+r'">\1</a>',v['scrutin_desc'],1)
-        for lien in scrutins_data[v['scrutin_num']]['scrutin_lientexte']:
-            v['scrutin_desc'] = v['scrutin_desc'].replace(lien[0],'<a target="_blank" href="'+lien[1]+r'">'+lien[0]+'</a>')
-        v['scrutin_dossierLibelle'] = v['scrutin_dossierLibelle'].replace(u'\u0092',"'") # pb apostrophe
-        votes.append(v)
+    travaux = list(mdb.travaux.find(tfilter).sort('date',-1).skip(skip).limit(nb))
 
     def countItems():
-        rcount = mdb.votes.find(vote_filter).count()
+        rcount = mdb.travaux.find(tfilter).count()
         return {'totalitems':rcount}
-    cachekey= u"vot%s_%s_%s_%s_%s_%s_%s_%s_%s_%s" % (depute,position,scrutingroupe,dissidence,scrutin,age,csp if csp else csp,groupe,search,region if region else region)
+    cachekey= u"trv%s_%s_%s_%s_%s_%s" % (depute,groupe,search,ttype,sort,cosig)
     counts = use_cache(cachekey,lambda:countItems(),expires=3600)
-    regx = re.compile(search, re.IGNORECASE)
-    if search:
-        for v in votes:
-            repl = regx.subn('<strong>'+search+'</strong>',v['scrutin_desc'])
-            if repl[1]:
-                v['scrutin_desc'] = repl[0]
 
     import math
     nbpages = int(math.ceil(float(counts['totalitems'])/nb))
-    result = dict(nbitems=len(votes),nbpages=nbpages, currentpage=1+page,itemsperpage=nb, items=votes,**counts)
+    result = dict(nbitems=len(travaux),nbpages=nbpages, currentpage=1+page,itemsperpage=nb, items=travaux,**counts)
     return json_response(result)
