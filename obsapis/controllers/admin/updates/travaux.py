@@ -96,7 +96,7 @@ def update_travaux():
 
     print "done amd"
     ops = []
-    deja = []
+    
     for q in mdb.questions.find({'legislature':legislature},{'date':1,'id':1,'type':1,'url':1,'ministere_interroge':1,'rubrique':1,'titre':1,'depute':1,'groupe':1}):
         if q['id'] in deja:
             continue
@@ -117,6 +117,6 @@ def update_travaux():
             ops = []
     if ops:
         mdbrw.travaux.bulk_write(ops)
-        
+
 
     print "don ques"
