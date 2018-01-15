@@ -96,6 +96,7 @@ def update_travaux():
 
     print "done amd"
     ops = []
+    deja = []
     for q in mdb.questions.find({'legislature':legislature},{'date':1,'id':1,'type':1,'url':1,'ministere_interroge':1,'rubrique':1,'titre':1,'depute':1,'groupe':1}):
         if q['id'] in deja:
             continue
@@ -109,12 +110,13 @@ def update_travaux():
         ops.append(UpdateOne({'id':q['id']+'_'+q['depute']},{'$set':qd}, upsert=True))
 
         qg = dict(qbase)
-        qg.update(id=q['id']+'_'+q['groupe'], groupe = q['groupe'])
+        qg.update(id=q['id']+'_'+q['groupe'], groupe = q['groupe'], auteurs=[q['depute']])
         ops.append(UpdateOne({'id':q['id']+'_'+q['groupe']},{'$set':qg}, upsert=True))
         if len(ops)>500:
             mdbrw.travaux.bulk_write(ops)
             ops = []
     if ops:
         mdbrw.travaux.bulk_write(ops)
+        
 
     print "don ques"

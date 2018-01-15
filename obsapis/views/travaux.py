@@ -33,7 +33,7 @@ def view_travaux():
         filters.append({'depute':depute})
         filters.append({'auteur':False if cosig else True})
     elif groupe:
-        filters.append({'groupe':depute})
+        filters.append({'groupe':groupe})
     else:
         filters.append({'depute':None})
 
