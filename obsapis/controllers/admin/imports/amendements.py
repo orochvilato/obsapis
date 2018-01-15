@@ -72,6 +72,7 @@ def import_amendements(rebuild=False):
                 amfields = amd_json['infoGenerales']['description_schema'].split('|')
                 amd_detail = dict((amfields[j],_amd) for j,_amd in enumerate(amd_json[u'data_table'][0].split('|')))
                 amd.update(amd_detail)
+                amd['legislature'] = int(leg)
                 print start-nb+i,amd['id'],amd['urlTexteRef']
                 updt = True
 

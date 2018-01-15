@@ -3,6 +3,13 @@ from obsapis import app,mdb,mdbrw
 
 from obsapis.tools import json_response,xls_response,dictToXls,dictToXlsx
 
+@app.route('/gotravaux')
+def gotravaux():
+    from obsapis.controllers.admin.updates.travaux import update_travaux
+    update_travaux()
+    return 'ok'
+
+
 @app.route('/specifique/proplois')
 def proplois():
     flds = [u"Proposition de loi",u"Projet de loi",u"Proposition de r\xe9solution",u"Rapport",u"Rapport d'information",u"Avis",u"Allocution"]

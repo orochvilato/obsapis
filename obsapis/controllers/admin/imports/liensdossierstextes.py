@@ -7,7 +7,7 @@ import requests
 import re
 
 def import_liendossierstextes():
-    docsan = dict((d['numero'],d['document']) for d in mdb.documentsan.find({},{'numero':1,'document':1,'_id':None}))
+    docsan = dict((d['numero'],d['doclien']) for d in mdb.documentsan.find({},{'numero':1,'doclien':1,'_id':None}))
     from stripogram import html2text, html2safehtml
     def getDossier(url):
         ops = []

@@ -249,6 +249,15 @@ def genvisuelstat21(depute,stat):
                         d.text((_ps['xl']+220*j,_ps['yl']),libelle, font=fontlabel,fill=(130,205,226,255)) #462
 
                     label = statunique
+                else:
+                    _ps = params_stats['label'][statunique]
+                    fontlabel = ImageFont.truetype("Montserrat-Regular.ttf", _ps['fs'])
+                    corx,cory = (-200,0) if statunique else (0,-100)
+
+                    for i,l in enumerate(['Aucune','intervention']):
+                        w,h = fontlabel.getsize(l.decode('utf8'))
+                        d.text((corx+_ps['x']+220*j+((150-w)/2)*(0 if statunique else 1),cory+_ps['y']+i*24),l.decode('utf8'), font=fontlabel,fill=(255,0,82,255))
+
             if label:
                 _ps = params_stats['label'][statunique]
                 fontlabel = ImageFont.truetype("Montserrat-Bold.ttf", _ps['fs'])
@@ -346,6 +355,7 @@ def genvisuelstat21clean(depute,stat):
                 statimage = Image.open(path+'/assets/%s/%d.png' % (stat,round(getdot(dep,params[stat]['field']),0))).resize((250,250),Image.ANTIALIAS)
                 vis.paste(statimage,(310+330*j,135))
             elif stat=='motspreferes' or stat=='verbespreferes':
+                print dep['depute_nuages']
                 if dep['depute_nuages']:
                     typemot = 'noms' if stat=='motspreferes' else 'verbes'
                     libelle = "Ses mots préférés".decode('utf8') if stat=='motspreferes' else "Ses verbes préférés".decode('utf8')
@@ -353,9 +363,10 @@ def genvisuelstat21clean(depute,stat):
                     d.text((310+330*j,135),"1. "+maj1l(mots[0]),font=fontmot1,fill=(255,0,82,255))
                     for i in range(1,5):
                         d.text((310+330*j,190+(i-1)*42),"%d. %s" % (1+i,maj1l(mots[i])),font=fontmot,fill=(33,53,88,255))
-                    d.text((310+330*j,392),libelle, font=fontlabel,fill=(130,205,226,255)) #462
 
+                    d.text((310+330*j,392),libelle, font=fontlabel,fill=(130,205,226,255)) #462
                     label = False
+
             if label:
                 for i,l in enumerate(params[stat]['label']):
                     w,h = fontlabel.getsize(l.decode('utf8'))
@@ -369,6 +380,7 @@ def genvisuelstat21clean(depute,stat):
                 statimage = Image.open(path+'/assets/%s/%d.png' % (stat,round(getdot(dep,params[stat]['field']),0))).resize((_ps['w'],_ps['w']),Image.ANTIALIAS)
                 vis.paste(statimage,(_ps['x']+330*j,_ps['y']))
             elif stat=='motspreferes' or stat=='verbespreferes':
+
                 if dep['depute_nuages']:
                     _ps = params_stats['mots'][statunique]
                     fontlabel = ImageFont.truetype("Montserrat-Bold.ttf", _ps['fslabel'])
@@ -379,12 +391,21 @@ def genvisuelstat21clean(depute,stat):
                     libelle = "Ses mots préférés".decode('utf8') if stat=='motspreferes' else "Ses verbes préférés".decode('utf8')
                     mots = [x[0] for x in dep['depute_nuages'][typemot][:5]]
                     d.text((_ps['x']+330*j,_ps['y']),"1. "+maj1l(mots[0]),font=fontmot1,fill=(255,0,82,255))
-                    for i in range(1,5):
+                    for i in range(1,len(mots)):
                         d.text((_ps['x']+330*j,_ps['y']+_ps['space']+(i-1)*_ps['h']),"%d. %s" % (1+i,maj1l(mots[i])),font=fontmot,fill=(33,53,88,255))
                     if not statunique:
                         d.text((_ps['xl']+330*j,_ps['yl']),libelle, font=fontlabel,fill=(130,205,226,255)) #462
 
                     label = statunique
+                else:
+                    _ps = params_stats['label'][statunique]
+                    fontlabel = ImageFont.truetype("Montserrat-Regular.ttf", _ps['fs'])
+                    corx,cory = (-280,0) if statunique else (0,-180)
+
+                    for i,l in enumerate(['Aucune','intervention']):
+                        w,h = fontlabel.getsize(l.decode('utf8'))
+                        d.text((corx+_ps['x']+330*j+((250-w)/2)*(0 if statunique else 1),cory+_ps['y']+i*(_ps['fs']+6)),l.decode('utf8'), font=fontlabel,fill=(255,0,82,255))
+
             if label:
                 _ps = params_stats['label'][statunique]
                 fontlabel = ImageFont.truetype("Montserrat-Bold.ttf", _ps['fs'])

@@ -5,11 +5,11 @@ from pymongo import UpdateOne
 
 def update_amendements():
     ops = []
-    return "ok"
+    #return "ok"
     pgroup = {'n':{'$sum':1}}
-    pgroup['_id'] = {'depute':'$auteur'}
+    pgroup['_id'] = {'depute':'$auteurs.id'}
     pgroup['_id']['sort'] ='$sort'
-    pipeline = [{'$match':{}},   {"$group": pgroup }] #'scrutin_typedetail':'amendement'
+    pipeline = [{'$match':{}},  {'$unwind':'$auteurs'},  {"$group": pgroup }] #'scrutin_typedetail':'amendement'
 
     stat_amdts = {}
     for amdt in mdb.amendements.aggregate(pipeline):

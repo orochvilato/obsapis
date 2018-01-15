@@ -32,12 +32,12 @@ x="""<meta name="TITRE" content="sur le burnout visant à faire reconnaître com
 def importdocs():
     mdbrw.documentsan.ensure_index([("contenu", TEXT)],default_language='french')
     mdbrw.documentsan.ensure_index([("numero", ASCENDING)])
-
+    legislature=15
     nb = 500
     offset = 0
     docs = []
     ops = []
-    ops_sigs = []
+
     urls = [('http://www2.assemblee-nationale.fr/documents/liste/(ajax)/1/(offset)/%d/(limit)/%d/(type)/depots/(legis)/15/(no_margin)/false',
             r'^(.+) - N[\xc2\xa0\xb0 ]+([0-9]+)$','%d'),
             ('http://www2.assemblee-nationale.fr/documents/liste/(ajax)/1/(offset)/%d/(limit)/%d/(type)/ta/(legis)/15/',
@@ -67,17 +67,18 @@ def importdocs():
                         r = r.groups()
                         sublinks = doc.xpath('ul/li/a/@href')#.extract()
                         if len(sublinks)==2:
-                            docs.append(dict(numero=(url[2] % int(r[1])).upper(),dossier=r[0],doclien='http://www2.assemblee-nationale.fr'+sublinks[1],dossierlien=sublinks[0],fulldesc=desc.replace(u'\u2018',"'").replace(u'\u0153',u'oe').replace(u'\u2019',"'").encode('iso8859-1').replace('\n','')))
+                            numero=(url[2] % int(r[1])).upper()
+                            docs.append(dict(id="%d_%s" % (legislature,numero),numero=numero,dossier=r[0],doclien='http://www2.assemblee-nationale.fr'+sublinks[1],dossierlien=sublinks[0],fulldesc=desc.replace(u'\u2018',"'").replace(u'\u0153',u'oe').replace(u'\u2019',"'").encode('iso8859-1').replace('\n','')))
 
             offset += nb
     deputes_id_gp = dict((d['depute_uid'][2:],{'id':d['depute_shortid'],'groupe':d['groupe_abrev']}) for d in mdb.deputes.find({},{'_id':None,'depute_shortid':1,'depute_uid':1,'groupe_abrev':1}))
-    done = [ doc['numero'] for doc in mdb.documentsan.find({'contenu':{'$ne':None}},{'numero':1,'_id':None})]
+    done = [ doc['id'] for doc in mdb.documentsan.find({'contenu':{'$ne':None}},{'id':1,'_id':None})]
     #done = []
     #print done
     items = ['TITRE','TYPE_DOCUMENT','TITRE_DOSSIER','NUMERO','DATE_DEPOT','URL_DOSSIER','AUTEUR','AUTEUR_ID','COSIGNATAIRE_ID','ID_COM_FOND']
 
     for d in docs:
-        if d['numero'] in done:
+        if d['id'] in done:
             pass
             continue
 
@@ -99,6 +100,8 @@ def importdocs():
             auteurs = [{'id':'Gouvernement'}]
         d['auteurs'] = auteurs
         d['cosignataires'] = cosignataires
+        d['legislature'] = legislature
+        d['id'] = "%d_%s" % (legislature,d['numero'])
         d['titre'] = meta['TITRE']
         d['type'] = meta['TYPE_DOCUMENT']
         d['typeid'] = normalize(unicode(meta['TYPE_DOCUMENT']))
@@ -114,7 +117,7 @@ def importdocs():
         else:
             print d['numero'],len(contenu),d['typeid'],d['titre']
 
-        mdbrw.documentsan.replace_one({'numero':d['numero']},d,upsert=True)
+        mdbrw.documentsan.replace_one({'id':d['id']},d,upsert=True)
         #ops.append(ReplaceOne({'numero':d['numero']},d,upsert=True))
     if ops:
         mdbrw.documentsan.bulk_write(ops)

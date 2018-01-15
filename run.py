@@ -12,9 +12,12 @@ from obsapis.controllers.admin.imports.documents import importdocs
 from obsapis.controllers.admin.imports.amendements import import_amendements
 from obsapis.controllers.admin.updates.amendements import update_amendements
 from obsapis.controllers.admin.updates.scrutins import updateScrutinsTexte
-from obsapis.controllers.admin.updates.deputes import updateDeputesContacts
+from obsapis.controllers.admin.updates.deputes import updateDeputesTravaux
+from obsapis.controllers.admin.updates.travaux import update_travaux
 from obsapis.controllers.admin.imports.liensdossierstextes import import_liendossierstextes
 from obsapis.controllers.visuel.generateur import gentest
+from obsapis.controllers.admin.imports.qag import import_qag
+
 
 @app.route('/amdc')
 def amdcs():
@@ -43,12 +46,12 @@ def amdcs():
 @app.route('/amd')
 def amds():
     import_amendements()
-    #update_amendements()
+    update_amendements()
     #return "ok"
     pgroup = {'n':{'$sum':1}}
-    pgroup['_id'] = {'depute':'$auteur'}
+    pgroup['_id'] = {'depute':'$auteurs.id'}
     pgroup['_id']['sort'] ='$sort'
-    pipeline = [{'$match':{}},   {"$group": pgroup }] #'scrutin_typedetail':'amendement'
+    pipeline = [{'$match':{}}, {'$unwind':'$auteurs'},  {"$group": pgroup }] #'scrutin_typedetail':'amendement'
 
     stat_amdts = {}
     for amdt in mdb.amendements.aggregate(pipeline):
@@ -262,7 +265,22 @@ def viewtestgen():
 
 @app.route('/test')
 def test():
+    #return json_response(mdb.amendements.find({'sort':u'Adopté'}).count())
+    print mdb.travaux.count()
+    update_travaux()
+    return json_response(list(t['description'] for t in mdb.travaux.find({'groupe':'FI'})))
+
+    #updateDeputesTravaux()
+
     #importdocs()
+
+
+    #import_qag()
+
+    return json_response(mdb.deputes.find_one({'depute_shortid':'francoisruffin'}))
+    #importdocs()
+
+    #return json_response(mdb.documentsan.find_one({'$and':[{'typeid':'propositionderesolution'},{'cosignataires.id':'francoisruffin'}]}))
     ops = []
     pgroup = {'n':{'$sum':1}}
     pgroup['_id'] = {'depute':'$auteurs'}
@@ -270,7 +288,7 @@ def test():
     pipeline = [{'$match':{}}, {'$unwind':'$auteurs'},{"$group": pgroup }] #'scrutin_typedetail':'amendement'
     return json_response(sum(d['n'] for d in mdb.documentsan.aggregate(pipeline)))
     print len(list(mdb.documentsan.aggregate(pipeline))),mdb.documentsan.count()
-    return json_response(mdb.documentsan.find_one({'typeid':'avis'}))
+
 
     #return json_response(mdb.amendements.find({'suppression':True},{'dispositif':1}).count())
     #mdbrw.scrutins.update_one({'scrutin_num':324},{'$set':{'scrutin_liendossier':'http://www.assemblee-nationale.fr/15/dossiers/deuxieme_collectif_budgetaire_2017.asp'}})
