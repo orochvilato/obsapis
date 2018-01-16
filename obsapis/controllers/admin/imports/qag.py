@@ -74,7 +74,7 @@ def import_qag():
         for qurl in questions:
             if not qurl in dejavu:
                 q = parse_question(qurl)
-                print q['id']
+                q['legislature'] = legislature
                 ops.append(ReplaceOne({'id':q['id']},q,upsert=True))
         if ops:
             mdbrw.questions.bulk_write(ops)

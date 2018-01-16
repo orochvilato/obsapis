@@ -245,7 +245,7 @@ def _ajax(type_page):
     counts = countItems()
     #return json.dumps(counts)
     items = []
-
+    
     for d in mdb.deputes.find(filter,deputes_filters).sort(sort).skip(skip).limit(nb):
         photo_an='http://www2.assemblee-nationale.fr/static/tribun/15/photos/'+d['depute_uid'][2:]+'.jpg'
         depnumdep = d['depute_departement_id'][1:] if d['depute_departement_id'][0]=='0' else d['depute_departement_id']

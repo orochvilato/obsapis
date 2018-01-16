@@ -238,6 +238,7 @@ def ouv():
 
 @app.route('/testcompat')
 def testcompat():
+
     #return json_response(list(mdb.scrutins.find({'$and':[{'scrutin_amendement_groupe':None},{'scrutin_typedetail':'amendement'}]},{'scrutin_num':1})))
     #for gid in ['FI','GDR','UAI','LR','MODEM','NG','REM']:
     pgroup = {'n':{'$sum':1}}
@@ -265,6 +266,19 @@ def viewtestgen():
 
 @app.route('/test')
 def test():
+    #{'$and': [{'depute_actif': True}, {u'stats.positions.exprimes': {'$ne': None}}]} [('stats.nonclasse', 1), ('stats.ranks.down.exprimes', 1)]
+
+    #mdbrw.deputes.update_one({'depute_shortid':'michelevictory'},{'$set':{'depute_actif':False}})
+    return json_response([d['depute_shortid'] for d in mdb.deputes.find({'depute_nonclasse':None},{'depute_shortid':1})])
+    for d in mdb.deputes.find({'depute_election':None}):
+        circo = d['depute_circo_id']
+        titulaire = mdb.deputes.find_one({'$and':[{'depute_circo_id':circo},{'depute_election':{'$ne':None}}]})
+        mdbrw.deputes.update_one({'depute_shortid':d['depute_shortid']},{'$set':{'depute_election':titulaire['depute_election']}})
+    return "oj"
+    #mdbrw.questions.update_many({'legislature':None},{'$set':{'legislature':15}})
+    #update_travaux()
+    #return json_response(mdb.interventions.find_one({}))
+    return json_response(list(q['itv_contenu_texte'] for q in mdb.interventions.find({'depute_shortid':'mariechristineverdierjouclas'})))
 
     return json_response(mdb.travaux.distinct('type'))
 
