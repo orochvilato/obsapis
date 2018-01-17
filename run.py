@@ -266,10 +266,14 @@ def viewtestgen():
 
 @app.route('/test')
 def test():
-    #{'$and': [{'depute_actif': True}, {u'stats.positions.exprimes': {'$ne': None}}]} [('stats.nonclasse', 1), ('stats.ranks.down.exprimes', 1)]
+    import datetime
+    #mdbrw.deputes.update_one({'depute_shortid':'michelevictory'},{'$unset':{'stats.commissions':""}})
+    return json_response(mdb.deputes.find_one({}))
+    return json_response([d['depute_shortid'] for d in mdb.deputes.find({'stats.commissions.present':0.0})])
+    #{'$and': [{'depute_actif': True}, ]} [('stats.nonclasse', 1), ('stats.ranks.down.exprimes', 1)]
+    return json_response(list(d['depute_shortid'] for d in mdb.deputes.find({'depute_mandat_debut':{'$gte':datetime.datetime(2017,5,21)}},{'depute_shortid':1})))
 
-    #mdbrw.deputes.update_one({'depute_shortid':'michelevictory'},{'$set':{'depute_actif':False}})
-    return json_response([d['depute_shortid'] for d in mdb.deputes.find({'depute_nonclasse':None},{'depute_shortid':1})])
+    return json_response([d['depute_shortid'] for d in mdb.deputes.find({'$and':[{'$or':[{'depute_actif': True},{'depute_shortid':'michelevictory'}]},{u'stats.positions.exprimes': {'$ne': None}}]}).sort([('stats.nonclasse', 1), ('stats.ranks.down.exprimes', 1)]).limit(5)])
     for d in mdb.deputes.find({'depute_election':None}):
         circo = d['depute_circo_id']
         titulaire = mdb.deputes.find_one({'$and':[{'depute_circo_id':circo},{'depute_election':{'$ne':None}}]})

@@ -4,6 +4,11 @@ from obsapis import mdbrw,mdb
 from pymongo import UpdateOne
 
 from obsapis.controllers.admin.imports.contactsan import import_contactsan_gdoc
+
+def updateNouveauxDeputes():
+    mdbrw.deputes.update_many({'$and':[{'depute_actif':True},{'stats.nonclasse':None}]},{'$set':{'stats.nonclasse':False}})
+    mdbrw.deputes.update_many({'depute_amendements':None},{'$set':{"depute_amendements": {"adoptes": 0, "rediges": 0, "cosignes": 0}}})
+
 def updateDeputesContacts():
     contacts = import_contactsan_gdoc()
     ops = []
