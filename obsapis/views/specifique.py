@@ -15,7 +15,7 @@ def collaborateurs():
     collabs = []
     for d in mdb.deputes.find({},{'depute_circo_id':1,'depute_nom':1,'depute_collaborateurs':1,'_id':None}):
         if d['depute_collaborateurs']:
-            for c in d['depute_collaborateurs']:
+            for c in d.get('depute_collaborateurs',[])+d.get('depute_collaborateurs_hatvp',[]):
                 collabs.append({'Circo':d['depute_circo_id'],'Nom':d['depute_nom'],'Collaborateur':c})
     v = dictToXls(data={'sheets':['collaborateurs'],
                             'data':{'collaborateurs':{'fields':fds,'data':collabs},

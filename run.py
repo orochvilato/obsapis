@@ -273,8 +273,13 @@ def hatvp():
 
 
 
+
 @app.route('/test')
 def test():
+    col = []
+    for d in mdb.deputes.find({},{'depute_collaborateurs_hatvp':1,'_id':None,'depute_shortid':1}):
+        col.append((d['depute_shortid'],len(d.get('depute_collaborateurs_hatvp',[]))))
+    return json_response(sorted(col,key=lambda x:x[1],reverse=True)[:20])
 
     import datetime
     #mdbrw.deputes.update_one({'depute_shortid':'michelevictory'},{'$unset':{'stats.commissions':""}})
