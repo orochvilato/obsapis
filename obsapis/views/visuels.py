@@ -28,7 +28,7 @@ params = {'urgdem':{'titre':u'Urgence démocratique','couleur':'jaune'},
           'frohum':{'titre':u"frontières de l’humanité",'couleur':'orange'}
          }
 
-@app.route('/visuels/iec_poc')
+@app.route('/visuels/liec')
 def view_ies_poc():
     contenu = u"""*2,5 millions* de français vivent dans un **désert médical**.
 
