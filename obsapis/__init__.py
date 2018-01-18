@@ -15,8 +15,11 @@ mdbrw = clientrw.obsass
 
 from flask import Flask
 from flask_cors import CORS
+import os
+obspath = '/'.join(os.path.abspath(__file__).split('/')[:-2])
 app = Flask(__name__)
 CORS(app)
+
 
 import bmemcached
 memcache = bmemcached.Client(('observatoire-assemblee.orvdev.fr:11211',))
@@ -95,5 +98,3 @@ Message:
 
 import jobs
 jobs.start_scheduler()
-
-obspath = '/'.join(os.path.abspath(__file__).split('/')[:-2])

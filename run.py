@@ -272,8 +272,26 @@ def hatvp():
     return json_response(mdb.deputes.find_one({},{'depute_collaborateurs_hatvp':1}))
 
 
-
-
+@app.route('/hatvpinter')
+def hatvpinter():
+     if 0:
+         r = requests.get('http://www.hatvp.fr/agora/opendata/agora_repertoire_opendata.json')
+         content = r.content
+         open('/tmp/decs','w').write(content)
+     else:
+         content = open('/tmp/decs','r').read()
+     import json
+     decs = json.loads(content)
+     rien = '<div id="activite">\n              <div class="orga-section-first ">\n                <div class="row">\n                  <div class="col orga-space-between-5 orga-space-top-5">\n                    <div class="row">\n\t\t\t\t\t\t<span class="col-md-11 ">\n\t\t\t\t\t\t\tLes repr\xc3\xa9sentants d\xe2\x80\x99int\xc3\xa9r\xc3\xaats inscrits doivent, \n\t\t\t\t\t\t\t<a class="orga-link" target="_blank" href="http://www.hatvp.fr/espacedeclarant/representant-dinterets/le-rapport-dactivite-annuel/#post_4619"> d\xe2\x80\x99ici le 30 avril 2018</a>,\n\t\t\t\t\t\t\tpublier sur le r\xc3\xa9pertoire leurs d\xc3\xa9clarations sur les actions de repr\xc3\xa9sentations d\xe2\x80\x99int\xc3\xa9r\xc3\xaats effectu\xc3\xa9es au cours du second semestre 2017.   \n\t\t\t\t\t\t</span>\n                    </div>\n                  </div>\n                </div>\n              </div>'
+     ids = []
+     for i,fiche in enumerate(decs['publications']):
+         print i
+         id = fiche['identifiantNational']
+         r =requests.get('http://www.hatvp.fr/fiche-organisation/?organisation='+fiche['identifiantNational']+'#')
+         if rien not in r.content:
+             print "-->",id
+             ids.append(id)
+     return json_response(ids)
 @app.route('/test')
 def test():
     col = []
