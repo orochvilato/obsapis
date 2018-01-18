@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
 
-from obsapis import app,mdb,mdbrw
+from obsapis import app,mdb,mdbrw,use_cache
+from obsapis.tools import normalize
 from flask import render_template
 from bson import json_util
+
 import xmltodict
 import requests
 import re
@@ -263,6 +265,13 @@ def testcompat():
 @app.route('/testgen')
 def viewtestgen():
     return image_response('png',gentest())
+@app.route('/hatvp')
+def hatvp():
+    from obsapis.controllers.admin.imports.hatvp import update_hatvp
+    update_hatvp()
+    return json_response(mdb.deputes.find_one({},{'depute_collaborateurs_hatvp':1}))
+
+
 
 @app.route('/test')
 def test():

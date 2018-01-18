@@ -37,7 +37,7 @@ deputefields = ['depute_uid','depute_id','depute_shortid','depute_region','deput
                 'depute_circo','depute_nom','depute_contacts','groupe_abrev','groupe_libelle',
                 'depute_election','depute_profession','depute_naissance','depute_suppleant',
                 'depute_actif','depute_mandat_debut','depute_mandat_fin','depute_mandat_fin_cause',
-                'depute_bureau','depute_mandats','depute_autresmandats','depute_collaborateurs', 'depute_travaux',
+                'depute_bureau','depute_mandats','depute_autresmandats','depute_collaborateurs_hatvp', 'depute_travaux',
                 'depute_hatvp','depute_nuages','depute_place','stats']
 
 deputesfields = ['depute_uid','depute_id','depute_shortid','depute_region','depute_departement','depute_departement_id','depute_nom_sa',
@@ -125,8 +125,8 @@ def deputeget(shortid):
         dates[sdat]['n']+= 1
         weeks[wdat]['e']+= 1 if v['vote_position']!='absent' else 0
         dates[sdat]['e']+= 1 if v['vote_position']!='absent' else 0
-
-
+    if 'depute_collaborateurs_hatvp' in depute.keys():
+        depute['depute_collaborateurs'] = depute['depute_collaborateurs_hatvp'] 
     resp = dict(dates=sorted([{"date": dat,"pct":round(float(v['e'])/v['n'],3)} for dat,v in dates.iteritems()],key=lambda x:x['date']),
                 weeks=sorted([{"week": w,"pct":100*round(float(v['e'])/v['n'],2)} for w,v in weeks.iteritems()],key=lambda x:x['week']),
                 votes_cles=s_cles,
@@ -245,7 +245,7 @@ def _ajax(type_page):
     counts = countItems()
     #return json.dumps(counts)
     items = []
-    
+
     for d in mdb.deputes.find(filter,deputes_filters).sort(sort).skip(skip).limit(nb):
         photo_an='http://www2.assemblee-nationale.fr/static/tribun/15/photos/'+d['depute_uid'][2:]+'.jpg'
         depnumdep = d['depute_departement_id'][1:] if d['depute_departement_id'][0]=='0' else d['depute_departement_id']

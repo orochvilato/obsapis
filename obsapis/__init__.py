@@ -23,7 +23,7 @@ memcache = bmemcached.Client(('observatoire-assemblee.orvdev.fr:11211',))
 
 
 
-def use_cache(k,fct,expires=60):
+def use_cache(k,fct,expires=60,compress=-1):
     k = k.encode('utf8')
     if expires==0:
         memcache.delete(k)
@@ -33,7 +33,7 @@ def use_cache(k,fct,expires=60):
     if not v:
         v = fct()
         if expires!=0:
-            memcache.set(k,v,time=expires)
+            memcache.set(k,v,time=expires,compress_level=compress)
     else:
         pass
     return v
@@ -95,3 +95,5 @@ Message:
 
 import jobs
 jobs.start_scheduler()
+
+obspath = '/'.join(os.path.abspath(__file__).split('/')[:-2])
