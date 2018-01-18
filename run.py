@@ -282,8 +282,9 @@ def hatvpinter():
          content = open('/tmp/decs','r').read()
      import json
      decs = json.loads(content)
-     rien = '<div id="activite">\n              <div class="orga-section-first ">\n                <div class="row">\n                  <div class="col orga-space-between-5 orga-space-top-5">\n                    <div class="row">\n\t\t\t\t\t\t<span class="col-md-11 ">\n\t\t\t\t\t\t\tLes repr\xc3\xa9sentants d\xe2\x80\x99int\xc3\xa9r\xc3\xaats inscrits doivent, \n\t\t\t\t\t\t\t<a class="orga-link" target="_blank" href="http://www.hatvp.fr/espacedeclarant/representant-dinterets/le-rapport-dactivite-annuel/#post_4619"> d\xe2\x80\x99ici le 30 avril 2018</a>,\n\t\t\t\t\t\t\tpublier sur le r\xc3\xa9pertoire leurs d\xc3\xa9clarations sur les actions de repr\xc3\xa9sentations d\xe2\x80\x99int\xc3\xa9r\xc3\xaats effectu\xc3\xa9es au cours du second semestre 2017.   \n\t\t\t\t\t\t</span>\n                    </div>\n                  </div>\n                </div>\n              </div>'
-     ids = []
+     nodes = []
+     links = []
+
      for i,fiche in enumerate(decs['publications']):
          print i
          id = fiche['identifiantNational']
@@ -294,6 +295,14 @@ def hatvpinter():
      return json_response(ids)
 @app.route('/test')
 def test():
+    counts = {}
+    nbmembres = dict((g['groupe_abrev'],g['groupe_nbmembres']) for g in mdb.groupes.find({},{'groupe_abrev':1,'groupe_nbmembres':1}))
+    for q in mdb.questions.find({'groupe':{'$ne':None}},{'groupe':1}):
+        g = q['groupe']
+        if not g in counts.keys():
+            counts[g] = 0
+        counts[g] += 1
+    return json_response([ "%s (%d)" % (g,n/nbmembres[g]) for g,n in sorted(counts.items(),key=lambda x:x[1]/nbmembres[x[0]],reverse=True)])
     col = []
     for d in mdb.deputes.find({},{'depute_collaborateurs_hatvp':1,'_id':None,'depute_shortid':1}):
         col.append((d['depute_shortid'],len(d.get('depute_collaborateurs_hatvp',[]))))
