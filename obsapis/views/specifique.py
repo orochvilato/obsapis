@@ -9,6 +9,18 @@ def gotravaux():
     update_travaux()
     return 'ok'
 
+@app.route('/specifique/collaborateurs')
+def collaborateurs():
+    fds = ['Circo','Nom','Collaborateur']
+    collabs = []
+    for d in mdb.deputes.find({},{'depute_circo_id':1,'depute_nom':1,'depute_collaborateurs':1,'_id':None}):
+        if d['depute_collaborateurs']:
+            for c in d['depute_collaborateurs']:
+                collabs.append({'Circo':d['depute_circo_id'],'Nom':d['depute_nom'],'Collaborateur':c})
+    v = dictToXls(data={'sheets':['collaborateurs'],
+                            'data':{'collaborateurs':{'fields':fds,'data':collabs},
+                                   }})
+    return xls_response('collaborateursAN',v)
 
 @app.route('/specifique/proplois')
 def proplois():
@@ -65,4 +77,4 @@ def proplois():
                                                              ('document','Lien document'),
                                                              ('dossier','Lien dossier')],'data':autres}}})
 
-    return xls_response('documentsAN.xls',v)
+    return xls_response('documentsAN',v)

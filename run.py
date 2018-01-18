@@ -266,9 +266,10 @@ def viewtestgen():
 
 @app.route('/test')
 def test():
+
     import datetime
     #mdbrw.deputes.update_one({'depute_shortid':'michelevictory'},{'$unset':{'stats.commissions':""}})
-    return json_response(mdb.deputes.find_one({}))
+    return json_response(mdb.deputes.find_one({},{'depute_hatvp':1}))
     return json_response([d['depute_shortid'] for d in mdb.deputes.find({'stats.commissions.present':0.0})])
     #{'$and': [{'depute_actif': True}, ]} [('stats.nonclasse', 1), ('stats.ranks.down.exprimes', 1)]
     return json_response(list(d['depute_shortid'] for d in mdb.deputes.find({'depute_mandat_debut':{'$gte':datetime.datetime(2017,5,21)}},{'depute_shortid':1})))
