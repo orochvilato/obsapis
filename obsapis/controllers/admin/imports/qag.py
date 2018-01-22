@@ -3,7 +3,7 @@
 import datetime
 from obsapis import mdbrw,mdb
 from obsapis.tools import normalize, json_response
-from pymongo import ReplaceOne,TEXT,ASCENDING
+from pymongo import UpdateOne,ReplaceOne,TEXT,ASCENDING
 import requests
 import datetime
 import re
@@ -48,38 +48,50 @@ def import_qag():
                     ministere_interroge=min_inter,
                     ministere_attributaire=min_attri,
                     legislature=legislature,
-                    rubrique = rubrique,
-                    titre = titre,
+                    #rubrique = rubrique,
+                    #titre = titre,
                     date = datetime.datetime.strptime(datejo,'%d/%m/%Y'),
                     contenu = question+ ' ' + reponse,
                     )
 
     depsid = dict((d['depute_uid'],{'id':d['depute_shortid'],'g':d['groupe_abrev']}) for d in mdb.deputes.find({},{'depute_uid':1,'groupe_abrev':1,'depute_shortid':1,'_id':None}))
     s = requests.Session()
-    dejavu = [ q['url'] for q in mdb.questions.find({},{'url':1,'_id':0})]
+    #dejavu = [ q['id'] for q in mdb.questions.find({},{'id':1,'_id':0})]
+    dejavu = [ q['id'] for q in mdb.questions.find({'contenu':{'$ne':None}},{'id':1,'_id':0})]
 
     nbitems = 1000
 
-    #return json_response(parse_question('http://questions.assemblee-nationale.fr/q15/15-395QG.htm'))
+
 
     r = s.post('http://www2.assemblee-nationale.fr/recherche/resultats_questions',data={'limit':nbitems,'legislature':legislature})
 
     page = parse_content(r.content)
-    questions = page.xpath('//section//article//tbody//td/a/@href')
-    code = page.xpath('//li/a[span/text()[contains(.,"Suivant")]]/@href')[0].split('/')[-1]
+
+    questions = page.xpath('//section//article//tbody//tr')
+    code = page.xpath('//li/a[contains(@href,"resultats_questions")]/@href')[0].split('/')[-1]
     offset = 0
+
     while questions:
         ops = []
         #print len(questions)
-        for qurl in questions:
-            if not qurl in dejavu:
+        for qes in questions:
+            qurl = qes.xpath('td/a/@href')[0]
+            id = qurl.split('/')[-1].split('.')[0].strip()
+            tit = qes.xpath('td/em/text()')[0].split(' - ')
+            rubrique = tit[0]
+            titre = ' - '.join(tit[1:])
+            if not id in dejavu:
+                print id,rubrique,titre
                 q = parse_question(qurl)
+                q['id'] = id
+                q['titre'] = titre
+                q['rubrique'] = rubrique
                 q['legislature'] = legislature
-                ops.append(ReplaceOne({'id':q['id']},q,upsert=True))
+                ops.append(UpdateOne({'id':q['id']},{'$set':q},upsert=True))
         if ops:
             mdbrw.questions.bulk_write(ops)
         offset += nbitems
         r = s.get('http://www2.assemblee-nationale.fr/recherche/resultats_questions/%d/(offset)/%d/(query)/%s' % (legislature,offset,code))
         page = parse_content(r.content)
-        questions = page.xpath('//section//article//tbody//td/a/@href')
+        questions = page.xpath('//section//article//tbody//tr')
     return "ok"

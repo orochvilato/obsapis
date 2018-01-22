@@ -17,6 +17,7 @@ from obsapis.controllers.admin.imports.liensdossierstextes import import_liendos
 from obsapis.controllers.admin.imports.amendements import import_amendements
 from obsapis.controllers.admin.imports.documents import import_docs
 from obsapis.controllers.admin.imports.qag import import_qag
+from obsapis.controllers.admin.imports.hatvp import update_hatvp
 
 def job(**kwargs):
     updateGroupesRanks()
@@ -32,3 +33,4 @@ def job(**kwargs):
     update_travaux()
     updateDeputesTravaux()
     updateScrutinsTexte()
+    #import_hatvp()

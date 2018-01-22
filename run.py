@@ -295,6 +295,24 @@ def hatvpinter():
      return json_response(ids)
 @app.route('/test')
 def test():
+
+    #import_qag()
+    return json_response(mdb.questions.count())
+    #return json_response(mdb.interventions.find({'itv_rapporteur':None})))
+    #return json_response(mdb.interventions.find({'itv_rapporteur':None}).distinct('itv_date'))
+    #return json_response(mdb.interventions.find({'$and':[{'itv_rapporteur':True},{'depute_shortid':'ericcoquerel'}]}))
+    from obsapis.controllers.admin.updates.interventions import update_stats_interventions
+    deppdp  = {}
+    #return json_response(update_stats_interventions())
+    for pdp in update_stats_interventions():
+
+        dep = pdp['_id'].get('depute',None)
+        if dep:
+            if not dep in deppdp.keys():
+                deppdp[dep]= dict(n=0,rap=0)
+            deppdp[dep]['rap' if pdp['_id']['rapporteur'] else 'n'] += pdp['n']
+
+    return json_response(', '.join('%d. %s (%d)' % (i+1,d[0],d[1]['n']+d[1]['rap']) for i,d in enumerate(sorted(deppdp.items(),key=lambda x:x[1]['n']+x[1]['rap'],reverse=True))))
     counts = {}
     nbmembres = dict((g['groupe_abrev'],g['groupe_nbmembres']) for g in mdb.groupes.find({},{'groupe_abrev':1,'groupe_nbmembres':1}))
     for q in mdb.questions.find({'groupe':{'$ne':None}},{'groupe':1}):
