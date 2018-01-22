@@ -102,6 +102,8 @@ def deputeget(shortid):
     s_cles = OrderedDict()
     for v in votes_cles:
         v.update(scrutins_cles[v['scrutin_num']])
+        
+        v['vote_position'] = {'pour':'contre','contre':'pour'}.get(v['vote_position'],v['vote_position']) if v['inversion']=='oui' else v['vote_position']
         if v['scrutin_dossierLibelle']=='N/A' and scrutins_cles[v['scrutin_num']]['dossier']:
             dossier = scrutins_cles[v['scrutin_num']]['dossier']
         else:
@@ -126,7 +128,7 @@ def deputeget(shortid):
         weeks[wdat]['e']+= 1 if v['vote_position']!='absent' else 0
         dates[sdat]['e']+= 1 if v['vote_position']!='absent' else 0
     if 'depute_collaborateurs_hatvp' in depute.keys():
-        depute['depute_collaborateurs'] = depute['depute_collaborateurs_hatvp'] 
+        depute['depute_collaborateurs'] = depute['depute_collaborateurs_hatvp']
     resp = dict(dates=sorted([{"date": dat,"pct":round(float(v['e'])/v['n'],3)} for dat,v in dates.iteritems()],key=lambda x:x['date']),
                 weeks=sorted([{"week": w,"pct":100*round(float(v['e'])/v['n'],2)} for w,v in weeks.iteritems()],key=lambda x:x['week']),
                 votes_cles=s_cles,

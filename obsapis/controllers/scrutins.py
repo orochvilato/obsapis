@@ -20,7 +20,7 @@ def getScrutinsCles():
             elts.append([a.value for a in row])
         for e in elts:
             if e[2] != None:
-                scles[int(e[0])] = dict(num=int(e[0]),nom=e[1],descfmt=markdown.markdown(e[2]),desc=e[2].replace('_','').replace('*',''),theme=e[3],lien=e[4],lien_texte=e[5],lien_source=e[6],dossier=e[7],niveau=n+1)
+                scles[int(e[0])] = dict(num=int(e[0]),nom=e[1],descfmt=markdown.markdown(e[2]),desc=e[2].replace('_','').replace('*',''),theme=e[3],lien=e[4],lien_texte=e[5],lien_source=e[6],inversion=e[8].strip().lower(),dossier=e[7],niveau=n+1)
     return scles
 
 def getScrutinsPositions():

@@ -96,10 +96,12 @@ def update_travaux():
 
     print "done amd"
     ops = []
-    
+
     for q in mdb.questions.find({'legislature':legislature},{'date':1,'id':1,'type':1,'url':1,'ministere_interroge':1,'rubrique':1,'titre':1,'depute':1,'groupe':1}):
         if q['id'] in deja:
-            continue
+            pass
+            #continue
+            
         qbase = dict(date=q['date'],idori=q['id'],type=q['type'],
                      type_libelle={'QE':'Question écrite','QG':'Question orale','QOSD':'Question orale sans débat'}[q['type']],
                      lien=q['url'],
