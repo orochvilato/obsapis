@@ -54,13 +54,20 @@ def dupamd():
 
     decpt_auteur = {}
     decpt_groupe = {}
+    liste_groupe = {}
     decpt_amd = {}
     for same in identiques:
         amdt = (same[0][0],same[0][4])
         autres = []
-        for amd,auteur,groupe,sort,url in same[1:]:
+        grps = []
+        auts = []
+        for amd,auteur,groupe,sort,url in same:
             decpt_auteur[auteur] = decpt_auteur.get(auteur,0) +1
             decpt_groupe[groupe] = decpt_groupe.get(groupe,0) +1
+
+            if not groupe in grps:
+                liste_groupe.setdefault(groupe,[]).append(same)
+                grps.append(groupe)
             autres.append((amd,url))
         decpt_amd[amdt] = autres
 
@@ -68,15 +75,18 @@ def dupamd():
     html = u"<h3>Députés</h3><ul><li>"+"</li><li>".join([ '%s (%d)' % r for r in sorted(decpt_auteur.items(),key=lambda x:x[1], reverse=True)][:30])+"</ul>"
     html += u"<h3>Groupes</h3><ul><li>"+"</li><li>".join([ '%s (%d)' % r for r in sorted(decpt_groupe.items(),key=lambda x:x[1], reverse=True)][:30])+"</ul>"
 
+    for g in ['FI']:
+        html += u"<h3>Duplicats groupe %s</h3><ul><li>" % g
+        items = []
+        for idts in liste_groupe[g]:
+            item = ', '.join(['<a href="%s">%s</a>' % (id[4],id[0]) for id in idts])
+            items.append(item)
+        html += "</li><li>".join(items)+"</ul>"
 
     items = []
 
     for amd,autres in sorted(decpt_amd.items(),key=lambda x:len(x[1]), reverse=True):
-        if amd[0] in suppr:
-            item = "(suppression) "
-        else:
-            item = ""
-        item += '<a href="%s">%s</a>' % (amd[1],amd[0])+' (%d) : ' % (1+len(autres))
+        item = '<a href="%s">%s</a>' % (amd[1],amd[0])+' (%d) : ' % (len(autres))
         item += ', '.join(['<a href="%s">%s</a>' % (at[1],at[0]) for at in autres])
         items.append(item)
     html += u"<h3>Amendements</h3><ul><li>"+"</li><li>".join(items)+"</ul>"
