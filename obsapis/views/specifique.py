@@ -27,7 +27,7 @@ def dupamd():
     for doc in docs:
         amds = {}
         print doc
-        for amd in mdb.amendements.find({'numInit':doc,'dispositif':{'$ne':''},'groupe':{'$ne':None},'suppression':{'$ne':True}},{'numAmend':1,'auteurs':1,'urlAmend':1,'dispositif':1,'sort':1,'designationArticle':1}):
+        for amd in mdb.amendements.find({'numInit':doc,'dispositif':{'$ne':''},'groupe':{'$ne':None}},{'numAmend':1,'auteurs':1,'urlAmend':1,'dispositif':1,'sort':1,'designationArticle':1}):
             num = amd['numAmend']
             txt = amd['dispositif'].encode('utf8')
             art = amd['designationArticle']
@@ -67,7 +67,7 @@ def dupamd():
 
     items = []
 
-    for amd,autres in sorted(decpt_amd.items(),key=lambda x:len(x[1]), reverse=True)[:30]:
+    for amd,autres in sorted(decpt_amd.items(),key=lambda x:len(x[1]), reverse=True):
         item = '<a href="%s">%s</a>' % (amd[1],amd[0])+' (%d) : ' % (1+len(autres))
         item += ', '.join(['<a href="%s">%s</a>' % (at[1],at[0]) for at in autres])
         items.append(item)
