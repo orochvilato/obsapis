@@ -293,6 +293,11 @@ def hatvpinter():
              print "-->",id
              ids.append(id)
      return json_response(ids)
+
+
+
+
+
 @app.route('/test')
 def test():
     #update_travaux()

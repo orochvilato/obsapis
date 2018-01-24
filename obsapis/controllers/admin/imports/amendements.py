@@ -77,14 +77,14 @@ def import_amendements(rebuild=False):
                 updt = True
 
             if updt:
-                mdbrw.amendements.replace_one({'id':amd['id']},amd,upsert=True)
-                pass
-                #op_amendements.append(ReplaceOne({'id':amd['id']},amd,upsert=True))
+                #mdbrw.amendements.replace_one({'id':amd['id']},amd,upsert=True)
+                #pass
+                op_amendements.append(ReplaceOne({'id':amd['id']},amd,upsert=True))
 
         if op_amendements:
             mdbrw.amendements.bulk_write(op_amendements)
             import re
-            regx = re.compile("^<p[^>]*>Supprimer",)
+            regx = re.compile("^<p[^>]*>Supprimer")
             mdbrw.amendements.update_many({'$and':[{'suppression':None},{'dispositif':regx}]},{'$set':{'suppression':True}})
 
     return "ok"
