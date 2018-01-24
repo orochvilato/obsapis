@@ -12,7 +12,7 @@ def gotravaux():
 
 
 @app.route('/dupamd')
-@cache_function(expires=24*3600)
+@cache_function(expires=0) #24*3600)
 def dupamd():
     #import re
     #regx = re.compile("^<p[^>]*>Supprimer")
@@ -79,7 +79,7 @@ def dupamd():
         html += u"<h3>Duplicats groupe %s</h3><ul><li>" % g
         items = []
         for idts in liste_groupe[g]:
-            item = ', '.join(['<a href="%s">%s</a>' % (id[4],id[0]) for id in idts])
+            item = ', '.join(['<a href="%s">%s (%s)</a>' % (id[4],id[0],id[2]) for id in idts])
             items.append(item)
         html += "</li><li>".join(items)+"</ul>"
 
