@@ -29,7 +29,7 @@ def dupamd():
         amds = {}
 
 
-        for amd in mdb.amendements.find({'numInit':doc,'dispositif':{'$ne':''},'groupe':{'$ne':None}},{'suppression':1,'numAmend':1,'auteurs':1,'urlAmend':1,'dispositif':1,'sort':1,'designationArticle':1}):
+        for amd in mdb.amendements.find({'numInit':doc,'dispositif':{'$ne':''},'suppression':{'$ne':True},'groupe':{'$ne':None}},{'suppression':1,'numAmend':1,'auteurs':1,'urlAmend':1,'dispositif':1,'sort':1,'designationArticle':1}):
             num = amd['numAmend']
             txt = amd['dispositif'].encode('utf8')
             art = amd['designationArticle']
