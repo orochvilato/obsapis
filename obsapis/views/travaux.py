@@ -28,7 +28,7 @@ def view_travaux():
 
 
     if 'suppression' in request.args.keys() and ttype=='amendement':
-        filters.append({'suppression':(asupp!="")})
+        filters.append({'suppression':(asupp not in ("","0"))})
     if sort and ttype=='amendement' and sort in amd_sorts.keys():
         filters.append({'sort':amd_sorts[sort]})
 
@@ -80,6 +80,10 @@ def view_travaux():
     counts = use_cache(cachekey,lambda:countItems(),expires=3600)
 
     import math
+    for t in travaux:
+        t['description'] = t['description'].replace(u'\u0092',"'").replace(u'\u2019',"'")
+        t['dossier'] = t['dossier'].replace(u'\u0092',"'").replace(u'\u2019',"'")
+
     nbpages = int(math.ceil(float(counts['totalitems'])/nb))
     result = dict(nbitems=len(travaux),nbpages=nbpages, currentpage=1+page,itemsperpage=nb, items=travaux,**counts)
     return json_response(result)
