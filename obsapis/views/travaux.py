@@ -21,11 +21,14 @@ def view_travaux():
     cosig = request.args.get('cosignataire',None)
     sort = request.args.get('sort',None)
     ttype = request.args.get('type',None)
+    asupp = request.args.get('suppression',None)
 
     skip = nb*page
     filters = []
 
 
+    if 'suppression' in request.args.keys() and ttype=='amendement':
+        filters.append({'suppression':(asupp!="")})
     if sort and ttype=='amendement' and sort in amd_sorts.keys():
         filters.append({'sort':amd_sorts[sort]})
 
