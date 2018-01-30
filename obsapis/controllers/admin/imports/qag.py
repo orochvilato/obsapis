@@ -81,7 +81,6 @@ def import_qag():
             rubrique = tit[0]
             titre = ' - '.join(tit[1:])
             if not id in dejavu:
-                print id,rubrique,titre
                 q = parse_question(qurl)
                 q['id'] = id
                 q['titre'] = titre
