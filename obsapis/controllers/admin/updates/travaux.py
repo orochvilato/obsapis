@@ -6,15 +6,15 @@ from string import Template
 
 import datetime
 
-def update_travaux():
+def update_travaux(rebuild=False):
     # documents
     docs = {}
     mdbrw.travaux.ensure_index([("id", ASCENDING)])
     legislature = 15
+    dnoms = dict((d['depute_shortid'],d['depute_nom']) for d in mdb.deputes.find({},{'depute_nom':1,'depute_shortid':1,'_id':None}))
     ops =[]
     s = 0
-    deja = mdb.travaux.distinct('idori')
-    #deja = []
+    deja = mdb.travaux.distinct('idori') if not rebuild else []
     print len(deja)
     #print deja
     for doc in mdb.documentsan.find({'legislature':legislature},{'id':1,'numero':1,'date':1,'typeid':1,'type':1,'doclien':1,'dossier':1,'fulldesc':1,'auteurs':1,'cosignataires':1,'_id':1}):
@@ -28,7 +28,9 @@ def update_travaux():
                          dossier=doc['dossier'],description=doc['fulldesc'])
         for g in list(set([_a['groupe'] for _a in doc['auteurs'] if 'groupe' in _a.keys()])):
             tdoc = dict(tdocbase)
-            tdoc.update(id=doc['id']+'_'+g,groupe=g,auteurs=[_a['id'] for _a in doc['auteurs'] if _a['groupe']==g])
+            auteurs = [_a['id'] for _a in doc['auteurs'] if _a['groupe']==g]
+            auteurs_noms = [ dnoms[a] for a in auteurs ]
+            tdoc.update(id=doc['id']+'_'+g,groupe=g,auteurs=auteurs, auteurs_noms = auteurs_noms)
             ops.append(UpdateOne({'id':doc['id']+'_'+g},{'$set':tdoc},upsert=True))
 
         auteurs  =[]
@@ -36,14 +38,14 @@ def update_travaux():
             if auteur.get('groupe',None):
                 tdoc = dict(tdocbase)
                 auteurs.append(auteur['id'])
-                tdoc.update(id=doc['id']+'_'+auteur['id'],depute=auteur['id'],auteur=True)
+                tdoc.update(id=doc['id']+'_'+auteur['id'],depute=auteur['id'],depute_nom=dnoms.get(auteur['id'],auteur['id']),auteur=True)
                 ops.append(UpdateOne({'id':doc['id']+'_'+auteur['id']},{'$set':tdoc},upsert=True))
 
 
         for cosig in doc['cosignataires']:
             if cosig.get('groupe',None) and not cosig['id'] in auteurs:
                 tdoc = dict(tdocbase)
-                tdoc.update(id=doc['id']+'_'+cosig['id'],depute=cosig['id'],auteur=False)
+                tdoc.update(id=doc['id']+'_'+cosig['id'],depute=cosig['id'],depute_nom=dnoms.get(cosig['id'],cosig['id']),auteur=False)
                 ops.append(UpdateOne({'id':doc['id']+'_'+cosig['id']},{'$set':tdoc},upsert=True))
         #trav = dict(id=doc['id'],depute=doc[''])
 
@@ -69,7 +71,9 @@ def update_travaux():
                          description=desc.substitute(num=amd['numAmend'],art=amd['designationArticle'],doc=docs[amd['numInit']]))
         for g in list(set([_a['groupe'] for _a in amd['auteurs'] if 'groupe' in _a.keys()])):
             tamd = dict(tamdbase)
-            tamd.update(id=amd['id']+'_'+g,groupe=g,auteurs=[_a['id'] for _a in amd['auteurs'] if _a['groupe']==g])
+            auteurs=[_a['id'] for _a in amd['auteurs'] if _a['groupe']==g]
+            auteurs_noms = [ dnoms[a] for a in auteurs]
+            tamd.update(id=amd['id']+'_'+g,groupe=g,auteurs=auteurs, auteurs_noms=auteurs_noms)
             ops.append(UpdateOne({'id':amd['id']+'_'+g},{'$set':tamd},upsert=True))
 
         auteurs =  []
@@ -77,13 +81,13 @@ def update_travaux():
             if auteur.get('groupe',None):
                 tamd = dict(tamdbase)
                 auteurs.append(auteur['id'])
-                tamd.update(id=amd['id']+'_'+auteur['id'],depute=auteur['id'],auteur=True)
+                tamd.update(id=amd['id']+'_'+auteur['id'],depute=auteur['id'],depute_nom=dnoms.get(auteur['id'],auteur['id']), auteur=True)
                 ops.append(UpdateOne({'id':amd['id']+'_'+auteur['id']},{'$set':tamd},upsert=True))
 
         for cosig in amd['cosignataires']:
             if cosig.get('groupe',None) and not cosig['id'] in auteurs:
                 tamd = dict(tamdbase)
-                tamd.update(id=amd['id']+'_'+cosig['id'],depute=cosig['id'],auteur=False)
+                tamd.update(id=amd['id']+'_'+cosig['id'],depute=cosig['id'],depute_nom=dnoms.get(cosig['id'],cosig['id']), auteur=False)
                 ops.append(UpdateOne({'id':amd['id']+'_'+cosig['id']},{'$set':tamd},upsert=True))
 
 
@@ -96,23 +100,23 @@ def update_travaux():
 
     print "done amd"
     ops = []
-
+    
     for q in mdb.questions.find({'legislature':legislature},{'date':1,'id':1,'type':1,'url':1,'ministere_interroge':1,'rubrique':1,'titre':1,'depute':1,'groupe':1}):
         if q['id'] in deja:
             pass
             #continue
-            
+
         qbase = dict(date=q['date'],idori=q['id'],type=q['type'],
                      type_libelle={'QE':'Question écrite','QG':'Question orale','QOSD':'Question orale sans débat'}[q['type']],
                      lien=q['url'],
                      dossier="%s / %s" % (q['ministere_interroge'],q['rubrique']),
                      description=q['titre'])
         qd = dict(qbase)
-        qd.update(id=q['id']+'_'+q['depute'], depute = q['depute'])
+        qd.update(id=q['id']+'_'+q['depute'], depute = q['depute'], depute_nom = dnoms.get(q['depute'],q['depute']))
         ops.append(UpdateOne({'id':q['id']+'_'+q['depute']},{'$set':qd}, upsert=True))
 
         qg = dict(qbase)
-        qg.update(id=q['id']+'_'+q['groupe'], groupe = q['groupe'], auteurs=[q['depute']])
+        qg.update(id=q['id']+'_'+q['groupe'], groupe = q['groupe'], auteurs=[q['depute']], auteurs_noms=[dnoms.get(q['depute'],q['depute'])])
         ops.append(UpdateOne({'id':q['id']+'_'+q['groupe']},{'$set':qg}, upsert=True))
         if len(ops)>500:
             mdbrw.travaux.bulk_write(ops)

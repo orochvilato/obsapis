@@ -300,9 +300,9 @@ def hatvpinter():
 
 @app.route('/test')
 def test():
-    #update_travaux()
+    update_travaux()
     #import_qag()
-    return json_response(mdb.travaux.find_one({'idori':'15-4579QE'}))
+    return json_response(mdb.travaux.find_one())
     #return json_response(mdb.interventions.find({'itv_rapporteur':None})))
     #return json_response(mdb.interventions.find({'itv_rapporteur':None}).distinct('itv_date'))
     #return json_response(mdb.interventions.find({'$and':[{'itv_rapporteur':True},{'depute_shortid':'ericcoquerel'}]}))
