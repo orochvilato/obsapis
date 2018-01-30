@@ -50,7 +50,6 @@ def import_amendements(rebuild=False):
         start += nb
         op_amendements = []
         for i,a in enumerate(amds[u'data_table']):
-            print i
             updt = False
             amd = dict((fields[i],_a) for i,_a in enumerate(a.split('|')))
             if not deja_amd.get(amd['id'],{}).get('auteurs',False):

@@ -300,7 +300,13 @@ def hatvpinter():
 
 @app.route('/test')
 def test():
-    update_travaux()
+    #import_amendements()
+    #return json_response(list(mdb.travaux.find({'sort':'44'})))
+    #mdbrw.travaux.remove({'sort':'44'})
+    #update_travaux()
+    #return json_response(list(mdb.travaux.find({'sort':'44'})))
+
+
     #import_qag()
     return json_response(mdb.travaux.find_one())
     #return json_response(mdb.interventions.find({'itv_rapporteur':None})))
