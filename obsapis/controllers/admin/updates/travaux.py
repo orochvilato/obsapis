@@ -9,6 +9,7 @@ import datetime
 def update_travaux(rebuild=False):
     # documents
     docs = {}
+    categories = {''}
     mdbrw.travaux.ensure_index([("id", ASCENDING)])
     legislature = 15
     dnoms = dict((d['depute_shortid'],d['depute_nom']) for d in mdb.deputes.find({},{'depute_nom':1,'depute_shortid':1,'_id':None}))
@@ -100,11 +101,11 @@ def update_travaux(rebuild=False):
 
     print "done amd"
     ops = []
-    
+
     for q in mdb.questions.find({'legislature':legislature},{'date':1,'id':1,'type':1,'url':1,'ministere_interroge':1,'rubrique':1,'titre':1,'depute':1,'groupe':1}):
         if q['id'] in deja:
             pass
-            #continue
+            continue
 
         qbase = dict(date=q['date'],idori=q['id'],type=q['type'],
                      type_libelle={'QE':'Question écrite','QG':'Question orale','QOSD':'Question orale sans débat'}[q['type']],
