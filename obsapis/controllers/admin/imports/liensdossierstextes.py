@@ -40,6 +40,7 @@ def import_liendossierstextes():
                 search = True
                 lecture = ""
             if l[0:26]==u"Commission Mixte Paritaire":
+
                 j = 0
                 m = None
 
@@ -47,7 +48,7 @@ def import_liendossierstextes():
                     j += 1
                     m = re.search(u"sous le n° ([0-9]+) +à l'Assemblée nationale",doc[i+j])
                 n = m.groups()[0] if m else None
-                if n:
+                if n and n in docsan.keys():
                     ops.append((texte,"texte de la commission mixte paritaire",docsan[num],num,docsan[n],n))
                     #print (texte,"",docsan[num])
             if search:
@@ -120,7 +121,7 @@ def import_liendossierstextes():
             #if found and u"texte de la commission paritaire" in desc:
 
             #    ttyp = "texte de la commission paritaire"
-
+        print s['scrutin_num'],found
         if found:
             repl = [(ttyp,found[2],found[3])]
             if lec==u'texte de la commission mixte paritaire':

@@ -326,6 +326,10 @@ def changementgp():
                 a['groupe']=dst
         mdbrw.documentsan.update_one({'id':doc['id']},{'$set':{'auteurs':doc['auteurs']}})
         print i
+    print "questions",mdb.questions.count({'groupe':ori})
+    mdbrw.questions.update_many({'groupe':ori},{'$set':{'groupe':dst}})
+    print "travaux",mdb.travaux.count({'groupe':ori})
+    mdbrw.travaux.update_many({'groupe':ori},{'$set':{'groupe':dst}})
 
     return "ok"
 
@@ -333,13 +337,14 @@ def changementgp():
 
 @app.route('/test')
 def test():
+    import_liendossierstextes()
     #import_amendements()
-    #return json_response(list(mdb.travaux.find({'sort':'44'})))
+    return json_response(mdb.documentsan.find_one({'numero':'626'}))
     #mdbrw.travaux.remove({'sort':'44'})
     #update_travaux()
     #return json_response(list(mdb.travaux.find({'sort':'44'})))
-    return json_response(mdb.scrutins.find_one({'scrutin_groupe':None}))
-    return json_response(mdb.documentsan.find_one({}))
+
+    #return json_response(mdb.questions.find_one({}))
 
     #import_qag()
     return json_response(mdb.travaux.find_one())
