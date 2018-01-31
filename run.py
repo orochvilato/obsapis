@@ -295,6 +295,39 @@ def hatvpinter():
      return json_response(ids)
 
 
+@app.route('/changementgp')
+def changementgp():
+    ori='UAI'
+    dst='UDI-AGIR'
+    print mdb.votes.count({'groupe_abrev':ori})
+    mdbrw.votes.update_many({'groupe_abrev':ori},{'$set':{'groupe_abrev':dst}})
+    print mdb.amendements.count({'$or':[{'auteurs.groupe':ori},{'cosignataires.groupe':ori}]})
+    for i,amd in enumerate(mdb.amendements.find({'$or':[{'auteurs.groupe':ori},{'cosignataires.groupe':ori}]},{'id':1,'auteurs':1,'cosignataires':1,'groupe':1})):
+
+        if amd['auteurs'] and amd['auteurs'][0].get('groupe',None):
+            amd['groupe'] = amd['auteurs'][0]['groupe']
+        else:
+            amd['groupe'] = None
+        for a in amd['auteurs']:
+            if a.get('groupe',None)==ori:
+                a['groupe']=dst
+        for s in amd['cosignataires']:
+            if s.get('groupe',None)==ori:
+                s['groupe']=dst
+        if amd['groupe']==ori:
+            amd['groupe']=dst
+        mdbrw.amendements.update_one({'id':amd['id']},{'$set':{'auteurs':amd['auteurs'],'cosignataires':amd['cosignataires'],'groupe':amd['groupe']}})
+        print i
+
+    print mdb.documentsan.count({'auteurs.groupe':ori})
+    for i,doc in enumerate(mdb.documentsan.find({'auteurs.groupe':ori},{'id':1,'auteurs':1})):
+        for a in doc['auteurs']:
+            if a.get('groupe',None)==ori:
+                a['groupe']=dst
+        mdbrw.documentsan.update_one({'id':doc['id']},{'$set':{'auteurs':doc['auteurs']}})
+        print i
+
+    return "ok"
 
 
 
@@ -305,7 +338,8 @@ def test():
     #mdbrw.travaux.remove({'sort':'44'})
     #update_travaux()
     #return json_response(list(mdb.travaux.find({'sort':'44'})))
-
+    return json_response(mdb.scrutins.find_one({'scrutin_groupe':None}))
+    return json_response(mdb.documentsan.find_one({}))
 
     #import_qag()
     return json_response(mdb.travaux.find_one())
