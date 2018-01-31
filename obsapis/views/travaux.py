@@ -47,7 +47,7 @@ def view_travaux():
     elif ttype in ['QG','QE','QOSD','propositiondeloi', 'propositionderesolution','rapportdinformation','rapport','avis','projetdeloi']:
         filters.append({'type':ttype})
     elif ttype=='document':
-        filters.append({'type':{'$nin':['QG','QE','QOSD','amendement']}})
+        filters.append({'type':{'$nin':['propositiondeloi','QG','QE','QOSD','amendement']}})
 
     if search:
         search = '"'+search+'"'
