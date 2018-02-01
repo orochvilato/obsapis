@@ -2,7 +2,7 @@
 
 from obsapis import app,mdb,mdbrw
 
-from obsapis.tools import json_response,xls_response,dictToXls,dictToXlsx,cache_function
+from obsapis.tools import json_response,xls_response,dictToXls,dictToXlsx,cache_function,json_response
 
 @app.route('/gotravaux')
 def gotravaux():
@@ -10,7 +10,26 @@ def gotravaux():
     update_travaux()
     return 'ok'
 
+@app.route('/supamd')
+def supamd():
+    gp = {}
 
+    for amd in mdb.amendements.find({},{'suppression':1,'_id':None,'groupe':1,'auteurs':1}):
+
+        g = amd['groupe']
+        if not g:
+            g = amd['auteurs'][0]['id']
+        if not g in gp.keys():
+            gp[g] = {'n':0,'s':0}
+        if amd.get('suppression',None):
+            gp[g]['s'] += 1
+        gp[g]['n'] += 1
+    gp = sorted(gp.items(),key=lambda x:float(x[1]['s'])/x[1]['n'], reverse=True)
+    html = "<html><body><table border=1 cellpadding=10><thead><tr><th>Groupe</th><th>Nb amendements</th><th>Suppressions</th><th>%</th></tr></thead><tbody>"
+    for k,v in gp:
+        html += '<tr><td><strong>%s</strong></td><td>%d</td><td>%d</td><td>%.1f</td></tr>' % (k,v['n'],v['s'],100*float(v['s'])/v['n'])
+    html += "</tbody></table></body></html>"
+    return html
 @app.route('/dupamd')
 @cache_function(expires=0) #24*3600)
 def dupamd():

@@ -112,15 +112,16 @@ def import_docs():
 
         contenu = ' '.join(page.xpath('//p//text()')).replace('\n',' ').replace(u'\x0a',' ').replace(u'\x0e',' ').strip()
         if contenu:
-            d['contenu'] = contenu
+            d['contenu'] = d['dossier'] + contenu
             #print d['numero'],'OK'
         else:
-            pass
+            d['contenu'] = d['dossier']
+
             #print d['numero'],len(contenu),d['typeid'],d['titre']
 
         mdbrw.documentsan.replace_one({'id':d['id']},d,upsert=True)
-        #ops.append(ReplaceOne({'numero':d['numero']},d,upsert=True))
     if ops:
+        #ops.append(ReplaceOne({'numero':d['numero']},d,upsert=True))
         mdbrw.documentsan.bulk_write(ops)
     #if ops_sigs:
     #    mdbrw.documentsan_signataires.bulk_write(ops_sigs)

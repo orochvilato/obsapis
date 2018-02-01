@@ -337,9 +337,22 @@ def changementgp():
 
 @app.route('/test')
 def test():
-    import_liendossierstextes()
+    gps = {}
+    import datetime
+    return json_response(mdb.amendements.find_one({'auteurs':None}))
+    for d in mdb.deputes.find({'depute_actif':True},{'depute_ddn':1,'groupe_abrev':1,'groupe_libelle':1}):
+        age = (datetime.datetime.now()-datetime.datetime.strptime(d['depute_ddn'],'%d/%m/%Y')).days/365.25
+        gps[d['groupe_libelle']] = gps.get(d['groupe_libelle'],[]) + [age]
+    from numpy import median,average
+    for k,v in gps.iteritems():
+        print v
+        print "%s - moyenne : %.2f, mediane : %.2f" % (k,average(v),median(v))
+    #for i,d in enumerate(mdb.documentsan.find()):
+    #    d['contenu'] = d['titre'] + d.get('contenu','')
+    #    mdbrw.documentsan.update_one({'id':d['id']},{'$set':{'contenu':d['contenu']}})
+    #    print i
     #import_amendements()
-    return json_response(mdb.documentsan.find_one({'numero':'626'}))
+    return json_response(gps)
     #mdbrw.travaux.remove({'sort':'44'})
     #update_travaux()
     #return json_response(list(mdb.travaux.find({'sort':'44'})))
