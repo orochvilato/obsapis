@@ -575,6 +575,10 @@ def visuelvotecle(num,groupe=None):
     scrutin['dossier'] = scrutin['dossier'].replace(u'\u0092',"'")
 
     positions = scrutin['scrutin_positions'][groupe if groupe else 'assemblee']
+    if scrutin['inversion'] == 'oui':
+        positions['position'] = {'pour':'contre','contre':'pour'}.get(positions['position'],positions['position'])
+        positions['pour'] = scrutins_positions[scrutin['scrutin_num']]['contre']
+        positions['contre'] = scrutins_positions[scrutin['scrutin_num']]['pour']
     #return json_response(positions)
     from pygal.style import Style
     custom_style = Style(
