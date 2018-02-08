@@ -337,6 +337,46 @@ def changementgp():
 
 @app.route('/test')
 def test():
+    from obsapis.tools import parse_content
+    import requests
+    from lxml import etree
+    url = "http://www.assemblee-nationale.fr/15/dossiers/dons_jours_repos_aidants_familiaux.asp"
+    #url = "http://www.assemblee-nationale.fr/15/dossiers/soutien_collectivites_accueil_gens_voyage.asp"
+    r = requests.get(url)
+    xml = parse_content(r.content)
+    print xml.xpath('//a[text()[contains(.,"Proposition de loi")]]/@href')
+    from stripogram import html2text, html2safehtml
+    doc  = html2text(r.content,page_width=10000).decode('iso8859-1').split(u'\n\n')
+    start = False
+    bloc = ""
+    done = False
+    for i,l in enumerate(doc):
+        l = l.replace(u'1ère',u'première')
+        if 'Proposition de loi' in l:
+            start = True
+            done = False
+        elif len(l)<4:
+            if start == True:
+                start = False
+                done = True
+
+        if start:
+            bloc += l
+        if done:
+            print bloc
+            done = False
+            start = False
+            m1 = re.search(r'n. *([0-9]+).*d\xe9pos\xe9e? le ([0-9]+ [^ ]+ [0-9]+).*mis en ligne le ([0-9]+ [^ ]+ [0-9]+).*renvoy\xe9e? \xe0 (.*)',bloc)
+            #m1 = re.search(r'n° *([0-9]+).*d\xe9pos\xe9e? le ([0-9]+ [^ ]+ [0-9]+).*mis en ligne le ([0-9]+ [^ ]+ [0-9]+).*renvoy\xe9e? \xe0 (.*)',bloc)
+            #print m1
+            if m1:
+                print m1.groups()
+            bloc = ""
+
+
+
+    return "ok"
+
     gps = {}
     import datetime
     return json_response(mdb.amendements.find_one({'auteurs':None}))

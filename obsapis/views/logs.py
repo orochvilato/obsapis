@@ -13,6 +13,14 @@ def logs():
     resp.headers['Pragma'] = 'no-cache'
     return resp
 
+@app.route('/logs50')
+def logs():
+    resp = Response(open(obspath+'/obsapis/static/logs50.html','r').read())
+    resp.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+    resp.headers['Pragma'] = 'no-cache'
+    return resp
+
+
 @app.route('/logs2')
 def logs2():
     #return json_response(mdb.logs.find_one())

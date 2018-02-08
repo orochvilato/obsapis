@@ -81,6 +81,7 @@ def import_liendossierstextes():
         if dos:
             dossiers[dos] = getDossier(dos)
 
+    
     from fuzzywuzzy import fuzz
     #print dossiers
     ops = []

@@ -4,6 +4,12 @@ from obsapis import use_cache,mdbrw
 import datetime
 
 
+def parse_content(content):
+    from lxml import etree
+    parser = etree.HTMLParser()
+    page   = etree.fromstring(content, parser)
+    return page
+    
 def maj1l(x):
     return x[0].upper()+x[1:]
 
