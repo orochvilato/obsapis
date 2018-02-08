@@ -13,9 +13,9 @@ def logs():
     resp.headers['Pragma'] = 'no-cache'
     return resp
 
-@app.route('/logs50')
+@app.route('/logs100')
 def logs50():
-    resp = Response(open(obspath+'/obsapis/static/logs50.html','r').read())
+    resp = Response(open(obspath+'/obsapis/static/logs100.html','r').read())
     resp.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
     resp.headers['Pragma'] = 'no-cache'
     return resp
