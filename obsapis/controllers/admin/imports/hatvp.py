@@ -7,7 +7,7 @@ def normnom(nom):
 
 def update_hatvp():
     from obsapis.scrapers import launchScript,getJson
-    #launchScript('hatvp')
+    launchScript('hatvp')
     collabs = getJson('hatvp')
     ids = [d['depute_shortid'] for d in mdb.deputes.find({},{'depute_shortid':1,'_id':None})]
 

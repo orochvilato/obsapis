@@ -55,7 +55,7 @@ class HATVPSpider(scrapy.Spider):
             #break
 
     def parse_fiche(self, response):
-        
+
         #print response.xpath('//header[@class="person"]/div[@class="title"]/h3/text()').extract()
         depid = normalize(response.xpath('//header[@class="person"]/div[@class="title"]/h3/text()').extract()[0][1:].strip())
 
@@ -64,6 +64,7 @@ class HATVPSpider(scrapy.Spider):
             if m:
                 collab = m.groups()[0].strip()
                 collabs.append([depid,collab])
+
         for h in response.xpath('//aside[contains(@class,"table-historique")]//a[contains(@class,"dl-declaration-history") and contains(@href,".xml")]/@href').extract():
             r = requests.get(h)
             xml = xmltodict.parse(r.content)
@@ -72,11 +73,12 @@ class HATVPSpider(scrapy.Spider):
                 if _x['items']:
                     if isinstance(_x['items']['items'],list):
                         for _col in _x['items']['items']:
-                            collabs.append([depid,_col['nom']])
+                            if not [depid,_col['nom']] in collabs:
+                                collabs.append([depid,_col['nom']+' (anciennement)'])
                     else:
                         _col = _x['items']['items']
-
-                        collabs.append([depid,_col['nom']])
+                        if not [depid,_col['nom']] in collabs:
+                            collabs.append([depid,_col['nom']+' (anciennement)'])
 
 
 
