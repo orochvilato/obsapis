@@ -225,6 +225,9 @@ def visueliec1(theme,themecustom,titre,couleur,contenu,source):
         italic {
             font-style: italic;
         }
+        p {
+            margin-bottom: 0.5em;
+        }
         .test svg {
             width:40px;
             height:40px;
