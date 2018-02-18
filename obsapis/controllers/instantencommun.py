@@ -108,6 +108,9 @@ def txt_to_img(content,width,height,themecolor,fontfamily="Roboto, sans-serif",f
         italic {
             font-style: italic;
         }
+        p {
+            margin-top:0.5em;
+        }
         ${css}
     </style>
     </head>
@@ -173,7 +176,9 @@ def txt_to_img(content,width,height,themecolor,fontfamily="Roboto, sans-serif",f
                                      content=markdown.markdown(contenu),fontfamily=fontfamily,fontsize=fontsize,themecolor=themecolor)
 
 
+
         img = imgkit.from_string(htmlsource,False,options=options)
+
         im = Image.open(BytesIO(img))
         import struct
         col = struct.unpack('BBB',bgcolor[1:].decode('hex'))
