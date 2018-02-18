@@ -109,7 +109,8 @@ def txt_to_img(content,width,height,themecolor,fontfamily="Roboto, sans-serif",f
             font-style: italic;
         }
         p {
-            margin-top: 0.3em;
+            margin-bottom: 0.6em;
+            margin-top: 0.6em;
         }
         ${css}
     </style>
@@ -226,7 +227,8 @@ def visueliec1(theme,themecustom,titre,couleur,contenu,source):
             font-style: italic;
         }
         p {
-            margin-bottom: 0.3em;
+            margin-bottom: 0.6em;
+            margin-top: 0.6em;
         }
         .test svg {
             width:40px;
