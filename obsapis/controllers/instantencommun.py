@@ -109,7 +109,7 @@ def txt_to_img(content,width,height,themecolor,fontfamily="Roboto, sans-serif",f
             font-style: italic;
         }
         p {
-            margin-top:0.5em;
+            margin-top: 0.5em;
         }
         ${css}
     </style>
