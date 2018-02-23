@@ -340,6 +340,7 @@ def changementgp():
 
 @app.route('/test')
 def test():
+    return json_response(import_liendossierstextes())
     from obsapis.tools import parse_content
     import requests
     from lxml import etree

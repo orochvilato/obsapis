@@ -73,8 +73,9 @@ def updateScrutinsTexte():
                     amdts.sort(key=lambda a:a['ratio'],reverse=True)
                     #if amdts[0]['ratio']<100:
                         #print s['scrutin_num'],num,[(a['sig'],a['ratio']) for a in amdts]
-                amdt = amdts[0]
-                found.append(amdt)
+                if amdts:
+                    amdt = amdts[0]
+                    found.append(amdt)
             if found:
                 liens =  s['scrutin_lientexte']
                 amdt = found[0]

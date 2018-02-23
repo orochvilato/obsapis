@@ -15,7 +15,7 @@ def import_liendossierstextes():
         texte = "NOPE"
         doc  = html2text(r.content,page_width=10000).decode('iso8859-1').split(u'\n\n')
         for i,l in enumerate(doc):
-            l = l.replace(u'1ère',u'première')
+            l = l.replace(u'1ère',u'première').replace(u'2e ',u'deuxième ')
             #print l
             search = False
             if l[0:21]==u'Assemblée nationale -':
@@ -24,7 +24,7 @@ def import_liendossierstextes():
                     j = 0
                     while not (u"proposition de loi" in _l.lower() or u'projet de loi' in _l.lower() or j>5):
                         j += 1
-                        _l = doc[i+j].replace(u'1ère',u'première')
+                        _l = doc[i+j].replace(u'1ère',u'première').replace(u'2e ',u'deuxième ')
 
                     texte = _l.split(u',')[0]
                 else:
@@ -65,9 +65,9 @@ def import_liendossierstextes():
         return ops
 
     dossiers = {}
-    #dos = 'http://www.assemblee-nationale.fr/15/dossiers/retablissement_confiance_action_publique.asp'
+    #dos = 'http://www.assemblee-nationale.fr/15/dossiers/bonne_application_asile_europeen.asp'
     #dossiers[dos] = getDossier(dos)
-    #return "ok"
+
     def reduire(txt):
         txt2 = txt.replace(u"  ",u" ")
         while len(txt2) != len(txt):
@@ -81,11 +81,13 @@ def import_liendossierstextes():
         if dos:
             dossiers[dos] = getDossier(dos)
 
-    
+
     from fuzzywuzzy import fuzz
     #print dossiers
     ops = []
-    for s in mdb.scrutins.find({'scrutin_liendossier':{'$ne':None}}): #'scrutin_liendossier':{'$ne':None}
+    filters = {'scrutin_liendossier':{'$ne':None}}
+    #²filters = {'scrutin_num':406}
+    for s in mdb.scrutins.find(filters): #'scrutin_liendossier':{'$ne':None}
         #if not s['scrutin_num'] in (321,):
         #    continue
         score = 0
@@ -97,15 +99,18 @@ def import_liendossierstextes():
         if not pl:
             ttyp= 'proposition de loi'
             pl = re.search(r"(proposition de loi .*) \((.*)\)",desc)
+
         if not pl:
             ttyp='proposition de résolution'
             pl = re.search(u"(proposition de résolution .*)",desc)
         if pl:
             lib = pl.groups()[0].strip().lower()
+
             if len(pl.groups())>1:
-                lec = pl.groups()[1].strip().lower().replace(u'1ère',u'première')
+                lec = pl.groups()[1].strip().lower().replace(u'1ère',u'première').replace(u'2e ',u'deuxième ')
             else:
                 lec = ""
+
             if len(dossiers[dos])==1 and dossiers[dos][0][1].lower()==lec:
                 found = dossiers[dos][0]
             else:
