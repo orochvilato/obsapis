@@ -1,0 +1,37 @@
+<html>
+<head>
+  <style>
+  .position {
+    padding:0.5vw;
+    background-color:#ccc;
+  }
+  .pour {
+    background-color: green;
+  }
+  .contre {
+    background-color: red;
+  }
+  .vote {
+    display:inline-block;
+    width:1vw;
+    height:1vw;
+    margin:0.25vw;
+    background-color: blue;
+  }
+  .col {
+    background-color:#eee;
+    width: 20vw;
+    height:50vw;
+  }
+  </style>
+</head>
+<body>
+  <div class="position">
+    <div class="col">
+    {% for i in range(340) %}
+    <div class="vote"></div>
+    {% endfor %}
+  </div>
+  </div>
+</body>
+</html>
