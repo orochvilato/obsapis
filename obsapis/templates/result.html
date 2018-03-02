@@ -2,6 +2,7 @@
 <head>
   <style>
   .position {
+    display: inline-block;
     padding:0.5vw;
     background-color:#ccc;
   }
@@ -13,14 +14,16 @@
   }
   .vote {
     display:inline-block;
-    width:1vw;
-    height:1vw;
-    margin:0.25vw;
-    background-color: blue;
+    width:1.35vw;
+    height:1.35vw;
+    margin:0.1vw;
+    border-radius: 50% 50%;
+
   }
   .col {
+    display: inline-block;
     background-color:#eee;
-    width: 20vw;
+    width: 19vw;
     height:50vw;
   }
   </style>
@@ -29,9 +32,22 @@
   <div class="position">
     <div class="col">
     {% for i in range(340) %}
-    <div class="vote"></div>
+    <div class="vote pour"></div>
+    {% endfor %}
+  </div>
+  <div class="col">
+  {% for i in range(340) %}
+  <div class="vote pour"></div>
+  {% endfor %}
+</div>
+  </div>
+  <div class="position">
+    <div class="col">
+    {% for i in range(340) %}
+    <div class="vote contre"></div>
     {% endfor %}
   </div>
   </div>
+
 </body>
 </html>

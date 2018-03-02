@@ -22,7 +22,8 @@ CORS(app)
 
 
 import bmemcached
-memcache = bmemcached.Client(('observatoire-assemblee.orvdev.fr:11211',))
+#memcache = bmemcached.Client(('observatoire-assemblee.orvdev.fr:11211',))
+memcache = bmemcached.Client(('127.0.0.1:11211',))
 
 
 
