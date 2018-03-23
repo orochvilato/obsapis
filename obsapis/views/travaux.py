@@ -74,7 +74,7 @@ def view_travaux():
     print filters,tfilter
 
     travaux = list(mdb.travaux.find(tfilter).sort('date',-1).skip(skip).limit(nb))
-
+    print travaux
     def countItems():
         rcount = mdb.travaux.find(tfilter).count()
         return {'totalitems':rcount}

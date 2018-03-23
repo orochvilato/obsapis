@@ -9,7 +9,7 @@ import requests
 import re
 
 def get_signataires(url):
-    items = ['AUTEUR_ID','COSIGNATAIRES_ID','DATE_BADAGE']
+    items = ['AUTEUR_ID','COSIGNATAIRES_ID','DATE_BADAGE','SORT']
     r = requests.get(url)
     from lxml import etree
     parser = etree.HTMLParser()
@@ -20,6 +20,17 @@ def get_signataires(url):
         result[item] = x[0] if x else ''
 
     return result
+def corrige_nonrenseignes():
+    for amd in mdb.amendements.find({'$and':[{'sort':u'Non renseign\xe9'},{'_vu':{'$ne':True}}]}):
+        meta = get_signataires(amd['urlAmend'])
+        upd = {'_vu':True}
+        if meta['SORT']!="":
+            upd['sort'] = meta['SORT']
+            #print amd['id'],meta['SORT']
+            mdbrw.travaux.update_many({'idori':amd['id']},{'$set':{'sort':meta['SORT']}})
+        mdbrw.amendements.update_one({'id':amd['id']},{'$set':upd})
+
+
 def import_amendements(rebuild=False):
     mdbrw.amendements.ensure_index([("dispositif", TEXT)],default_language='french')
     mdbrw.amendements.ensure_index([("id", ASCENDING)])
@@ -32,6 +43,8 @@ def import_amendements(rebuild=False):
 
     from requests import Session
     deja_amd = dict((a['id'],a) for a in mdb.amendements.find({},{'id':1,'auteurs':1,'urlTexteRef':1,'_id':None}))
+    if rebuild==True:
+        deja_amd = dict()
 
     sess = Session()
     r = sess.get('http://www2.assemblee-nationale.fr/recherche/amendements')

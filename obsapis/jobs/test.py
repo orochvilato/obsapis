@@ -10,7 +10,7 @@ definition = dict(
 
 from obsapis.controllers.admin.updates.scrutins import updateScrutinsTexte
 from obsapis.controllers.admin.updates.groupes import updateGroupesRanks
-from obsapis.controllers.admin.updates.amendements import update_amendements
+from obsapis.controllers.admin.updates.amendements import update_amendements, corrige_nonrenseignes
 from obsapis.controllers.admin.updates.travaux import update_travaux
 from obsapis.controllers.admin.updates.deputes import updateDeputesContacts,updateDeputesLieuNaissance, updateDeputesTravaux,updateNouveauxDeputes
 from obsapis.controllers.admin.imports.liensdossierstextes import import_liendossierstextes
@@ -25,7 +25,7 @@ def job(**kwargs):
     updateDeputesLieuNaissance()
     updateNouveauxDeputes()
     import_amendements()
-
+    corrige_nonrenseignes()
     update_amendements() # A supprimer plus tard
     import_docs()
     import_liendossierstextes()

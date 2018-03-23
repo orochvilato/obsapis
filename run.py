@@ -337,7 +337,19 @@ def changementgp():
 
 @app.route('/test')
 def test():
-    return json_response(import_liendossierstextes())
+    stats = dict(groupe=0,dissidence=0,abstention=0)
+    for s in mdb.scrutins.find({'scrutin_num':{'$nin':[404,405,406]}},{'scrutin_positions':1}):
+        spos = s['scrutin_positions']['REM']
+        for pos in ['pour','contre','abstention']:
+            if pos in ['pour','contre']:
+                if spos['position']!=pos:
+                    stats['dissidence'] += spos.get(pos,0)
+                else:
+                    stats['groupe'] += spos.get(pos,0)
+            else:
+                stats[pos] += spos.get(pos,0)
+
+    return json_response(stats)
     from obsapis.tools import parse_content
     import requests
     from lxml import etree
