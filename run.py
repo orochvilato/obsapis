@@ -20,6 +20,9 @@ from obsapis.controllers.admin.imports.liensdossierstextes import import_liendos
 from obsapis.controllers.visuel.generateur import gentest
 from obsapis.controllers.admin.imports.qag import import_qag
 
+@app.route('/vote')
+def rvote():
+    return render_template('result.html')
 
 @app.route('/amdc')
 def amdcs():

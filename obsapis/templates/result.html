@@ -1,0 +1,53 @@
+<html>
+<head>
+  <style>
+  .position {
+    display: inline-block;
+    padding:0.5vw;
+    background-color:#ccc;
+  }
+  .pour {
+    background-color: green;
+  }
+  .contre {
+    background-color: red;
+  }
+  .vote {
+    display:inline-block;
+    width:1.35vw;
+    height:1.35vw;
+    margin:0.1vw;
+    border-radius: 50% 50%;
+
+  }
+  .col {
+    display: inline-block;
+    background-color:#eee;
+    width: 19vw;
+    height:50vw;
+  }
+  </style>
+</head>
+<body>
+  <div class="position">
+    <div class="col">
+    {% for i in range(340) %}
+    <div class="vote pour"></div>
+    {% endfor %}
+  </div>
+  <div class="col">
+  {% for i in range(340) %}
+  <div class="vote pour"></div>
+  {% endfor %}
+</div>
+  </div>
+  <div class="position">
+    <div class="col">
+    {% for i in range(340) %}
+    <div class="vote contre"></div>
+    {% endfor %}
+  </div>
+  </div>
+
+</body>
+</html>
