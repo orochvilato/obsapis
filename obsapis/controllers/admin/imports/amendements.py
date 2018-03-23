@@ -20,15 +20,6 @@ def get_signataires(url):
         result[item] = x[0] if x else ''
 
     return result
-def corrige_nonrenseignes():
-    for amd in mdb.amendements.find({'$and':[{'sort':u'Non renseign\xe9'},{'_vu':{'$ne':True}}]}):
-        meta = get_signataires(amd['urlAmend'])
-        upd = {'_vu':True}
-        if meta['SORT']!="":
-            upd['sort'] = meta['SORT']
-            #print amd['id'],meta['SORT']
-            mdbrw.travaux.update_many({'idori':amd['id']},{'$set':{'sort':meta['SORT']}})
-        mdbrw.amendements.update_one({'id':amd['id']},{'$set':upd})
 
 
 def import_amendements(rebuild=False):

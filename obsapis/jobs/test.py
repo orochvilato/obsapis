@@ -8,6 +8,7 @@ definition = dict(
     notify_success = ['observatoireapi@yahoo.com']
     )
 
+
 from obsapis.controllers.admin.updates.scrutins import updateScrutinsTexte
 from obsapis.controllers.admin.updates.groupes import updateGroupesRanks
 from obsapis.controllers.admin.updates.amendements import update_amendements, corrige_nonrenseignes

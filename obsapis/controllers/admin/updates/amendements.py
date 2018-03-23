@@ -27,3 +27,14 @@ def update_amendements():
         ops.append(UpdateOne({'depute_shortid':d},{'$set':{'depute_amendements':stat}}))
     if ops:
         mdbrw.deputes.bulk_write(ops)
+
+
+def corrige_nonrenseignes():
+    for amd in mdb.amendements.find({'$and':[{'sort':u'Non renseign\xe9'},{'_vu':{'$ne':True}}]}):
+        meta = get_signataires(amd['urlAmend'])
+        upd = {'_vu':True}
+        if meta['SORT']!="":
+            upd['sort'] = meta['SORT']
+            #print amd['id'],meta['SORT']
+            mdbrw.travaux.update_many({'idori':amd['id']},{'$set':{'sort':meta['SORT']}})
+        mdbrw.amendements.update_one({'id':amd['id']},{'$set':upd})
