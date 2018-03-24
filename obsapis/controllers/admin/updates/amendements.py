@@ -3,6 +3,7 @@
 from obsapis import mdbrw,mdb
 from pymongo import UpdateOne
 
+
 def update_amendements():
     ops = []
     #return "ok"
@@ -23,12 +24,11 @@ def update_amendements():
     # TODO : stat GVT et commissions ?
 
     for d,stat in stat_amdts.iteritems():
-        #print d,stat
         ops.append(UpdateOne({'depute_shortid':d},{'$set':{'depute_amendements':stat}}))
     if ops:
         mdbrw.deputes.bulk_write(ops)
 
-
+from obsapis.controllers.admin.imports.amendements import get_signataires
 def corrige_nonrenseignes():
     for amd in mdb.amendements.find({'$and':[{'sort':u'Non renseign\xe9'},{'_vu':{'$ne':True}}]}):
         meta = get_signataires(amd['urlAmend'])
