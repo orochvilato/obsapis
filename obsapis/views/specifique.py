@@ -16,7 +16,7 @@ def supamd():
 
     for amd in mdb.amendements.find({},{'suppression':1,'_id':None,'groupe':1,'auteurs':1}):
 
-        g = amd['groupe']
+        g = amd['auteurs'][0].get('groupe',None)
         if not g:
             g = amd['auteurs'][0]['id']
         if not g in gp.keys():
