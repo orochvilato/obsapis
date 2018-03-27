@@ -33,7 +33,7 @@ def chart_compatdep():
 
     dep_cpt = mdb.deputes.find({'depute_shortid':{'$in':deputes}},{'depute_nom':1,'stats.compat':1,'_id':None})
     radar_chart = pygal.Radar(fill=True,legend_at_bottom=True,height=650,width=600)
-    groupes = ['FI','GDR','NG','REM','MODEM','UAI','LR']
+    groupes = ['FI','GDR','NG','LAREM','MODEM','UDI-AGIR','LR']
     radar_chart.title = u'Compatibilités vote (vote pour aux amendements)'
     radar_chart.x_labels = groupes
     for d in dep_cpt:
@@ -83,8 +83,8 @@ def groupesstat(stat):
     params = {'nbmots':{'legende':'Nombre de mots','titre':u'Nombre de mots prononcés en session','xaxis':u'Nombre de mots'},
               'nbitvs':{'legende':"Nombre d'interventions",'titre':u"Nombre d'interventions en session",'xaxis':u"Nombre d'interventions"}}
     libelles = {'FI':u'France Insoumise',
-                'REM':u'République en Marche',
-                'UAI': u'UDI, Agir et Indépendants',
+                'LAREM':u'République en Marche',
+                'UDI-AGIR': u'UDI, Agir et Indépendants',
                 'GDR':u'Gauche Démocratique et Républicaine',
                 'NG':u'Nouvelle Gauche',
                 'MODEM':u'Mouvement Démocrate',
@@ -102,7 +102,7 @@ def groupesstat(stat):
         g = a['_id']['groupe']
         n = a['n']
         if g=='LC':
-            g='UAI'
+            g='UDI-AGIR'
         if not g in grps:
             grps[g] = 0
         grps[g] += n
@@ -146,10 +146,10 @@ def groupesstats():
               'groupe_nbmembres':{'legende':'Nombre de membres'}}
               #'stats.positions.exprimes':{'legende':'Participation aux\nscrutins publics'}}
 
-    grporder = ('FI','REM','LR','MODEM','GDR','NG','UAI','NI')
+    grporder = ('FI','LAREM','LR','MODEM','GDR','NG','UDI-AGIR','NI')
     libelles = {'FI':u'France Insoumise',
-                'REM':u'République en Marche',
-                'UAI': u'UDI, Agir et Indépendants',
+                'LAREM':u'République en Marche',
+                'UDI-AGIR': u'UDI, Agir et Indépendants',
                 'GDR':u'Gauche Démocratique et Républicaine',
                 'NG':u'Nouvelle Gauche',
                 'MODEM':u'Mouvement Démocrate',
@@ -275,8 +275,8 @@ def comparestats(elts):
 def votesgroupes():
     #return json_response(list(mdb.groupes.find({},{'_id':None,'groupe_abrev':1,'groupe_uid':1})))
     libelles = {'FI':u'France Insoumise',
-                'REM':u'République en Marche',
-                'UAI': u'UDI, Agir et Indépendants',
+                'LAREM':u'République en Marche',
+                'UDI-AGIR': u'UDI, Agir et Indépendants',
                 'GDR':u'Gauche Démocratique et Républicaine',
                 'NG':u'Nouvelle Gauche',
                 'MODEM':u'Mouvement Démocrate',
@@ -295,7 +295,7 @@ def votesgroupes():
         p = v['_id']['position']
         n = v['n']
         if g=='LC':
-            g='UAI'
+            g='UDI-AGIR'
         if not g in grps:
             grps[g] = { 'absent':0,'pour':0,'contre':0,'abstention':0 }
         grps[g][p] += n

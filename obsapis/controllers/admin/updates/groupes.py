@@ -66,3 +66,33 @@ def updateGroupesRanks():
     if ops:
         mdbrw.groupes.bulk_write(ops)
     return "ok"
+
+def updateGroupeNoms():
+    cl = [u'deputes', u'votes', u'scrutins', u'interventions',  u'presences', u'amendements', u'commissions',  u'documentsan', u'questions', u'travaux']
+    corr = {'REM':'LAREM','UAI':'UDI-AGIR','LC':'UDI-AGIR'}
+    for f,t in corr.iteritems():
+        # votes
+        mdbrw.votes.update_many({'groupe_abrev':f},{'$set':{'groupe_abrev':t}})
+        # scrutins
+        mdbrw.scrutins.update_many({'scrutin_groupe':f},{'$set':{'scrutin_groupe':t}})
+        # interventions
+        mdbrw.interventions.update_many({'groupe_abrev':f},{'$set':{'groupe_abrev':t}})
+        # presences
+        mdbrw.presences.update_many({'groupe_abrev':f},{'$set':{'groupe_abrev':t}})
+        # amendements
+        mdbrw.amendements.update_many({'groupe':f},{'$set':{'groupe':t}})
+        # questions
+        mdbrw.questions.update_many({'groupe':f},{'$set':{'groupe':t}})
+        # travaux
+        mdbrw.travaux.update_many({'groupe':f},{'$set':{'groupe':t}})
+
+    for tra in ['amendements','documentsan']:
+        for amd in mdb[tra].find({'$and':[{'cosignataires.groupe':{'$in':corr.keys()}},{'auteurs.groupe':{'$in':corr.keys()}}]},{'auteurs':1,'cosignataires':1}):
+            for i in ['auteurs','cosignataires']:
+                for a in amd[i]:
+                    if a.get('groupe',None) in corr.keys():
+                        a['groupe'] = corr[a['groupe']]
+            mdbrw[tra].update_one({'_id':amd['_id']},{'$set':amd})
+        #amendements
+
+    # sur web2py --> https://admin.obsas.orvdev.fr/oadev/maintenance/updateScrutinsStats/rebuild
