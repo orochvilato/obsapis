@@ -26,6 +26,7 @@ def updateScrutinsTexte():
     ops = []
     vote_ops = []
     filter = {'scrutin_liendossier':{'$ne':None}}
+    #filter = {'scrutin_num':431}
     #filter = {'$text':{'$search':'"sous-amendement"'}}
     for s in mdb.scrutins.find(filter,{'scrutin_typedetail':1,'scrutin_lientexte':1,'scrutin_desc':1,'scrutin_id':1,'scrutin_num':1,'scrutin_liendossier':1}):
         #print s['scrutin_num']
@@ -40,9 +41,10 @@ def updateScrutinsTexte():
             vote_ops.append(UpdateMany({'scrutin_num':s['scrutin_num']},{'$set':{'scrutin_groupe':gp}}))
         else: #Amendement
             #r = re.search(r'([0-9]+)',s['scrutin_desc'])
-            r = re.findall(r'amendement[^0-9]+([0-9]+)',s['scrutin_desc'])
+            r = re.findall(r'amendement[^0-9a-mo-zA-MO-Z]+([0-9]+)',s['scrutin_desc'])
             found = []
             for num in r:
+
             #if r:
 
                 #num = r.groups()[0]
@@ -70,6 +72,7 @@ def updateScrutinsTexte():
                         #print (sig in s_desc),sig,s_desc
                         a['ratio'] = fz
                         a['sig'] = sig
+
                     amdts.sort(key=lambda a:a['ratio'],reverse=True)
                     #if amdts[0]['ratio']<100:
                         #print s['scrutin_num'],num,[(a['sig'],a['ratio']) for a in amdts]
@@ -87,8 +90,10 @@ def updateScrutinsTexte():
                 updS = {'scrutin_groupe':siggp,'scrutin_urlAmendement':amdt['urlAmend']}
                 if amdt['urlTexteRef']:
                     liens[0][1] = amdt['urlTexteRef']
+                liens.append([amdt['numAmend'],amdt['urlAmend'],None])
                 if len(found)>1: # amendement de ref au sous-amendement
                     liens.append([found[1]['numAmend'],found[1]['urlAmend'],None])
+                #print liens
                 ops.append(UpdateOne({'scrutin_num':s['scrutin_num']},{'$set':{'scrutin_lientexte':liens}}))
                 #mdbrw.scrutins.update_one({'scrutin_num':s['scrutin_num']},{'$set':updS})
                 vote_ops.append(UpdateMany({'scrutin_num':s['scrutin_num']},{'$set':{'scrutin_groupe':siggp}}))
