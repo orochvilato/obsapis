@@ -76,7 +76,7 @@ def updateScrutinsTexte():
                 if amdts:
                     amdt = amdts[0]
                     found.append(amdt)
-            if found:
+            if found:# and 'scrutin_lientexte' in s.keys():
                 liens =  s['scrutin_lientexte']
                 amdt = found[0]
                 siggp = amdt['auteurs'][0]['groupe'] if 'groupe' in amdt['auteurs'][0].keys() else 'Gouvernement'

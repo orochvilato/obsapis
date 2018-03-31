@@ -86,7 +86,9 @@ def import_liendossierstextes():
     #print dossiers
     ops = []
     filters = {'scrutin_liendossier':{'$ne':None}}
-    #²filters = {'scrutin_num':406}
+    #filters = {'scrutin_num':435}
+
+
     for s in mdb.scrutins.find(filters): #'scrutin_liendossier':{'$ne':None}
         #if not s['scrutin_num'] in (321,):
         #    continue
@@ -98,7 +100,7 @@ def import_liendossierstextes():
         ttyp = 'projet de loi'
         if not pl:
             ttyp= 'proposition de loi'
-            pl = re.search(r"(proposition de loi .*) \((.*)\)",desc)
+            pl = re.search(r"(proposition de loi[ ,].*) \((.*)\)",desc)
 
         if not pl:
             ttyp='proposition de résolution'
