@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from obsapis import app,mdb,mdbrw,use_cache
-from obsapis.tools import normalize
+from obsapis.tools import normalize, dictToXls, xls_response
 from flask import render_template
 from bson import json_util
 
@@ -337,9 +337,48 @@ def changementgp():
     return "ok"
 
 
+@app.route('/statcom')
+def statcom():
+    pgroup = {}
+    pgroup['n'] = {'$sum':1}
+    pgroup['_id'] = { 'depute':'$depute_uid','position':'$vote_position'}
+    pipeline = [{'$group':pgroup}]
+    vdeps = {}
+
+    for v in mdb.votes.aggregate(pipeline):
+
+        _v = v['_id']['depute']
+        _p = v['_id']['position']
+        if not _v in vdeps.keys():
+            vdeps[_v] = {}
+        vdeps[_v][_p] = v['n']
+    coms = {}
+    for c in mdb.commissions.find():
+        coms[c['commission_libelle']] = {'nom':c['commission_libelle'],'nbmembres':len(c['commission_membres'])}
+        for m in c['commission_membres']:
+            for k,v in vdeps.get(m['uid'],{}).iteritems():
+                coms[c['commission_libelle']][k] = coms[c['commission_libelle']].get(k,0) + v
+
+    v = dictToXls(data={'sheets':['commissions'],
+                        'data':{'commissions':{'fields':['nom','nbmembres','absent','pour','contre','abstention'],'data':coms.values()},
+                               }})
+    return xls_response('statscommissions',v)
+
+
 
 @app.route('/test')
 def test():
+    gp = {}
+    for d in mdb.deputes.find({},{'stats.election':1,'groupe_abrev':1}):
+        g = d['groupe_abrev']
+        if not g in gp.keys():
+            gp[g] = []
+        gp[g].append(d['stats']['election']['inscrits'])
+    moy = {}
+    import numpy
+    for g,v in gp.iteritems():
+        moy[g] = numpy.median(numpy.array(v))
+    return json_response(moy)
     stats = dict(groupe=0,dissidence=0,abstention=0)
     for s in mdb.scrutins.find({'scrutin_num':{'$nin':[404,405,406]}},{'scrutin_positions':1}):
         spos = s['scrutin_positions']['REM']

@@ -102,7 +102,7 @@ def deputeget(shortid):
     s_cles = OrderedDict()
     for v in votes_cles:
         v.update(scrutins_cles[v['scrutin_num']])
-        
+
         v['vote_position'] = {'pour':'contre','contre':'pour'}.get(v['vote_position'],v['vote_position']) if v['inversion']=='oui' else v['vote_position']
         if v['scrutin_dossierLibelle']=='N/A' and scrutins_cles[v['scrutin_num']]['dossier']:
             dossier = scrutins_cles[v['scrutin_num']]['dossier']
@@ -170,6 +170,8 @@ def _ajax(type_page):
     csp = request.args.get('csp',None)
     page = int(request.args.get('page','1'))-1
     groupe = request.args.get('groupe',request.args.get('group',None))
+    if groupe=="REM":
+        groupe="LAREM"
     text = request.args.get('query',request.args.get('requete',''))
 
     region = request.args.get('region',None)
