@@ -64,14 +64,15 @@ def votes():
     for v in mdb.votes.find(vote_filter).sort('scrutin_num',-1).skip(skip).limit(nb):
         v['scrutin_sort'] = scrutins_data[v['scrutin_num']]['sort']
         if scrutins_data[v['scrutin_num']]['urlAmendement']:
-            v['scrutin_desc'] = re.sub(r'([0-9]+)',r'<a target="_blank" href="'+scrutins_data[v['scrutin_num']]['urlAmendement']+r'">\1</a>',v['scrutin_desc'],1)
+            pass
+            #v['scrutin_desc'] = re.sub(r'([0-9]+)',r'<a target="_blank" href="'+scrutins_data[v['scrutin_num']]['urlAmendement']+r'">\1</a>',v['scrutin_desc'],1)
 
         for i,lien in enumerate(scrutins_data[v['scrutin_num']]['scrutin_lientexte']):
             v['scrutin_desc'] = v['scrutin_desc'].replace(lien[0],'LIEN%d' % i)
 
         for i,lien in enumerate(scrutins_data[v['scrutin_num']]['scrutin_lientexte']):
             v['scrutin_desc'] = v['scrutin_desc'].replace('LIEN%d' % i ,'<a target="_blank" href="'+lien[1]+r'">'+lien[0]+'</a>')
-        
+
 
         v['scrutin_dossierLibelle'] = v['scrutin_dossierLibelle'].replace(u'\u0092',"'") # pb apostrophe
         votes.append(v)
