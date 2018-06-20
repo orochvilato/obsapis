@@ -18,6 +18,11 @@ def get_signataires(url):
     for item in items:
         x = page.xpath('//meta[@name="%s"]/@content' % item)
         result[item] = x[0] if x else ''
+    if result['SORT']=='':
+        if 'RETIR&Eacute; AVANT' in r.content or 'Retir&eacute; avant' in r.content:
+            result['SORT']=u'Retir\xe9'
+        elif 'Cet amendement a &eacute;t&eacute; d&eacute;clar&eacute; irrecevable' in r.content or 'Amendement irrecevable au titre' in r.content:
+            result['SORT']=u'Irrecevable'
 
     return result
 
