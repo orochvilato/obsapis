@@ -30,8 +30,8 @@ def update_amendements():
 
 from obsapis.controllers.admin.imports.amendements import get_signataires
 def corrige_nonrenseignes():
-    #for amd in mdb.amendements.find({'$and':[{'sort':u'Non renseign\xe9'},{'_vu':{'$ne':True}}]}):
-    for amd in mdb.amendements.find({'sort':u'Non renseign\xe9'},{'id':1,'urlAmend':1}):
+    for amd in mdb.amendements.find({'$and':[{'sort':u'Non renseign\xe9'},{'_vu':{'$ne':True}}]}):
+    #for amd in mdb.amendements.find({'sort':u'Non renseign\xe9'},{'id':1,'urlAmend':1}):
 
         meta = get_signataires(amd['urlAmend'])
         upd = {'_vu':True}
