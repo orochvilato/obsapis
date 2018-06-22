@@ -2,7 +2,7 @@
 
 from obsapis import app,mdb,mdbrw
 
-from obsapis.tools import json_response,xls_response,dictToXls,dictToXlsx,cache_function,json_response
+from obsapis.tools import json_response,xls_response,dictToXls,dictToXlsx,cache_function,json_response, strip_accents
 
 @app.route('/gotravaux')
 def gotravaux():
@@ -33,94 +33,98 @@ def supamd():
 @app.route('/dupamd')
 @cache_function(expires=0) #24*3600)
 def dupamd():
+    ct = {}
+    for a in mdb.amendements.find({'sort':{'$ne':'Irrecevable'},'duplicate':{'$ne':None}},{'duplicate':1,'suppression':1}):
+        if a['duplicate'] and not a.get('suppression'):
+            ct[a['duplicate']] = ct.get(a['duplicate'],0)+1
+    print sorted(ct.items(),key=lambda x:x[1])
     #import re
     #regx = re.compile("^<p[^>]*>Supprimer")
     #mdbrw.amendements.update_many({'$and':[{'suppression':None},{'dispositif':regx}]},{'$set':{'suppression':True}})
     #return json_response(mdb.amendements.find_one({'numInit':"485",'numAmend':"41"}))
     #a2 = mdb.amendements.find_one({'numInit':"237",'numAmend':"AS27"})['dispositif']
     items={}
-    for a in mdb.amendements.find({'sort':{'$ne':'Irrecevable'}},{'_id':None,'numInit':1,'designationArticle':1,'urlTexteRef':1}):
-        items[(a['numInit'],a['designationArticle'])] = a['urlTexteRef']
 
-    from obsapi.tools import html_to_text
-    for txt,art in items.keys()[0]:
-        contents = {}
-        amds = []
+    for a in mdb.amendements.find({'sort':{'$ne':'Irrecevable'},'duplicate':{'$eq':None}},{'_id':None,'numInit':1,'designationArticle':1,'urlTexteRef':1}).sort([("numInit",1),("designationArticle",1)]):
+        txt = a['numInit']
+        art = a['designationArticle']
+        if not txt in items.keys():
+            items[txt] = {}
 
-    #https://docs.python.org/3/library/difflib.html#difflib.get_close_matches
-    import hashlib
-    import json
-    return json.dumps(items)
-    docs = [ num for num in mdb.amendements.distinct('numInit') if num[:2]!='TA' ]
-    #docs = docs[:5]
-    identiques = []
-    suppr = []
-    for doc in docs:
-        amds = {}
+        items[txt][art] = a['urlTexteRef']
 
+    def remove_html_tags(text):
+        """Remove html tags from a string"""
+        import re
+        clean = re.compile('<.*?>')
+        return re.sub(clean, '', text)
 
-        for amd in mdb.amendements.find({'numInit':doc,'dispositif':{'$ne':''},'suppression':{'$ne':True},'groupe':{'$ne':None}},{'suppression':1,'numAmend':1,'auteurs':1,'urlAmend':1,'dispositif':1,'sort':1,'designationArticle':1}):
-            num = amd['numAmend']
-            txt = amd['dispositif'].encode('utf8')
-            art = amd['designationArticle']
-            url = amd['urlAmend']
-            if amd.get('suppression',None):
-                suppr.append("%s-%s" % (doc,num))
-            auteur = amd['auteurs'][0]
-            if not art in amds:
-                amds[art] = []
-            amds[art].append((("%s-%s" % (doc,num),auteur['id'],auteur['groupe'],amd['sort'],url),hashlib.md5(txt).hexdigest()))
+    from fuzzywuzzy import fuzz
+    dups  = {}
+    counts = {}
+    ptxt = 0
+    print len(items.keys())
+    for txt in sorted(items.keys()):
+        counts[txt] = 0
+        for art in sorted(items[txt].keys()):
+            mdbrw.dupamd.remove({'numInit':txt,'designationArticle':art})
+            print txt,art
+            counts[(txt,art)] = 0
 
-        for art,artamds in amds.iteritems():
+            contents = []
 
-            dups = {}
-            for id,hash in artamds:
-                dups.setdefault(hash,[]).append(id)
-            dups = [ v for k,v in dups.iteritems() if len(v)>1 ]
-            if dups:
-                identiques += dups
+            for amd in mdb.amendements.find({'sort':{'$ne':'Irrecevable'},'numInit':txt,'designationArticle':art},{'_id':None,'id':1,'dispositif':1,'auteurs':1,'urlAmend':1,'numAmend':1}):
+                text = remove_html_tags(amd['dispositif'])
+                
+                contents.append(dict(doc=txt,auteur=amd['auteurs'][0],art=art,id=amd['id'],num=amd['numAmend'],url=amd['urlAmend'],content=text))
 
-    #return json_response(identiques)
+            if not txt in dups.keys():
+                dups[txt] = {}
+            if not art in dups[txt].keys():
+                dups[txt][art] = []
 
-    decpt_auteur = {}
-    decpt_groupe = {}
-    liste_groupe = {}
-    decpt_amd = {}
-    for same in identiques:
-        amdt = (same[0][0],same[0][4])
-        autres = []
-        grps = []
-        auts = []
-        for amd,auteur,groupe,sort,url in same:
-            decpt_auteur[auteur] = decpt_auteur.get(auteur,0) +1
-            decpt_groupe[groupe] = decpt_groupe.get(groupe,0) +1
+            x = range(len(contents))
 
-            if not groupe in grps:
-                liste_groupe.setdefault(groupe,[]).append(same)
-                grps.append(groupe)
-            autres.append((amd,url))
-        decpt_amd[amdt] = autres
+            while x:
+                item=contents[x[0]]['content']
+                matches = [x[0]]
+                for cmp in x[1:]:
+                    if fuzz.ratio(item,contents[cmp]['content'])>90:
+                        matches.append(cmp)
+                if len(matches)>1:
+                    mtchs = []
+                    for m in matches:
+                        v = contents[m]
+                        v['duplicate'] = True
+                        mtchs.append(dict(id=v['id'],auteur=v['auteur'],num=v['num'],url=v['url']))
+                    dups[txt][art].append(mtchs)
+                    counts[(txt,art)] += len(matches)
+                    counts[txt] += len(matches)
+                x = [e for e in x if not e in matches]
 
 
-    html = u"<h3>Députés</h3><ul><li>"+"</li><li>".join([ '%s (%d)' % r for r in sorted(decpt_auteur.items(),key=lambda x:x[1], reverse=True)][:30])+"</ul>"
-    html += u"<h3>Groupes</h3><ul><li>"+"</li><li>".join([ '%s (%d)' % r for r in sorted(decpt_groupe.items(),key=lambda x:x[1], reverse=True)][:30])+"</ul>"
 
-    for g in ['FI']:
-        html += u"<h3>Duplicats groupe %s</h3><ul><li>" % g
-        items = []
-        for idts in liste_groupe[g]:
-            item = ', '.join(['<a href="%s">%s (%s)</a>' % (id[4],id[0],id[2]) for id in idts])
-            items.append(item)
-        html += "</li><li>".join(items)+"</ul>"
+            for dup in dups[txt][art]:
+                id = mdbrw.dupamd.insert({'numInit':txt,'designationArticle':art})
+                for d in dup:
+                    mdbrw.amendements.update({'id':d['id']},{'$set':{'duplicate':id}})
+            for c in contents:
+                if not c.get('duplicate',False):
+                    mdbrw.amendements.update({'id':c['id']},{'$set':{'duplicate':False}})
 
-    items = []
 
-    for amd,autres in sorted(decpt_amd.items(),key=lambda x:len(x[1]), reverse=True):
-        item = '<a href="%s">%s</a>' % (amd[1],amd[0])+' (%d) : ' % (len(autres))
-        item += ', '.join(['<a href="%s">%s</a>' % (at[1],at[0]) for at in autres])
-        items.append(item)
-    html += u"<h3>Amendements</h3><ul><li>"+"</li><li>".join(items)+"</ul>"
+    html = "<html><body>"
+    for txt in sorted(dups.keys(),key=lambda x:counts[x],reverse=True):
+        html += u"<h3>%s (%d)</h3>" % (txt,counts[txt])
+        for art in sorted(dups[txt].keys(),key=lambda x:counts[(txt,x)], reverse=True):
+            html += u"<h4>%s (%d)</h4>" % (art,counts[(txt,art)])
+            for dup in dups[txt][art]:
+                html += '<p>'+', '.join('<span><a href={url}>{num} ({nom}/{gp})</a></span>'.format(url=d['url'],num=d['num'],nom=d['auteur']['id'],gp=d['auteur'].get('groupe','GVT')) for d in dup) + '</p>'
+
+    html += '</body></html>'
+
     return html
+
 
 @app.route('/specifique/collaborateurs')
 def collaborateurs():
