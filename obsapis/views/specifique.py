@@ -38,8 +38,19 @@ def dupamd():
     #mdbrw.amendements.update_many({'$and':[{'suppression':None},{'dispositif':regx}]},{'$set':{'suppression':True}})
     #return json_response(mdb.amendements.find_one({'numInit':"485",'numAmend':"41"}))
     #a2 = mdb.amendements.find_one({'numInit':"237",'numAmend':"AS27"})['dispositif']
-    import hashlib
+    items={}
+    for a in mdb.amendements.find({'sort':{'$ne':'Irrecevable'}},{'_id':None,'numInit':1,'designationArticle':1,'urlTexteRef':1}):
+        items[(a['numInit'],a['designationArticle'])] = a['urlTexteRef']
 
+    from obsapi.tools import html_to_text
+    for txt,art in items.keys()[0]:
+        contents = {}
+        amds = []
+
+
+    import hashlib
+    import json
+    return json.dumps(items)
     docs = [ num for num in mdb.amendements.distinct('numInit') if num[:2]!='TA' ]
     #docs = docs[:5]
     identiques = []
