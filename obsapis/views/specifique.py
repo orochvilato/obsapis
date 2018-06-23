@@ -62,7 +62,8 @@ def dupamd():
             id = d['_id']['duplicate']
             #mdb.amendements.find_one({'duplicate':id},{'numInit':1,'designationArticle':1,})
             dup = dups[id]
-            html += '<tr><td width="50%"><a href="{texturl}"> {textdesc} / {art}</a></td><td width="10%"><a href="/dupamd?id={id}">{n}</a></td><td width="5%">{sup}</td></tr>'.format(n=n,id=id,art=dup['designationArticle'].encode('utf8'),texturl=dup['texturl'],textdesc=dup['textdesc'].encode('utf8'),sup=("*" if dup.get('suppression',False) else ''))
+            if dup['suppression']==False:
+                html += '<tr><td width="50%"><a href="{texturl}"> {textdesc} / {art}</a></td><td width="10%"><a href="/dupamd?id={id}">{n}</a></td><td width="5%">{sup}</td></tr>'.format(n=n,id=id,art=dup['designationArticle'].encode('utf8'),texturl=dup['texturl'],textdesc=dup['textdesc'].encode('utf8'),sup=("*" if dup.get('suppression',False) else ''))
         html += '</tbody></table></body></html>'
         #dups_ids = [d['_id']['duplicate'] for d in dups if d['n']>1]
 
