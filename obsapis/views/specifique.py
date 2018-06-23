@@ -31,6 +31,15 @@ def supamd():
     html += "</tbody></table></body></html>"
     return html
 
+@app.route('/topdup')
+def topdup():
+    tops = {}
+    for a in mdb.amendements.find({'$and':[{'suppression':{'$ne':True}},{'duplicate':{'$ne':False}},{'duplicate':{'$ne':None}}]},{'auteurs':1}):
+        aut = a['auteurs'][0]['id']
+        tops[aut] = tops.get(aut,0) + 1
+
+    doc = '\n'.join("%s;%d" % (a,n) for a,n in sorted(tops.items(),key=lambda x:x[1], reverse=True))
+    return doc
 
 
 @app.route('/dupamd')
@@ -75,10 +84,11 @@ def dupamd():
         from bson.objectid import ObjectId
         id = request.args.get('id')
         html = "<html><body><table border='1'><tbody>"
-        for amd in mdb.amendements.find({'duplicate':ObjectId(id)},{'auteurs':1,'numAmend':1,'urlAmend':1}).sort([('auteurs.groupe',1),('auteurs.id',1)]):
+        for amd in mdb.amendements.find({'duplicate':ObjectId(id)},{'auteurs':1,'numAmend':1,'urlAmend':1,'sort':1}).sort([('auteurs.groupe',1),('auteurs.id',1)]):
             grp = amd['auteurs'][0].get('groupe')
             aut = amd['auteurs'][0].get('id')
-            html += '<tr><td width="20%">{groupe}</td><td width="20%">{id}</td><td width="20%"><a href="{url}">{n}</a></td></tr>'.format(n=amd['numAmend'],id=aut,groupe=grp,url=amd['urlAmend'])
+            sort = amd['sort'].encode('utf8')
+            html += '<tr><td width="20%">{groupe}</td><td width="20%">{id}</td><td width="20%"><a href="{url}">{n}</a></td><td>{sort}</td></tr>'.format(n=amd['numAmend'],id=aut,sort=sort,groupe=grp,url=amd['urlAmend'])
         html += '</tbody></table></body></html>'
     return html
 
