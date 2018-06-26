@@ -69,7 +69,7 @@ def gendupamd():
         counts[txt] = 0
         for art in sorted(items[txt].keys()):
             mdbrw.dupamd.remove({'numInit':txt,'designationArticle':art})
-            print txt,art
+            
             counts[(txt,art)] = 0
 
             contents = []
