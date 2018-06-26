@@ -2,6 +2,8 @@ APScheduler==3.4.0
 asn1crypto==0.24.0
 attrs==17.4.0
 Automat==0.6.0
+beautifulsoup4==4.6.0
+bs4==0.0.1
 cairocffi==0.8.0
 CairoSVG==1.0.22
 certifi==2017.11.5
@@ -18,10 +20,12 @@ Flask-Cors==3.0.3
 funcsigs==1.0.2
 futures==3.1.1
 fuzzywuzzy==0.15.1
+html2text==2018.1.9
 hyperlink==17.3.1
 idna==2.6
 imgkit==0.1.8
 incremental==17.5.0
+inscriptis==0.0.3.2
 ipaddress==1.0.19
 itsdangerous==0.24
 jdcal==1.3
@@ -36,6 +40,7 @@ pandas==0.21.1
 parsel==1.3.1
 pdfminer==20140328
 Pillow==4.3.0
+pkg-resources==0.0.0
 psutil==5.4.2
 pyasn1==0.4.2
 pyasn1-modules==0.2.1
