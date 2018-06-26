@@ -562,7 +562,7 @@ def get_visuel(id,depute,regen=None,neutre=None):
     return output.getvalue()
 
 
-def visuelvotecle(num,groupe=None):
+def visuelvotecle(num,groupe=None,fs=16):
     groupeslibs = dict((g['groupe_abrev'],g['groupe_libelle']) for g in mdb.groupes.find({},{'groupe_abrev':1,'groupe_libelle':1}))
     scrutins_cles = use_cache('scrutins_cles',lambda:getScrutinsCles(),expires=3600)
     scrutins_positions = use_cache('scrutins_positions',lambda:getScrutinsPositions(),expires=36000)
@@ -634,8 +634,9 @@ def visuelvotecle(num,groupe=None):
             _ly += 26
 
     fontthemesize = 16
+
     fontnomsize=20
-    fontdossize=16
+    fontdossize=fs
     title = groupeslibs[groupe] if groupe else scrutin['theme']
     fonttheme = ImageFont.truetype("Montserrat-Bold.ttf", fontthemesize)
     themew,themeh = fonttheme.getsize(title)
@@ -736,7 +737,7 @@ def visuelvotecle(num,groupe=None):
             _y += lineheight
 
         return _y
-
+    scrutin['dossier'] = scrutin['dossier'].replace('\t','')
     y = drawwrappedtext(eval=True,img=d,txt=scrutin['dossier'],x=o_x+8,y=o_y+fontthemesize+16+4, font=fontdos, maxwidth=512,lineheight=fontdossize+6,color=(255,255,255,255))
     d.rectangle(((o_x, o_y+fontthemesize+12), (min((nomw+o_x+14,512)),y+2)),fill=(33,53,88,255))
     y = 12+drawwrappedtext(img=d,txt=scrutin['dossier'],x=o_x+8,y=o_y+fontthemesize+18, font=fontdos, maxwidth=512,lineheight=fontdossize+6,color=(255,255,255,255))
