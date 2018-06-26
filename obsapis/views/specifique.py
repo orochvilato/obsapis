@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-
+from flask import request
 from obsapis import app,mdb,mdbrw
 
 from obsapis.tools import json_response,xls_response,dictToXls,dictToXlsx,cache_function,json_response, strip_accents
@@ -30,100 +30,68 @@ def supamd():
         html += '<tr><td><strong>%s</strong></td><td>%d</td><td>%d</td><td>%.1f</td></tr>' % (k,v['n'],v['s'],100*float(v['s'])/v['n'])
     html += "</tbody></table></body></html>"
     return html
+
+@app.route('/topdup')
+def topdup():
+    tops = {}
+    for a in mdb.amendements.find({'$and':[{'suppression':{'$ne':True}},{'duplicate':{'$ne':False}},{'duplicate':{'$ne':None}}]},{'auteurs':1}):
+        aut = a['auteurs'][0]['id']
+        tops[aut] = tops.get(aut,0) + 1
+
+    doc = '\n'.join("%s;%d" % (a,n) for a,n in sorted(tops.items(),key=lambda x:x[1], reverse=True))
+    return doc
+
+
 @app.route('/dupamd')
-@cache_function(expires=0) #24*3600)
 def dupamd():
-    ct = {}
-    for a in mdb.amendements.find({'sort':{'$ne':'Irrecevable'},'duplicate':{'$ne':None}},{'duplicate':1,'suppression':1}):
-        if a['duplicate'] and not a.get('suppression'):
-            ct[a['duplicate']] = ct.get(a['duplicate'],0)+1
-    print sorted(ct.items(),key=lambda x:x[1])
-    #import re
-    #regx = re.compile("^<p[^>]*>Supprimer")
-    #mdbrw.amendements.update_many({'$and':[{'suppression':None},{'dispositif':regx}]},{'$set':{'suppression':True}})
-    #return json_response(mdb.amendements.find_one({'numInit':"485",'numAmend':"41"}))
-    #a2 = mdb.amendements.find_one({'numInit':"237",'numAmend':"AS27"})['dispositif']
-    items={}
+    docs = {}
+    dups = {}
 
-    for a in mdb.amendements.find({'sort':{'$ne':'Irrecevable'},'duplicate':{'$eq':None}},{'_id':None,'numInit':1,'designationArticle':1,'urlTexteRef':1}).sort([("numInit",1),("designationArticle",1)]):
-        txt = a['numInit']
-        art = a['designationArticle']
-        if not txt in items.keys():
-            items[txt] = {}
+    if not request.args:
+        for doc in mdb.documentsan.find({},{'fulldesc':1,'numero':1,'doclien':1}):
+            docs[doc['numero']] = doc
+        for i,dup in enumerate(mdb.dupamd.find()):
+            if dup.get('suppression','vide')=='vide':
+                amd = mdb.amendements.find_one({'duplicate':dup['_id']},{'id':1,'_id':None,'urlTexteRef':1,'suppression':1})
+                mdbrw.dupamd.update({'_id':dup['_id']},{'$set':{'id':amd['id'],'texturl':amd['urlTexteRef'],'suppression':amd.get('suppression',False)}})
+                print i
 
-        items[txt][art] = a['urlTexteRef']
+            dup['textdesc'] = docs[dup['numInit']]['fulldesc']
 
-    def remove_html_tags(text):
-        """Remove html tags from a string"""
-        import re
-        clean = re.compile('<.*?>')
-        return re.sub(clean, '', text)
+            dups[dup['_id']] = dup
+        pgroup = {}
+        pgroup['n'] = {'$sum':1}
+        pgroup['_id'] = { 'duplicate':'$duplicate'}
+        pipeline = [{'$match':{'$and':[{'duplicate':{'$ne':False}},{'duplicate':{'$ne':None}}]}},
+                    {'$group':pgroup},
+                    {'$sort':{'n':-1}}]
+        html = "<html><body><table border='1'><tbody>"
+        for d in mdb.amendements.aggregate(pipeline):
+            n = d['n']
+            id = d['_id']['duplicate']
+            #mdb.amendements.find_one({'duplicate':id},{'numInit':1,'designationArticle':1,})
+            dup = dups[id]
+            if dup['suppression']==False:
+                html += '<tr><td width="50%"><a href="{texturl}"> {textdesc} / {art}</a></td><td width="10%"><a href="/dupamd?id={id}">{n}</a></td><td width="5%">{sup}</td></tr>'.format(n=n,id=id,art=dup['designationArticle'].encode('utf8'),texturl=dup['texturl'],textdesc=dup['textdesc'].encode('utf8'),sup=("*" if dup.get('suppression',False) else ''))
+        html += '</tbody></table></body></html>'
+        #dups_ids = [d['_id']['duplicate'] for d in dups if d['n']>1]
 
-    from fuzzywuzzy import fuzz
-    dups  = {}
-    counts = {}
-    ptxt = 0
-    print len(items.keys())
-    for txt in sorted(items.keys()):
-        counts[txt] = 0
-        for art in sorted(items[txt].keys()):
-            mdbrw.dupamd.remove({'numInit':txt,'designationArticle':art})
-            print txt,art
-            counts[(txt,art)] = 0
-
-            contents = []
-
-            for amd in mdb.amendements.find({'sort':{'$ne':'Irrecevable'},'numInit':txt,'designationArticle':art},{'_id':None,'id':1,'dispositif':1,'auteurs':1,'urlAmend':1,'numAmend':1}):
-                text = remove_html_tags(amd['dispositif'])
-                
-                contents.append(dict(doc=txt,auteur=amd['auteurs'][0],art=art,id=amd['id'],num=amd['numAmend'],url=amd['urlAmend'],content=text))
-
-            if not txt in dups.keys():
-                dups[txt] = {}
-            if not art in dups[txt].keys():
-                dups[txt][art] = []
-
-            x = range(len(contents))
-
-            while x:
-                item=contents[x[0]]['content']
-                matches = [x[0]]
-                for cmp in x[1:]:
-                    if fuzz.ratio(item,contents[cmp]['content'])>90:
-                        matches.append(cmp)
-                if len(matches)>1:
-                    mtchs = []
-                    for m in matches:
-                        v = contents[m]
-                        v['duplicate'] = True
-                        mtchs.append(dict(id=v['id'],auteur=v['auteur'],num=v['num'],url=v['url']))
-                    dups[txt][art].append(mtchs)
-                    counts[(txt,art)] += len(matches)
-                    counts[txt] += len(matches)
-                x = [e for e in x if not e in matches]
+        #print dups_ids
+        #print mdb.amendements.count({'duplicate':{'$in':dups_ids}})
 
 
-
-            for dup in dups[txt][art]:
-                id = mdbrw.dupamd.insert({'numInit':txt,'designationArticle':art})
-                for d in dup:
-                    mdbrw.amendements.update({'id':d['id']},{'$set':{'duplicate':id}})
-            for c in contents:
-                if not c.get('duplicate',False):
-                    mdbrw.amendements.update({'id':c['id']},{'$set':{'duplicate':False}})
-
-
-    html = "<html><body>"
-    for txt in sorted(dups.keys(),key=lambda x:counts[x],reverse=True):
-        html += u"<h3>%s (%d)</h3>" % (txt,counts[txt])
-        for art in sorted(dups[txt].keys(),key=lambda x:counts[(txt,x)], reverse=True):
-            html += u"<h4>%s (%d)</h4>" % (art,counts[(txt,art)])
-            for dup in dups[txt][art]:
-                html += '<p>'+', '.join('<span><a href={url}>{num} ({nom}/{gp})</a></span>'.format(url=d['url'],num=d['num'],nom=d['auteur']['id'],gp=d['auteur'].get('groupe','GVT')) for d in dup) + '</p>'
-
-    html += '</body></html>'
-
+    else:
+        from bson.objectid import ObjectId
+        id = request.args.get('id')
+        html = "<html><body><table border='1'><tbody>"
+        for amd in mdb.amendements.find({'duplicate':ObjectId(id)},{'auteurs':1,'numAmend':1,'urlAmend':1,'sort':1}).sort([('auteurs.groupe',1),('auteurs.id',1)]):
+            grp = amd['auteurs'][0].get('groupe')
+            aut = amd['auteurs'][0].get('id')
+            sort = amd['sort'].encode('utf8')
+            html += '<tr><td width="20%">{groupe}</td><td width="20%">{id}</td><td width="20%"><a href="{url}">{n}</a></td><td>{sort}</td></tr>'.format(n=amd['numAmend'],id=aut,sort=sort,groupe=grp,url=amd['urlAmend'])
+        html += '</tbody></table></body></html>'
     return html
+
 
 
 @app.route('/specifique/collaborateurs')
