@@ -60,7 +60,8 @@ def view_visueliec():
 def visvotcle(num):
     groupe=request.args.get('groupe',None)
     font=int(request.args.get('fs','16'))
-    return image_response('png',visuelvotecle(num,groupe,font))
+    fontsub=int(request.args.get('fst','20'))
+    return image_response('png',visuelvotecle(num,groupe,font,fontsub))
 
 
 @app.route('/visuels/stat')
