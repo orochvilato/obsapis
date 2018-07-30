@@ -562,7 +562,7 @@ def get_visuel(id,depute,regen=None,neutre=None):
     return output.getvalue()
 
 
-def visuelvotecle(num,groupe=None,fs=16):
+def visuelvotecle(num,groupe=None,fs=16,fst=20):
     groupeslibs = dict((g['groupe_abrev'],g['groupe_libelle']) for g in mdb.groupes.find({},{'groupe_abrev':1,'groupe_libelle':1}))
     scrutins_cles = use_cache('scrutins_cles',lambda:getScrutinsCles(),expires=3600)
     scrutins_positions = use_cache('scrutins_positions',lambda:getScrutinsPositions(),expires=36000)
@@ -635,7 +635,7 @@ def visuelvotecle(num,groupe=None,fs=16):
 
     fontthemesize = 16
 
-    fontnomsize=20
+    fontnomsize=fst
     fontdossize=fs
     title = groupeslibs[groupe] if groupe else scrutin['theme']
     fonttheme = ImageFont.truetype("Montserrat-Bold.ttf", fontthemesize)
