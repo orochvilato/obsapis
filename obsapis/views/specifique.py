@@ -4,6 +4,46 @@ from obsapis import app,mdb,mdbrw
 
 from obsapis.tools import json_response,xls_response,dictToXls,dictToXlsx,cache_function,json_response, strip_accents
 
+
+@app.route('/mots')
+def mots():
+    from obsapis import mdb
+    noms = {}
+    verbes = {}
+    for d in mdb.deputes.find({},{'depute_mots':1}):
+        dnoms = d['depute_mots'].get('noms',{})
+        dverbes = d['depute_mots'].get('verbes',{})
+        for nom,n in dnoms.items():
+            noms[nom] = noms.get(nom,0) + n
+        for verbe,n in dverbes.items():
+            verbes[verbe] = verbes.get(verbe,0) + n
+
+    print sorted(noms.items(),key=lambda x:x[1],reverse=True)[:30]
+    print sorted(verbes.items(),key=lambda x:x[1],reverse=True)[:30]
+@app.route('/perms')
+def perms():
+    from obsapis.scrapers import getJson
+    j = getJson('deputes')
+    f = open('/tmp/perms.csv','w')
+    pgp = {}
+    tot = {}
+    for d in j:
+        lig = []
+        nom = d['depute_nom']
+        gp = d['groupe_abrev']
+        lig.append(nom)
+        lig.append(gp)
+        for i,adr in enumerate(d['depute_permanences']):
+            lig.append('"'+'\n'.join(adr['rue'])+'"')
+            lig.append(adr['cp'])
+            lig.append(adr['ville'])
+        if d['depute_permanences']:
+            pgp[d['groupe_abrev']] = pgp.get(d['groupe_abrev'],0) + 1
+        tot[d['groupe_abrev']] = tot.get(d['groupe_abrev'],0) + 1
+    for g in pgp.keys():
+        print g,pgp[g],tot[g],100*float(pgp[g])/tot[g]
+    f.write(';'.join(lig).encode('utf8')+'\n')
+    return 'ok'
 @app.route('/gotravaux')
 def gotravaux():
     from obsapis.controllers.admin.updates.travaux import update_travaux
