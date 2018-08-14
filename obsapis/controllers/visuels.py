@@ -1016,7 +1016,7 @@ def visuelvotecledetail21(num,fs=32,fst=34):
     path = '/'.join(app.instance_path.split('/')[:-1] +['obsapis','resources','visuels'])
     vispath = path+'/visuelstat21clean'
 
-    vis = Image.open(vispath+'/share_obs_clean_b.png')
+    vis = Image.open(vispath+'/share_obs_clean_bt.png')
 
     textes = Image.new('RGBA',(1024,512))
     # get a drawing context
@@ -1118,7 +1118,7 @@ def visuelvotecledetail21(num,fs=32,fst=34):
         return positions.resize((1000,1000),Image.ANTIALIAS).crop((0,0,1000,295))
 
     c_cfg = {}
-    print maxcercles
+
     for cfg in config:
         if maxcercles<=cfg[0]:
             c_cfg = cfg[1]
@@ -1154,7 +1154,7 @@ def visuelvotecledetail21(num,fs=32,fst=34):
             _pos = 'contre' if pos == 'Pour' else 'pour' if pos == 'Contre' else pos.lower()
         else:
             _pos = pos.lower()
-        print _pos
+        
         d.text((pw+10+o_x+col*(colwidth+colspace),y+10), "(%s)" % scrutin['scrutin_positions']['assemblee'].get(_pos,0), font=fontposb, fill=(33,53,88,255))
 
 
