@@ -771,7 +771,7 @@ def visuelvotecledetail(num,fs=32,fst=34):
     scrutins_cles = use_cache('scrutins_cles',lambda:getScrutinsCles(),expires=3600)
     scrutins_positions = use_cache('scrutins_positions',lambda:getScrutinsPositions(),expires=36000)
     scrutin = mdb.scrutins.find_one({'scrutin_num':num})
-    
+
     if not scrutin: #or not num in scrutins_cles:
         return ""
     scrutin.update(scrutins_cles.get(num,{}))
@@ -782,16 +782,21 @@ def visuelvotecledetail(num,fs=32,fst=34):
 
     #return json_response(positions)
     cercles = {'pour':[],'contre':[],'abstention':[]}
-
+    
     for pos in ['pour','contre','abstention']:
+        if scrutin.get('inversion','non') == 'oui':
+            _pos = 'contre' if pos == 'pour' else 'pour' if pos == 'contre' else pos
+        else:
+            _pos = pos
+
         gprec = ""
         for g in [ u'LAREM', u'MODEM', u'FI',  u'GDR', u'NG',  u'LR', u'UDI-AGIR', u'NI'  ]:
             if scrutin['scrutin_positions'][g].get(pos,0):
                 if not (gprec=='LAREM' and g==u'MODEM'):
-                    cercles[pos].append(None)
+                    cercles[_pos].append(None)
 
                 for c in range(scrutin['scrutin_positions'][g][pos]):
-                    cercles[pos].append(gpcolors[g])
+                    cercles[_pos].append(gpcolors[g])
 
                 gprec = g
     maxcercles = max([len(cercles[p]) for p in cercles.keys()])
