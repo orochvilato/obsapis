@@ -7,7 +7,7 @@ import datetime
 
 from obsapis.config import cache_pages_delay
 #@cache_function(expires=cache_pages_delay)
-from obsapis.controllers.visuels import get_visuel,genvisuelstat,genvisuelstat21,genvisuelstat21clean,maxis,getgauge,visuelvotecle, visuelvotecledetail
+from obsapis.controllers.visuels import get_visuel,genvisuelstat,genvisuelstat21,genvisuelstat21clean,maxis,getgauge,visuelvotecle, visuelvotecledetail, visuelvotecledetail21
 
 from obsapis.controllers.instantencommun import visueliec1
 @app.route('/longs')
@@ -68,6 +68,12 @@ def visvotcledetail(num):
     font=int(request.args.get('fs','24'))
     fontsub=int(request.args.get('fst','30'))
     return image_response('png',visuelvotecledetail(num,font,fontsub))
+
+@app.route('/visuels/votecledetail21/<int:num>')
+def visvotcledetail21(num):
+    font=int(request.args.get('fs','14'))
+    fontsub=int(request.args.get('fst','16'))
+    return image_response('png',visuelvotecledetail21(num,font,fontsub))
 
 
 @app.route('/visuels/stat')
