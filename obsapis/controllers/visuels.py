@@ -782,7 +782,7 @@ def visuelvotecledetail(num,fs=32,fst=34):
 
     #return json_response(positions)
     cercles = {'pour':[],'contre':[],'abstention':[]}
-    
+
     for pos in ['pour','contre','abstention']:
         if scrutin.get('inversion','non') == 'oui':
             _pos = 'contre' if pos == 'pour' else 'pour' if pos == 'contre' else pos
@@ -933,7 +933,12 @@ def visuelvotecledetail(num,fs=32,fst=34):
     for col, pos in enumerate(['Pour','Contre','Abstention']):
         d.text((o_x+col*(colwidth+colspace),y+20), pos, font=fontpos, fill=(33,53,88,255))
         pw,ph = fontpos.getsize(pos)
-        d.text((pw+10+o_x+col*(colwidth+colspace),y+20), "(%s)" % scrutin['scrutin_positions']['assemblee'].get(pos.lower(),0), font=fontposb, fill=(33,53,88,255))
+        if scrutin.get('inversion','non') == 'oui':
+            _pos = 'contre' if pos == 'Pour' else 'pour' if pos == 'Contre' else pos.lower()
+        else:
+            _pos = pos.lower()
+        print _pos
+        d.text((pw+10+o_x+col*(colwidth+colspace),y+20), "(%s)" % scrutin['scrutin_positions']['assemblee'].get(_pos,0), font=fontposb, fill=(33,53,88,255))
 
 
     # legende
