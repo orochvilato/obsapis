@@ -755,3 +755,204 @@ def visuelvotecle(num,groupe=None,fs=16,fst=20):
     final.save(output,'PNG')
     #final.save(imgpath,'PNG')
     return output.getvalue()
+
+
+def visuelvotecledetail(num,fs=32,fst=34):
+    gpcolors = {'LAREM':(252,238,33,255),
+                'MODEM':(247,147,30,255),
+                'LR':(31,107,255,255),
+                'UDI-AGIR':(0,178,244,255),
+                'NI':(204,204,204,255),
+                'NG':(255,21,152,255),
+                'FI':(255,23,0,255),
+                'GDR':(180,0,5,255)
+                }
+
+    scrutins_cles = use_cache('scrutins_cles',lambda:getScrutinsCles(),expires=3600)
+    scrutins_positions = use_cache('scrutins_positions',lambda:getScrutinsPositions(),expires=36000)
+    scrutin = mdb.scrutins.find_one({'scrutin_num':num})
+    
+    if not scrutin: #or not num in scrutins_cles:
+        return ""
+    scrutin.update(scrutins_cles.get(num,{}))
+    if scrutin['scrutin_dossierLibelle']!='N/A':
+        scrutin['dossier'] = scrutin['scrutin_dossierLibelle']
+    scrutin['dossier'] = scrutin['dossier'].replace(u'\u0092',"'")
+
+
+    #return json_response(positions)
+    cercles = {'pour':[],'contre':[],'abstention':[]}
+
+    for pos in ['pour','contre','abstention']:
+        gprec = ""
+        for g in [ u'LAREM', u'MODEM', u'FI',  u'GDR', u'NG',  u'LR', u'UDI-AGIR', u'NI'  ]:
+            if scrutin['scrutin_positions'][g].get(pos,0):
+                if not (gprec=='LAREM' and g==u'MODEM'):
+                    cercles[pos].append(None)
+
+                for c in range(scrutin['scrutin_positions'][g][pos]):
+                    cercles[pos].append(gpcolors[g])
+
+                gprec = g
+    maxcercles = max([len(cercles[p]) for p in cercles.keys()])
+
+    output = StringIO.StringIO()
+    path = '/'.join(app.instance_path.split('/')[:-1] +['obsapis','resources','visuels'])
+    vispath = path+'/visuelstat21clean'
+
+    vis = Image.open(vispath+'/share_obs_clean_1x1b.png')
+
+    textes = Image.new('RGBA',(1024,1024))
+    # get a drawing context
+    d = ImageDraw.Draw(textes)
+
+    o_x = 60
+    o_y = 30
+
+    fontthemesize = 28
+
+    fontnomsize=fst
+
+    fontdossize=fs
+    title = scrutin.get('theme','TEST')
+    fonttheme = ImageFont.truetype("Montserrat-Bold.ttf", fontthemesize)
+    themew,themeh = fonttheme.getsize(title)
+    d.rectangle(((o_x,o_y), (themew+o_x+28, o_y+fontthemesize+24)), fill=(255,0,82,255))
+    d.text((o_x+16,o_y+8), title, font=fonttheme, fill=(255,255,255,255))
+
+    fontdos = ImageFont.truetype("Montserrat-Bold.ttf", fontdossize)
+
+    nomw,nomh = fontdos.getsize(scrutin['dossier'])
+    #d.rectangle(((o_x, o_y+fontthemesize+12), (nomw+o_x+8,o_y+fontthemesize+12+fontdossize+12)), fill=(33,53,88,255))
+    #d.text((o_x+4,o_y+fontthemesize+16), scrutin['scrutin_dossierLibelle'], font=fontdos, fill=(255,255,255,255))
+
+
+
+    fontnom = ImageFont.truetype("Montserrat-Bold.ttf", fontnomsize)
+    nom = scrutin.get('nom','TEST2').upper()
+
+
+
+    def drawwrappedtext(img,txt,x,y,maxwidth,lineheight,font,color,eval=False):
+        _y = y
+        _x = x
+        for word in txt.split(' '):
+            wordw,wordh = font.getsize(word+' ')
+            if _x+wordw>maxwidth:
+                _x = x
+                _y += lineheight
+            if not eval:
+                d.text((_x,_y), word+' ', font=font, fill=color)
+            _x += wordw
+        return _y + lineheight
+
+    scrutin['dossier'] = scrutin['dossier'].replace('\t','')
+    y = drawwrappedtext(eval=True,img=d,txt=scrutin['dossier'],x=o_x+16,y=o_y+fontthemesize+32+4, font=fontdos, maxwidth=1024-o_x,lineheight=fontdossize+6,color=(255,255,255,255))
+    d.rectangle(((o_x, o_y+fontthemesize+24), (1024-o_x,y+2)),fill=(33,53,88,255))
+    y = 24+drawwrappedtext(img=d,txt=scrutin['dossier'],x=o_x+16,y=o_y+fontthemesize+32, font=fontdos, maxwidth=1024-o_x,lineheight=fontdossize+6,color=(255,255,255,255))
+
+    y = drawwrappedtext(img=d,txt=nom,font=fontnom,color=(33,53,88,255),x=o_x,y=y,maxwidth=1024-o_x,lineheight=fontnomsize+4)
+
+    # cercles
+    # 577
+    config = [
+        [100,dict(c_by_row=10,c_r=22,c_margin=0.25)],
+        [200,dict(c_by_row=12,c_r=19,c_margin=0.25)],
+        [300,dict(c_by_row=14,c_r=16,c_margin=0.25)],
+        [400,dict(c_by_row=16,c_r=14,c_margin=0.25)],
+        [500,dict(c_by_row=18,c_r=12,c_margin=0.3)],
+        [600,dict(c_by_row=20,c_r=11,c_margin=0.35)]
+
+
+    ]
+
+    def draw_circles(_circles, c_by_row,c_r,c_margin):
+        #c_by_row = 20
+        #c_r = 12
+        factor = 4
+        c_margin = int(c_r * c_margin * factor)
+        c_r = int(c_r * factor)
+        _y = 0
+        circles = []
+        i = 0
+        for c in _circles:
+            _x = i % c_by_row
+            _y = int(i/c_by_row)
+            if c:
+                circles.append(c)
+                i += 1
+            elif _x != 0:
+                circles += [(255,255,255,0)] * (c_by_row-_x)
+                i += c_by_row-_x
+
+        positions = Image.new('RGB',(int(factor*1000),int(factor*1000)),color=(255,255,255))
+        posdraw = ImageDraw.Draw(positions)
+        nl_y = 0
+        last = None
+        for i,c in enumerate(circles):
+            _x = i % c_by_row
+            _y = int(i/c_by_row)
+
+            if c != (255,255,255,0):
+                if c != last and c!=gpcolors['MODEM']:
+                    nl_y += 2 * c_margin
+                last = c
+            posdraw.ellipse((_x*(c_r+c_margin),nl_y+_y*(c_r+c_margin),c_r+_x*(c_r+c_margin),c_r+nl_y+_y*(c_r+c_margin)),fill=c)
+
+        return positions.resize((1000,1000),Image.ANTIALIAS).crop((0,0,1000,600))
+
+    c_cfg = {}
+    for cfg in config:
+        if maxcercles<cfg[0]:
+            c_cfg = cfg[1]
+            break
+
+    colwidth = c_cfg['c_by_row'] * ( c_cfg['c_r'] + (int(c_cfg['c_margin']*c_cfg['c_r']))) - (int(c_cfg['c_margin']*c_cfg['c_r']))
+
+    colspace = (1024-2*o_x-3*colwidth)/2
+    for i,pos in enumerate(['pour','contre','abstention']):
+        img = draw_circles(cercles[pos],**c_cfg)
+        vis.paste(img,(o_x+i*(colwidth+colspace),60+y))
+
+
+    legend = [
+        [ ('LR',[u'Les Républicains']), ('UDI-AGIR',['UDI-AGIR et Ind.']), ('NI',['Non inscrits'])],
+        [ ('LAREM',[u'La République',u'en Marche']), ('MODEM',[u'Modem']) ],
+        [ ('NG',[u'Nouvelle Gauche']), ('FI',[u'La France Insoumise']),('GDR',[u'Gauche Démocrate',u'et Républicaine'])]
+    ]
+
+    fontposb = ImageFont.truetype("Montserrat-SemiBold.ttf", 27)
+    fontpos  = ImageFont.truetype("Montserrat-Regular.ttf", 27)
+
+    # votes
+    for col, pos in enumerate(['Pour','Contre','Abstention']):
+        d.text((o_x+col*(colwidth+colspace),y+20), pos, font=fontpos, fill=(33,53,88,255))
+        pw,ph = fontpos.getsize(pos)
+        d.text((pw+10+o_x+col*(colwidth+colspace),y+20), "(%s)" % scrutin['scrutin_positions']['assemblee'].get(pos.lower(),0), font=fontposb, fill=(33,53,88,255))
+
+
+    # legende
+    legendimg = Image.new('RGB',(2048,290),color=(255,255,255))
+    legenddraw = ImageDraw.Draw(legendimg)
+    leg_fs = 44
+    fontpos2  = ImageFont.truetype("Montserrat-Regular.ttf", leg_fs)
+    for col, colleg in enumerate(legend):
+        for row,leg in enumerate(colleg):
+            legenddraw.ellipse((col*2*(colwidth+colspace),leg_fs/2+row*90,col*2*(colwidth+colspace)+leg_fs,leg_fs/2+leg_fs+row*90),gpcolors[leg[0]])
+            for i,l in enumerate(leg[1]):
+                legenddraw.text((col*2*(colwidth+colspace)+70,leg_fs/2+row*90+(i*leg_fs)-8-(leg_fs/2)*(len(leg[1])-1)),l, font=fontpos2, fill=(33,53,88,255))
+    legimg = legendimg.resize((1024,145),Image.ANTIALIAS).crop((0,0,1024,145))
+    vis.paste(legimg,(o_x,780))
+
+    #d.ellipse((25,25+y, 50, 50+y), fill=(255,0,0,255))
+
+    #y = drawwrappedtext(img=d,txt=nom,font=fontnom,color=(33,53,88,255),x=o_x,y=o_y+10+fontthemesize+12+fontdossize+12+4,maxwidth=512,lineheight=fontnomsize+4)
+    fontdesc = ImageFont.truetype("Montserrat-Regular.ttf", 16)
+
+    vis.paste(textes,(0,0),textes)
+
+
+    final = vis
+    final.save(output,'PNG')
+    #final.save(imgpath,'PNG')
+    return output.getvalue()
