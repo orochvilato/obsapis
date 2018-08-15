@@ -969,14 +969,14 @@ def visuelvotecledetail(num,fs=32,fst=34):
 
 
 def visuelvotecledetail21(num,fs=32,fst=34):
-    gpcolors = {'LAREM':(252,238,33,255),
-                'MODEM':(247,147,30,255),
-                'LR':(31,107,255,255),
-                'UDI-AGIR':(0,178,244,255),
+    gpcolors = {'LAREM':(255,248,1,255),
+                'MODEM':(255,189,0,255),
+                'LR':(49,255,255,255),
+                'UDI-AGIR':(0,193,255,255),
                 'NI':(204,204,204,255),
-                'NG':(255,21,152,255),
-                'FI':(255,23,0,255),
-                'GDR':(180,0,5,255)
+                'NG':(255,1,228,255),
+                'FI':(255,1,1,255),
+                'GDR':(194,13,5,255)
                 }
 
     scrutins_cles = use_cache('scrutins_cles',lambda:getScrutinsCles(),expires=3600)
@@ -1154,7 +1154,7 @@ def visuelvotecledetail21(num,fs=32,fst=34):
             _pos = 'contre' if pos == 'Pour' else 'pour' if pos == 'Contre' else pos.lower()
         else:
             _pos = pos.lower()
-        
+
         d.text((pw+10+o_x+col*(colwidth+colspace),y+10), "(%s)" % scrutin['scrutin_positions']['assemblee'].get(_pos,0), font=fontposb, fill=(33,53,88,255))
 
 
