@@ -1133,7 +1133,7 @@ def visuelvotecledetail21(num,fs=32,fst=34):
     def find_best_params(_circles,w,h):
 
         gspace = len(set(_circles))-(1 if None in _circles else 0)
-        print gspace
+
         solutions = []
         _l = None
         for l in [8,10,12,14,15,16,18,20,22,24,26,28,30]:
@@ -1146,7 +1146,8 @@ def visuelvotecledetail21(num,fs=32,fst=34):
                     if d>7 and s!=0.2:
                         continue
                     _w = d*(l+s*l)-s*l
-                    if _w<=w and d*(rows+s*l)-s*l+gspace*(s*l)<=h:
+                    _h = d*(rows+s*l)-s*l+gspace*(s*l)
+                    if _w<=w and _h<=h:
                         _s = s
                         break
                 if _s:
@@ -1154,11 +1155,12 @@ def visuelvotecledetail21(num,fs=32,fst=34):
                     break
             if _d:
                 _l = l
-                solutions.append((_w,_d,_l,_s))
+                solutions.append((_w,_h,_d,_l,_s))
 
-        solutions.sort(key=lambda x:(x[1],x[0]), reverse=True)
 
-        _w,c_r,c_by_row,c_margin = solutions[0]
+        solutions.sort(key=lambda x:(x[2],x[0]), reverse=True)
+
+        _w,_h,c_r,c_by_row,c_margin = solutions[0]
 
         return c_r,c_by_row,c_margin
 
@@ -1169,7 +1171,7 @@ def visuelvotecledetail21(num,fs=32,fst=34):
         if len(cercles[pos])>len(mxc):
             mxc = cercles[pos]
 
-    c_r,c_by_row,c_margin = find_best_params(mxc,203,410-y)
+    c_r,c_by_row,c_margin = find_best_params(mxc,203,396-y)
 
     colwidth = c_by_row * ( c_r + int(c_margin*c_r)) - int(c_margin*c_r)
     colspace = (740-2*o_x-3*colwidth)/2
