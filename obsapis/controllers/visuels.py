@@ -969,6 +969,10 @@ def visuelvotecledetail(num,fs=32,fst=34):
 
 
 def visuelvotecledetail21(num,fs=32,fst=34):
+
+
+
+
     gpcolors = {'LAREM':(252,238,33,255),
                 'MODEM':(255,189,0,255),
                 'LR':(5,12,245,255),
@@ -1010,7 +1014,7 @@ def visuelvotecledetail21(num,fs=32,fst=34):
                     cercles[_pos].append(gpcolors[g])
 
                 gprec = g
-    maxcercles = max([len(cercles[p]) for p in cercles.keys()])
+
 
     output = StringIO.StringIO()
     path = '/'.join(app.instance_path.split('/')[:-1] +['obsapis','resources','visuels'])
@@ -1082,13 +1086,8 @@ def visuelvotecledetail21(num,fs=32,fst=34):
 
     ]
 
-    def draw_circles(_circles, c_by_row,c_r,c_margin):
-        #c_by_row = 20
-        #c_r = 12
-        factor = 4
-        c_margin = int(c_r * c_margin * factor)
-        c_r = int(c_r * factor)
-        _y = 0
+
+    def build_circles(_circles,c_by_row):
         circles = []
         i = 0
         for c in _circles:
@@ -1100,6 +1099,19 @@ def visuelvotecledetail21(num,fs=32,fst=34):
             elif _x != 0:
                 circles += [(255,255,255,0)] * (c_by_row-_x)
                 i += c_by_row-_x
+        return circles
+
+    def draw_circles(_circles, c_by_row,c_r,c_margin):
+
+
+        factor = 4
+        c_margin = int(c_r * c_margin * factor)
+        c_r = int(c_r * factor)
+        _y = 0
+
+
+
+        circles = build_circles(_circles,c_by_row)
 
         positions = Image.new('RGB',(int(factor*1000),int(factor*1000)),color=(255,255,255))
         posdraw = ImageDraw.Draw(positions)
@@ -1117,18 +1129,53 @@ def visuelvotecledetail21(num,fs=32,fst=34):
 
         return positions.resize((1000,1000),Image.ANTIALIAS).crop((0,0,1000,295))
 
-    c_cfg = {}
 
-    for cfg in config:
-        if maxcercles<=cfg[0]:
-            c_cfg = cfg[1]
-            break
+    def find_best_params(_circles,w,h):
 
-    colwidth = c_cfg['c_by_row'] * ( c_cfg['c_r'] + (int(c_cfg['c_margin']*c_cfg['c_r']))) - (int(c_cfg['c_margin']*c_cfg['c_r']))
+        gspace = len(set(_circles))-(1 if None in _circles else 0)
+        print gspace
+        solutions = []
+        _l = None
+        for l in [8,10,12,14,15,16,18,20,22,24,26,28,30]:
+            circles = build_circles(_circles,l)
+            rows = len(circles) / l
+            _d = None
+            for d in reversed(range(7,16)):
+                _s = None
+                for s in [0.30,0.25,0.2]:
+                    if d>7 and s!=0.2:
+                        continue
+                    _w = d*(l+s*l)-s*l
+                    if _w<=w and d*(rows+s*l)-s*l+gspace*(s*l)<=h:
+                        _s = s
+                        break
+                if _s:
+                    _d = d
+                    break
+            if _d:
+                _l = l
+                solutions.append((_w,_d,_l,_s))
 
+        solutions.sort(key=lambda x:(x[1],x[0]), reverse=True)
+
+        _w,c_r,c_by_row,c_margin = solutions[0]
+
+        return c_r,c_by_row,c_margin
+
+
+
+    mxc = []
+    for pos in ['pour','contre','abstention']:
+        if len(cercles[pos])>len(mxc):
+            mxc = cercles[pos]
+
+    c_r,c_by_row,c_margin = find_best_params(mxc,203,410-y)
+
+    colwidth = c_by_row * ( c_r + int(c_margin*c_r)) - int(c_margin*c_r)
     colspace = (740-2*o_x-3*colwidth)/2
+
     for i,pos in enumerate(['pour','contre','abstention']):
-        img = draw_circles(cercles[pos],**c_cfg)
+        img = draw_circles(cercles[pos],c_r=c_r, c_by_row=c_by_row, c_margin=c_margin)
         vis.paste(img,(o_x+i*(colwidth+colspace),35+y))
 
 
