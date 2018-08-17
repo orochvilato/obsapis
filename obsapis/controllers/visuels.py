@@ -986,7 +986,7 @@ def visuelvotecledetail21(num,fs=32,fst=34):
     scrutins_cles = use_cache('scrutins_cles',lambda:getScrutinsCles(),expires=3600)
     scrutins_positions = use_cache('scrutins_positions',lambda:getScrutinsPositions(),expires=36000)
     scrutin = mdb.scrutins.find_one({'scrutin_num':num})
-    fulldate = datetime.datetime.strptime(scrutin['scrutin_date'],'%d/%m/%Y').strftime('%e %B %Y').strip()
+    fulldate = datetime.datetime.strptime(scrutin['scrutin_date'],'%d/%m/%Y').strftime('%e %B %Y').strip().decode('utf8')
 
     if not scrutin: #or not num in scrutins_cles:
         return ""
