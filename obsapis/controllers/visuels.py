@@ -986,6 +986,7 @@ def visuelvotecledetail21(num,fs=32,fst=34):
     scrutins_cles = use_cache('scrutins_cles',lambda:getScrutinsCles(),expires=3600)
     scrutins_positions = use_cache('scrutins_positions',lambda:getScrutinsPositions(),expires=36000)
     scrutin = mdb.scrutins.find_one({'scrutin_num':num})
+    fulldate = datetime.datetime.strptime(scrutin['scrutin_date'],'%d/%m/%Y').strftime('%d %B %Y')
 
     if not scrutin: #or not num in scrutins_cles:
         return ""
@@ -1041,7 +1042,7 @@ def visuelvotecledetail21(num,fs=32,fst=34):
     d.text((o_x+16,o_y+8), title, font=fonttheme, fill=(255,255,255,255))
 
     fontdos = ImageFont.truetype("Montserrat-Bold.ttf", fontdossize)
-
+    scrutin['dossier'] = scrutin['dossier']+  ' (%s)' % fulldate
     nomw,nomh = fontdos.getsize(scrutin['dossier'])
     #d.rectangle(((o_x, o_y+fontthemesize+12), (nomw+o_x+8,o_y+fontthemesize+12+fontdossize+12)), fill=(33,53,88,255))
     #d.text((o_x+4,o_y+fontthemesize+16), scrutin['scrutin_dossierLibelle'], font=fontdos, fill=(255,255,255,255))
