@@ -7,7 +7,7 @@ import datetime
 
 from obsapis.config import cache_pages_delay
 #@cache_function(expires=cache_pages_delay)
-from obsapis.controllers.visuels import get_visuel,genvisuelstat,genvisuelstat21,genvisuelstat21clean,maxis,getgauge,visuelvotecle, visuelvotecledetail, visuelvotecledetail21
+from obsapis.controllers.visuels import get_visuel,genvisuelstat,genvisuelstat21,genvisuelstat21clean,maxis,getgauge,visuelvotecle, visuelvotecledetail, visuelvotecledetail21,visuelvotecledetail21big, visuelvotecledetailvideo
 
 from obsapis.controllers.instantencommun import visueliec1
 @app.route('/longs')
@@ -74,6 +74,18 @@ def visvotcledetail21(num):
     font=int(request.args.get('fs','14'))
     fontsub=int(request.args.get('fst','16'))
     return image_response('png',visuelvotecledetail21(num,font,fontsub))
+
+@app.route('/visuels/votecledetail21big/<int:num>')
+def visvotcledetail21big(num):
+    font=int(request.args.get('fs','14'))
+    fontsub=int(request.args.get('fst','16'))
+    return image_response('png',visuelvotecledetail21big(num,font,fontsub))
+
+@app.route('/visuels/votecledetailvideo/<int:num>')
+def visvotcledetailvideo(num):
+    font=int(request.args.get('fs','20'))
+    fontsub=int(request.args.get('fst','24'))
+    return image_response('png',visuelvotecledetailvideo(num,font,fontsub))
 
 
 @app.route('/visuels/stat')
