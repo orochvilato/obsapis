@@ -1659,7 +1659,7 @@ def visuelvotecledetail21big(num,fs=32,fst=34):
                 last = c
             posdraw.ellipse((_x*(c_r+c_margin),nl_y+_y*(c_r+c_margin),c_r+_x*(c_r+c_margin),c_r+nl_y+_y*(c_r+c_margin)),fill=c)
 
-        return positions.resize((1000*2,1000*2),Image.ANTIALIAS).crop((0,0,1000*2,297*2))
+        return positions.resize((1000*2,1000*2),Image.ANTIALIAS).crop((0,0,1000*2,299*2))
 
 
     def find_best_params(_circles,w,h):
