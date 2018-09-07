@@ -8,7 +8,7 @@ import datetime
 from obsapis.config import cache_pages_delay
 #@cache_function(expires=cache_pages_delay)
 from obsapis.controllers.visuels import get_visuel,genvisuelstat,genvisuelstat21,genvisuelstat21clean,maxis,getgauge,visuelvotecle, visuelvotecledetail, visuelvotecledetail21,visuelvotecledetail21big, visuelvotecledetailvideo
-
+from obsapis.controllers.bingo import bingovisuel
 from obsapis.controllers.instantencommun import visueliec1
 @app.route('/longs')
 def longs():
@@ -55,6 +55,29 @@ def view_visueliec():
     source=request.form.get('source')
     param = params[theme]
     return image_response('png',visueliec1(theme=theme,themecustom=themecustom, contenu=contenu,source=source,**param),filename=theme.replace(' ',''))
+
+
+@app.route('/visuels/bingo')
+def view_bingo():
+    params = dict(
+        margin_bottom = 60,
+        margin_top = 684,
+        margin_left = 170,
+        border = 5,
+        cols = 4,
+        rows = 5,
+        spacing = 25)
+
+    return render_template('bingo/bingo.html',params=params)
+
+
+@app.route('/visuels/bingogen',methods=['POST'])
+def visbingo():
+    #groupe=request.args.get('groupe',None)
+    #font=int(request.args.get('fs','16'))
+    #fontsub=int(request.args.get('fst','20'))
+    return image_response('png',bingovisuel(request.form.to_dict()))
+
 
 @app.route('/visuels/votecle/<int:num>')
 def visvotcle(num):
