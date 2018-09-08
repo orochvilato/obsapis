@@ -15,7 +15,7 @@ def bingovisuel(params):
     fondcouleur = Image.open(vispath+'/fondcouleur.png')
     logo_emission = Image.open(vispath+'/logo_emissionpolitique.png')
     texture = Image.open(vispath+'/texture.png')
-
+    wordstr = params['mots']
     # make a blank image for the text, initialized to transparent text color
     textes = Image.new('RGBA',(2000,2000))
     d = ImageDraw.Draw(textes)
@@ -26,26 +26,54 @@ def bingovisuel(params):
     h = 2000-margin_top-margin_bottom
     inity = margin_top
     initx = margin_left
-
+    words = wordstr.split('\n')
     border = int(params['border']) #5
     cols = int(params['cols']) #4
     rows = int(params['rows']) #5
+    fontsize = int(params['fontsize']) #100
     spacing = int(params['spacing']) # 25
     case_w = (w - (cols-1) * spacing) / cols
     case_h = (h - (rows-1) * spacing) / rows
+    inner_margin = int(params['inner_margin']) #20
+    interline = float(params['interline'])/100 #120
+    transparence_case = int(params['transparence_case'])
     for col in range(cols):
         x = initx + col*(case_w+spacing)
         for row in range(rows):
+            _word = words[col*rows+row].split(';')
+            word = _word[0]
+            transp = 255 if len(_word)>1 else transparence_case
+
+
             y = inity + row*(case_h+spacing)
-            d.rectangle(((x,y), (x+case_w,y+case_h)), fill=(255,255,255,200))
+            d.rectangle(((x,y), (x+case_w,y+case_h)), fill=(255,255,255,transp))
             for b in range(border):
                 d.rectangle(((x+b,y+b), (x+case_w-b,y+case_h-b)), outline=(0,0,0,255))
+
+            fs = fontsize
+
+            ok = False
+            while not ok:
+                font = ImageFont.truetype("Roboto-Bold.ttf", fs)
+                eval_w = 0
+                eval_h = 0
+                for l in word.split('|'):
+                    wd_w,wd_h = font.getsize(l)
+                    eval_w = max(wd_w,eval_w)
+                    eval_h += wd_h*interline
+                if eval_w + 2 * inner_margin < case_w and eval_h + 2* inner_margin < case_h:
+                    ok = True
+                fs -= 1
+            _h = 0
+            for l in word.split('|'):
+                wd_w,wd_h = font.getsize(l)
+                d.text((x + (case_w-wd_w)/2,y + _h + (case_h-eval_h)/2), l, font=font, fill=(0,0,0,255))
+                _h += wd_h*interline
 
     # get a drawing context
 
     # draw text, half opacity
 
-    #fontcirco = ImageFont.truetype("Montserrat-Bold.ttf", 19)
     #circ_w,circ_h = fontcirco.getsize(circo)
     #circ_pad = (h - circ_h)/2
     #circ_x,circ_y = 12+photo.size[1],100

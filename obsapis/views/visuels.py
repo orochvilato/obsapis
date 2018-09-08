@@ -66,9 +66,34 @@ def view_bingo():
         border = 5,
         cols = 4,
         rows = 5,
-        spacing = 25)
-
-    return render_template('bingo/bingo.html',params=params)
+        spacing = 25,
+        fontsize = 50,
+        inner_margin = 20,
+        interline = 120,
+        transparence_case = 200
+        )
+    mots = u"""CHIFFRES|D'OCCURENCE
+MACRON A|ÉTÉ ÉLU;1
+2022
+HAINE DES|MÉDIAS (RSF)
+SONDAGES
+CASSEURS
+ESSOUFLEMENT|DU MOUVEMENT
+RUFFIN|VS JLM
+BENOÎT|HAMON
+ÉLECTIONS|EUROPÉENNES
+DÉFAITE|DE L'OM
+PARTIELS DES|ÉTUDIANTS;1
+ÉLECTIONS|VÉNÉZUELA
+UNION DE|LA GAUCHE
+AGITATEUR;1
+PRISE|D'OTAGE
+APPEL À|LA VIOLENCE
+MAIRIE DE|MARSEILLE
+ISRAËL|SE DÉFEND
+POUTINE"""
+    order = ['margin_left','margin_top','margin_bottom','cols','rows','spacing','border','transparence_case','fontsize','inner_margin','interline']
+    return render_template('bingo/bingo.html',params=[(k,params[k]) for k in order],mots=mots)
 
 
 @app.route('/visuels/bingogen',methods=['POST'])

@@ -30,9 +30,12 @@
 <body>
 
 <form action="/visuels/bingogen" method="post" id="bingoform">
-  {% for k,v in params.iteritems() %}
+  {% for k,v in params %}
   {{ k }} :<input name="{{ k }}" type="number" value="{{ v }}"><br>
   {% endfor %}
+  <br/>
+  <textarea name="mots" style="width:300;height:500;">{{ mots }}</textarea>
+  <br/>
   <input type="submit">
 </form>
 </body>
