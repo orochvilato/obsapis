@@ -17,7 +17,8 @@ def bingovisuel(params):
     texture = Image.open(vispath+'/texture.png')
     wordstr = params['mots']
     # make a blank image for the text, initialized to transparent text color
-    textes = Image.new('RGBA',(2000,2000))
+    fond = Image.new('RGB',(2000,2000),(0,0,0))
+    textes = Image.new('RGBA',(2000,2000),(255,255,255,0))
     d = ImageDraw.Draw(textes)
     margin_bottom = int(params['margin_bottom']) #60
     margin_top = int(params['margin_top']) #684
@@ -80,12 +81,13 @@ def bingovisuel(params):
     #
     #d.text((circ_x+6,circ_y+circ_pad), circo, font=fontcirco, fill=(255,255,255,255))
 
-    fondcouleur.paste(texture,(0,0),texture)
-    fondcouleur.paste(bingo,(0,0),bingo)
-    fondcouleur.paste(logo_emission,(0,0),logo_emission)
-    fondcouleur.paste(textes,(0,0),textes)
+    fond.paste(fondcouleur,(0,0),fondcouleur)
+    fond.paste(texture,(0,0),texture)
+    fond.paste(bingo,(0,0),bingo)
+    fond.paste(logo_emission,(0,0),logo_emission)
+    fond.paste(textes,(0,0),textes)
 
-    final = fondcouleur
+    final = fond
     final.save(output,'PNG')
     #final.save(imgpath,'PNG')
     return output.getvalue()

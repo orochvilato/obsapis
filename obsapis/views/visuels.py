@@ -96,12 +96,12 @@ POUTINE"""
     return render_template('bingo/bingo.html',params=[(k,params[k]) for k in order],mots=mots)
 
 
-@app.route('/visuels/bingogen',methods=['POST'])
+@app.route('/visuels/bingo',methods=['POST'])
 def visbingo():
     #groupe=request.args.get('groupe',None)
     #font=int(request.args.get('fs','16'))
     #fontsub=int(request.args.get('fst','20'))
-    return image_response('png',bingovisuel(request.form.to_dict()))
+    return image_response('png',bingovisuel(request.form.to_dict()),filename="bingo.png")
 
 
 @app.route('/visuels/votecle/<int:num>')
