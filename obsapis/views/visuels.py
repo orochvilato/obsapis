@@ -59,18 +59,30 @@ def view_visueliec():
 
 @app.route('/visuels/bingo')
 def view_bingo():
+
     params = dict(
-        margin_bottom = 60,
-        margin_top = 684,
-        margin_left = 170,
-        border = 5,
-        cols = 4,
-        rows = 5,
-        spacing = 25,
-        fontsize = 50,
-        inner_margin = 20,
-        interline = 120,
-        transparence_case = 150
+        margin_bottom = (60,'number'),
+        margin_top = (684,'number'),
+        margin_left = (170,'number'),
+        border = (5,'number'),
+        cols = (4,'number'),
+        rows = (5,'number'),
+        spacing = (25,'number'),
+        fontsize = (50,'number'),
+        inner_margin = (20,'number'),
+        interline = (120,'number'),
+        transparence_case = (150,'number'),
+        medaillon1_file = ('','file'),
+        medaillon1_spacearound_pct = (180,'number'),
+        medaillon1_rotation = (15,'number'),
+        medaillon1_border = (15,'number'),
+        medaillon1_leftshift_pct = (-15,'number'),
+        medaillon2_file = ('','file'),
+        medaillon2_spacearound_pct = (180,'number'),
+        medaillon2_rotation = (-15,'number'),
+        medaillon2_border = (15,'number'),
+        medaillon2_leftshift_pct = (-15,'number'),
+        medaillons_cover = (50,'number')
         )
     mots = u"""CHIFFRES|D'OCCURENCE
 MACRON A|ÉTÉ ÉLU;1
@@ -92,8 +104,31 @@ APPEL À|LA VIOLENCE
 MAIRIE DE|MARSEILLE
 ISRAËL|SE DÉFEND
 POUTINE"""
-    order = ['margin_left','margin_top','margin_bottom','cols','rows','spacing','border','transparence_case','fontsize','inner_margin','interline']
-    return render_template('bingo/bingo.html',params=[(k,params[k]) for k in order],mots=mots)
+    order = [
+        'margin_left',
+        'margin_top',
+        'margin_bottom',
+        'cols',
+        'rows',
+        'spacing',
+        'border',
+        'transparence_case',
+        'fontsize',
+        'inner_margin',
+        'interline',
+        'medaillon1_file',
+        'medaillon1_spacearound_pct',
+        'medaillon1_rotation',
+        'medaillon1_border',
+        'medaillon1_leftshift_pct',
+        'medaillon2_file',
+        'medaillon2_spacearound_pct',
+        'medaillon2_rotation',
+        'medaillon2_border',
+        'medaillon2_leftshift_pct',
+        'medaillons_cover'
+        ]
+    return render_template('bingo/bingo.html',params=[(k,params[k][0],params[k][1]) for k in order],mots=mots)
 
 
 @app.route('/visuels/bingogen',methods=['POST'])
@@ -101,7 +136,8 @@ def visbingo():
     #groupe=request.args.get('groupe',None)
     #font=int(request.args.get('fs','16'))
     #fontsub=int(request.args.get('fst','20'))
-    return image_response('png',bingovisuel(request.form.to_dict()),filename="bingo")
+
+    return image_response('png',bingovisuel(request.form.to_dict(),files=request.files),filename="bingo")
 
 
 @app.route('/visuels/votecle/<int:num>')

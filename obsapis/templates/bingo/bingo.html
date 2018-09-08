@@ -29,9 +29,9 @@
 <head>
 <body>
 
-<form action="/visuels/bingogen" method="post" id="bingoform">
-  {% for k,v in params %}
-  {{ k }} :<input name="{{ k }}" type="number" value="{{ v }}"><br>
+<form action="/visuels/bingogen" method="post" id="bingoform" enctype="multipart/form-data">
+  {% for k,v,typ in params %}
+  {{ k }} :<input name="{{ k }}" type="{{ typ }}" value="{{ v }}"><br>
   {% endfor %}
   <br/>
   <textarea name="mots" style="width:300;height:500;">{{ mots }}</textarea>
