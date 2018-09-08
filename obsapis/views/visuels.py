@@ -70,7 +70,7 @@ def view_bingo():
         fontsize = 50,
         inner_margin = 20,
         interline = 120,
-        transparence_case = 200
+        transparence_case = 150
         )
     mots = u"""CHIFFRES|D'OCCURENCE
 MACRON A|ÉTÉ ÉLU;1
@@ -96,12 +96,12 @@ POUTINE"""
     return render_template('bingo/bingo.html',params=[(k,params[k]) for k in order],mots=mots)
 
 
-@app.route('/visuels/bingo',methods=['POST'])
+@app.route('/visuels/bingogen',methods=['POST'])
 def visbingo():
     #groupe=request.args.get('groupe',None)
     #font=int(request.args.get('fs','16'))
     #fontsub=int(request.args.get('fst','20'))
-    return image_response('png',bingovisuel(request.form.to_dict()),filename="bingo.png")
+    return image_response('png',bingovisuel(request.form.to_dict()),filename="bingo")
 
 
 @app.route('/visuels/votecle/<int:num>')
