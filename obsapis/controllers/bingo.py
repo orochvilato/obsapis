@@ -19,9 +19,9 @@ def bingovisuel(params,files):
     bingo = Image.open(vispath+'/bingo.png')
     fondcouleur = Image.open(vispath+'/fondcouleur.png')
     logo_emission = Image.open(vispath+'/logo_emission_politique.png')
-    logo_emission = Image.open(vispath+'/logo_bourdin_direct.jpg')
-    logo_emission = Image.open(vispath+'/logo_onpc.png')
-
+    #logo_emission = Image.open(vispath+'/logo_bourdin_direct.jpg')
+    #logo_emission = Image.open(vispath+'/logo_onpc.png')
+    fond_emission = Image.open(vispath+'/fond_emission_politique.png')
     texture = Image.open(vispath+'/texture.png')
 
 
@@ -128,13 +128,14 @@ def bingovisuel(params,files):
         for row in range(rows):
             _word = words[col*rows+row].split(';')
             word = _word[0]
-            transp = 255 if len(_word)>1 else transparence_case
+            transp = (255,255,255,255) if len(_word)>1 else (230,230,230,255-int(255*(float(transparence_case)/100)))
+            cborder = (248,200,0,255) if len(_word)>1 else (0,0,0,255)
 
 
             y = inity + row*(case_h+spacing)
-            d.rectangle(((x,y), (x+case_w,y+case_h)), fill=(255,255,255,transp))
+            d.rectangle(((x,y), (x+case_w,y+case_h)), fill=transp)
             for b in range(border):
-                d.rectangle(((x+b,y+b), (x+case_w-b,y+case_h-b)), outline=(0,0,0,255))
+                d.rectangle(((x+b,y+b), (x+case_w-b,y+case_h-b)), outline=cborder)
 
             fs = fontsize
 
@@ -167,6 +168,7 @@ def bingovisuel(params,files):
     #d.text((circ_x+6,circ_y+circ_pad), circo, font=fontcirco, fill=(255,255,255,255))
 
     fond.paste(fondcouleur,(0,0),fondcouleur)
+    fond.paste(fond_emission,(0,0),fond_emission)
     fond.paste(texture,(0,0),texture)
     fond.paste(bingo,(0,0),bingo)
     logow,logoh = logo_emission.size

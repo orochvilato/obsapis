@@ -71,7 +71,7 @@ def view_bingo():
         fontsize = (50,'number'),
         inner_margin = (20,'number'),
         interline = (120,'number'),
-        transparence_case = (150,'number'),
+        transparence_case = (50,'number'),
         medaillon1_file = ('','file'),
         medaillon1_spacearound_pct = (180,'number'),
         medaillon1_rotation = (15,'number'),
