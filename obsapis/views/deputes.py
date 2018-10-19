@@ -170,8 +170,10 @@ def _ajax(type_page):
     csp = request.args.get('csp',None)
     page = int(request.args.get('page','1'))-1
     groupe = request.args.get('groupe',request.args.get('group',None))
-    if groupe=="REM":
-        groupe="LAREM"
+    groupe_rename = {'REM':'LAREM','NG':'SOC'}
+    if groupe in groupe_rename.keys():
+        groupe = groupe_rename[groupe]
+    
     text = request.args.get('query',request.args.get('requete',''))
 
     region = request.args.get('region',None)

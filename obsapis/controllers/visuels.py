@@ -763,7 +763,7 @@ def visuelvotecledetail(num,fs=32,fst=34):
                 'LR':(31,107,255,255),
                 'UDI-AGIR':(0,178,244,255),
                 'NI':(204,204,204,255),
-                'NG':(255,21,152,255),
+                'SOC':(255,21,152,255),
                 'FI':(255,23,0,255),
                 'GDR':(180,0,5,255)
                 }
@@ -790,7 +790,7 @@ def visuelvotecledetail(num,fs=32,fst=34):
             _pos = pos
 
         gprec = ""
-        for g in [ u'LAREM', u'MODEM', u'FI',  u'GDR', u'NG',  u'LR', u'UDI-AGIR', u'NI'  ]:
+        for g in [ u'LAREM', u'MODEM', u'FI',  u'GDR', u'SOC',  u'LR', u'UDI-AGIR', u'NI'  ]:
             if scrutin['scrutin_positions'][g].get(pos,0):
                 if not (gprec=='LAREM' and g==u'MODEM'):
                     cercles[_pos].append(None)
@@ -923,7 +923,7 @@ def visuelvotecledetail(num,fs=32,fst=34):
     legend = [
         [ ('LR',[u'Les Républicains']), ('UDI-AGIR',['UDI-AGIR et Ind.']), ('NI',['Non inscrits'])],
         [ ('LAREM',[u'La République',u'en Marche']), ('MODEM',[u'Modem']) ],
-        [ ('NG',[u'Nouvelle Gauche']), ('FI',[u'La France Insoumise']),('GDR',[u'Gauche Démocrate',u'et Républicaine'])]
+        [ ('SOC',[u'Socialistes et appar.']), ('FI',[u'La France Insoumise']),('GDR',[u'Gauche Démocrate',u'et Républicaine'])]
     ]
 
     fontposb = ImageFont.truetype("Montserrat-SemiBold.ttf", 27)
@@ -978,7 +978,7 @@ def visuelvotecledetail21(num,fs=32,fst=34):
                 'LR':(5,12,245,255),
                 'UDI-AGIR':(67,199,233,255),
                 'NI':(204,204,204,255),
-                'NG':(230,59,206,255),
+                'SOC':(230,59,206,255),
                 'FI':(255,1,1,255),
                 'GDR':(194,13,5,255)
                 }
@@ -1006,7 +1006,7 @@ def visuelvotecledetail21(num,fs=32,fst=34):
             _pos = pos
 
         gprec = ""
-        for g in [ u'LAREM', u'MODEM', u'FI',  u'GDR', u'NG',  u'LR', u'UDI-AGIR', u'NI'  ]:
+        for g in [ u'LAREM', u'MODEM', u'FI',  u'GDR', u'SOC',  u'LR', u'UDI-AGIR', u'NI'  ]:
             if scrutin['scrutin_positions'][g].get(pos,0):
                 if not (gprec=='LAREM' and g==u'MODEM'):
                     cercles[_pos].append(None)
@@ -1188,7 +1188,7 @@ def visuelvotecledetail21(num,fs=32,fst=34):
         ('NI',['Non inscrits']),
         ('LAREM',[u'La République',u'en Marche']),
         ('MODEM',[u'Modem']),
-        ('NG',[u'Nouvelle Gauche']),
+        ('SOC',[u'Socialistes et appar.']),
         ('FI',[u'La France Insoumise']),
         ('GDR',[u'Gauche Démocrate',u'et Républicaine'])
     ]
@@ -1244,7 +1244,7 @@ def visuelvotecledetailvideo(num,fs=32,fst=34):
                 'LR':(5,12,245,255),
                 'UDI-AGIR':(67,199,233,255),
                 'NI':(204,204,204,255),
-                'NG':(230,59,206,255),
+                'SOC':(230,59,206,255),
                 'FI':(255,1,1,255),
                 'GDR':(194,13,5,255)
                 }
@@ -1272,7 +1272,7 @@ def visuelvotecledetailvideo(num,fs=32,fst=34):
             _pos = pos
 
         gprec = ""
-        for g in [ u'LAREM', u'MODEM', u'FI',  u'GDR', u'NG',  u'LR', u'UDI-AGIR', u'NI'  ]:
+        for g in [ u'LAREM', u'MODEM', u'FI',  u'GDR', u'SOC',  u'LR', u'UDI-AGIR', u'NI'  ]:
             if scrutin['scrutin_positions'][g].get(pos,0):
                 if not (gprec=='LAREM' and g==u'MODEM'):
                     cercles[_pos].append(None)
@@ -1454,7 +1454,7 @@ def visuelvotecledetailvideo(num,fs=32,fst=34):
         ('NI',['Non inscrits']),
         ('LAREM',[u'La République',u'en Marche']),
         ('MODEM',[u'Modem']),
-        ('NG',[u'Nouvelle Gauche']),
+        ('SOC',[u'Socialistes et appar.']),
         ('FI',[u'La France Insoumise']),
         ('GDR',[u'Gauche Démocrate',u'et Républicaine'])
     ]
@@ -1509,7 +1509,7 @@ def visuelvotecledetail21big(num,fs=32,fst=34):
                 'LR':(5,12,245,255),
                 'UDI-AGIR':(67,199,233,255),
                 'NI':(204,204,204,255),
-                'NG':(230,59,206,255),
+                'SOC':(230,59,206,255),
                 'FI':(255,1,1,255),
                 'GDR':(194,13,5,255)
                 }
@@ -1537,7 +1537,7 @@ def visuelvotecledetail21big(num,fs=32,fst=34):
             _pos = pos
 
         gprec = ""
-        for g in [ u'LAREM', u'MODEM', u'FI',  u'GDR', u'NG',  u'LR', u'UDI-AGIR', u'NI'  ]:
+        for g in [ u'LAREM', u'MODEM', u'FI',  u'GDR', u'SOC',  u'LR', u'UDI-AGIR', u'NI'  ]:
             if scrutin['scrutin_positions'][g].get(pos,0):
                 if not (gprec=='LAREM' and g==u'MODEM'):
                     cercles[_pos].append(None)
@@ -1721,7 +1721,7 @@ def visuelvotecledetail21big(num,fs=32,fst=34):
         ('NI',['Non inscrits']),
         ('LAREM',[u'La République',u'en Marche']),
         ('MODEM',[u'Modem']),
-        ('NG',[u'Nouvelle Gauche']),
+        ('SOC',[u'Socialistes et appar.']),
         ('FI',[u'La France Insoumise']),
         ('GDR',[u'Gauche Démocrate',u'et Républicaine'])
     ]

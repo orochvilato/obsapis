@@ -69,7 +69,7 @@ def updateGroupesRanks():
 
 def updateGroupeNoms():
     cl = [u'deputes', u'votes', u'scrutins', u'interventions',  u'presences', u'amendements', u'commissions',  u'documentsan', u'questions', u'travaux']
-    corr = {'REM':'LAREM','UAI':'UDI-AGIR','LC':'UDI-AGIR'}
+    corr = {'REM':'LAREM','UAI':'UDI-AGIR','LC':'UDI-AGIR','NG':'SOC'}
     for f,t in corr.iteritems():
         # votes
         mdbrw.votes.update_many({'groupe_abrev':f},{'$set':{'groupe_abrev':t}})

@@ -1,0 +1,42 @@
+<html>
+<head>
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+<style>
+    body {
+        background-color: #faf7ee;
+        font-family: Roboto, sans-serif;
+        font-size: 16px;
+        font-weight: 300;
+    }
+    strong,em {
+        font-weight: bold;
+    }
+    strong {
+        font-style: italic;
+    }
+    em {
+        color: #4575b5;
+    }
+    italic {
+        font-style: italic;
+    }
+    td {
+      padding:5px;
+    }
+
+
+</style>
+<head>
+<body>
+
+<form action="/visuels/bingogen" method="post" id="bingoform" enctype="multipart/form-data">
+  {% for k,v,typ in params %}
+  {{ k }} :<input name="{{ k }}" type="{{ typ }}" value="{{ v }}"><br>
+  {% endfor %}
+  <br/>
+  <textarea name="mots" style="width:300;height:500;">{{ mots }}</textarea>
+  <br/>
+  <input type="submit">
+</form>
+</body>
+</html>
