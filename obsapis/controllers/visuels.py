@@ -923,7 +923,7 @@ def visuelvotecledetail(num,fs=32,fst=34):
 
     legend = [
         [ ('LR',[u'Les Républicains']), ('UDI-AGIR',['UDI-AGIR et Ind.']), ('NI',['Non inscrits'])],
-        [ ('LAREM',[u'La République',u'en Marche']), ('MODEM',[u'Modem']), ('LT':u'Libertés et Territoires') ],
+        [ ('LAREM',[u'La République',u'en Marche']), ('MODEM',[u'Modem']), ('LT',[ u'Libertés et Territoires' ])],
         [ ('SOC',[u'Socialistes et appar.']), ('FI',[u'La France Insoumise']),('GDR',[u'Gauche Démocrate',u'et Républicaine'])]
     ]
 
