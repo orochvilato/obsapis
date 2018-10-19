@@ -765,7 +765,8 @@ def visuelvotecledetail(num,fs=32,fst=34):
                 'NI':(204,204,204,255),
                 'SOC':(255,21,152,255),
                 'FI':(255,23,0,255),
-                'GDR':(180,0,5,255)
+                'GDR':(180,0,5,255),
+                'LT':(50,50,50,255)
                 }
 
     scrutins_cles = use_cache('scrutins_cles',lambda:getScrutinsCles(),expires=3600)
@@ -790,7 +791,7 @@ def visuelvotecledetail(num,fs=32,fst=34):
             _pos = pos
 
         gprec = ""
-        for g in [ u'LAREM', u'MODEM', u'FI',  u'GDR', u'SOC',  u'LR', u'UDI-AGIR', u'NI'  ]:
+        for g in [ u'LAREM', u'MODEM',u'LT', u'FI',  u'GDR', u'SOC',  u'LR', u'UDI-AGIR', u'NI'  ]:
             if scrutin['scrutin_positions'][g].get(pos,0):
                 if not (gprec=='LAREM' and g==u'MODEM'):
                     cercles[_pos].append(None)
@@ -922,7 +923,7 @@ def visuelvotecledetail(num,fs=32,fst=34):
 
     legend = [
         [ ('LR',[u'Les Républicains']), ('UDI-AGIR',['UDI-AGIR et Ind.']), ('NI',['Non inscrits'])],
-        [ ('LAREM',[u'La République',u'en Marche']), ('MODEM',[u'Modem']) ],
+        [ ('LAREM',[u'La République',u'en Marche']), ('MODEM',[u'Modem']), ('LT':u'Libertés et Territoires') ],
         [ ('SOC',[u'Socialistes et appar.']), ('FI',[u'La France Insoumise']),('GDR',[u'Gauche Démocrate',u'et Républicaine'])]
     ]
 
@@ -980,7 +981,8 @@ def visuelvotecledetail21(num,fs=32,fst=34):
                 'NI':(204,204,204,255),
                 'SOC':(230,59,206,255),
                 'FI':(255,1,1,255),
-                'GDR':(194,13,5,255)
+                'GDR':(194,13,5,255),
+                'LT':(50,50,50,255)
                 }
 
     scrutins_cles = use_cache('scrutins_cles',lambda:getScrutinsCles(),expires=3600)
@@ -1006,7 +1008,7 @@ def visuelvotecledetail21(num,fs=32,fst=34):
             _pos = pos
 
         gprec = ""
-        for g in [ u'LAREM', u'MODEM', u'FI',  u'GDR', u'SOC',  u'LR', u'UDI-AGIR', u'NI'  ]:
+        for g in [ u'LAREM', u'MODEM', u'FI', u'LT', u'GDR', u'SOC',  u'LR', u'UDI-AGIR', u'NI'  ]:
             if scrutin['scrutin_positions'][g].get(pos,0):
                 if not (gprec=='LAREM' and g==u'MODEM'):
                     cercles[_pos].append(None)
@@ -1188,6 +1190,7 @@ def visuelvotecledetail21(num,fs=32,fst=34):
         ('NI',['Non inscrits']),
         ('LAREM',[u'La République',u'en Marche']),
         ('MODEM',[u'Modem']),
+        ('LT',[u'Libertés et Territoires']),
         ('SOC',[u'Socialistes et appar.']),
         ('FI',[u'La France Insoumise']),
         ('GDR',[u'Gauche Démocrate',u'et Républicaine'])
@@ -1246,7 +1249,8 @@ def visuelvotecledetailvideo(num,fs=32,fst=34):
                 'NI':(204,204,204,255),
                 'SOC':(230,59,206,255),
                 'FI':(255,1,1,255),
-                'GDR':(194,13,5,255)
+                'GDR':(194,13,5,255),
+                'LT':(50,50,50,255)
                 }
 
     scrutins_cles = use_cache('scrutins_cles',lambda:getScrutinsCles(),expires=3600)
@@ -1272,7 +1276,7 @@ def visuelvotecledetailvideo(num,fs=32,fst=34):
             _pos = pos
 
         gprec = ""
-        for g in [ u'LAREM', u'MODEM', u'FI',  u'GDR', u'SOC',  u'LR', u'UDI-AGIR', u'NI'  ]:
+        for g in [ u'LAREM', u'MODEM', u'LT', u'FI',  u'GDR', u'SOC',  u'LR', u'UDI-AGIR', u'NI'  ]:
             if scrutin['scrutin_positions'][g].get(pos,0):
                 if not (gprec=='LAREM' and g==u'MODEM'):
                     cercles[_pos].append(None)
@@ -1454,6 +1458,7 @@ def visuelvotecledetailvideo(num,fs=32,fst=34):
         ('NI',['Non inscrits']),
         ('LAREM',[u'La République',u'en Marche']),
         ('MODEM',[u'Modem']),
+        ('LT',[u'Libertés et Territoires']),
         ('SOC',[u'Socialistes et appar.']),
         ('FI',[u'La France Insoumise']),
         ('GDR',[u'Gauche Démocrate',u'et Républicaine'])
@@ -1511,7 +1516,8 @@ def visuelvotecledetail21big(num,fs=32,fst=34):
                 'NI':(204,204,204,255),
                 'SOC':(230,59,206,255),
                 'FI':(255,1,1,255),
-                'GDR':(194,13,5,255)
+                'GDR':(194,13,5,255),
+                'LT':(50,50,50,255)
                 }
 
     scrutins_cles = use_cache('scrutins_cles',lambda:getScrutinsCles(),expires=3600)
@@ -1537,7 +1543,7 @@ def visuelvotecledetail21big(num,fs=32,fst=34):
             _pos = pos
 
         gprec = ""
-        for g in [ u'LAREM', u'MODEM', u'FI',  u'GDR', u'SOC',  u'LR', u'UDI-AGIR', u'NI'  ]:
+        for g in [ u'LAREM', u'MODEM', u'LT', u'FI',  u'GDR', u'SOC',  u'LR', u'UDI-AGIR', u'NI'  ]:
             if scrutin['scrutin_positions'][g].get(pos,0):
                 if not (gprec=='LAREM' and g==u'MODEM'):
                     cercles[_pos].append(None)
@@ -1721,6 +1727,7 @@ def visuelvotecledetail21big(num,fs=32,fst=34):
         ('NI',['Non inscrits']),
         ('LAREM',[u'La République',u'en Marche']),
         ('MODEM',[u'Modem']),
+        ('LT',[u'Libertés et Territoires']),
         ('SOC',[u'Socialistes et appar.']),
         ('FI',[u'La France Insoumise']),
         ('GDR',[u'Gauche Démocrate',u'et Républicaine'])
