@@ -1765,3 +1765,81 @@ def visuelvotecledetail21big(num,fs=32,fst=34):
     final.save(output,'PNG')
     #final.save(imgpath,'PNG')
     return output.getvalue()
+
+
+def genvisuelvote(depute):
+
+    fields = {'depute_photo':1,'groupe_abrev':1,'depute_departement':1,'depute_departement_id':1,'depute_region':1,'depute_circo':1,'depute_nom':1,'_id':None}
+    dep = mdb.deputes.find_one({'depute_shortid':depute},fields)
+
+    if not dep:
+        return "nope"
+
+    dnom = dep['depute_nom'].split(' ')
+    lig1 = 'Bonjour, je suis '
+    prenom = dnom[1]
+    nom = (' '.join(dnom[2:])).upper()
+    nomd =  prenom + ' ' + nom
+
+
+    numdep = dep['depute_departement_id'][1:] if dep['depute_departement_id'][0]=='0' else dep['depute_departement_id']
+    nomfic =  "dep%s-circ%s-%s %s.png" % (numdep,dep['depute_circo'],nom,prenom)
+
+
+
+    from base64 import b64decode
+
+    photo = StringIO.StringIO(b64decode(dep['depute_photo']))
+    photo = Image.open(photo)
+    photo = photo.resize((150,192))
+
+    output = StringIO.StringIO()
+    vispath = '/'.join(app.instance_path.split('/')[:-1] +['obsapis','resources','visuels','di','votes'])
+    #vispath = path+'/visuelstat'
+    if dep['groupe_abrev']=='LAREM':
+        fond = Image.open(vispath+'/template_evs_avs.png')
+        logo = Image.open(vispath+'/template_larem.png')
+    elif dep['groupe_abrev']=='MODEM':
+        fond = Image.open(vispath+'/template_modem_02.png')
+        logo = Image.open(vispath+'/template_modem.png')
+    else:
+        return
+    rivet = Image.open(vispath+'/template_rivet.png')
+
+    #fond.paste(textes,(0,0),textes)
+
+    fond.paste(logo,(0,0),logo)
+    fond.paste(photo,(80,200))
+    fond.paste(rivet,(0,0),rivet)
+
+
+    # make a blank image for the text, initialized to transparent text color
+
+    # get a drawing context
+    d = ImageDraw.Draw(fond)
+    # draw text, half opacity
+
+
+    #circ_w,circ_h = fontcirco.getsize(circo)
+
+    fsize = 32
+    nomdepu = ImageFont.truetype("GILBI.ttf", fsize)
+    nom_w,nom_h = nomdepu.getsize(nom)
+    while nom_w>370:
+        fsize -= 1
+        nomdepu = ImageFont.truetype("GILBI.ttf", fsize)
+        nom_w,nom_h = nomdepu.getsize(nom)
+
+    nom_w,nom_h = nomdepu.getsize(nomd)
+    if nom_w>370:
+        lig1 += prenom
+        lig2 = nom
+    else:
+        lig2 = nomd
+    h = (32-fsize)
+    d.text((330,30+h),lig1 , font=nomdepu, fill="#fff")
+    d.text((330,38+h+fsize),lig2 , font=nomdepu, fill="#fff")
+
+
+    fond.save('/tmp/visuels/%s' % nomfic,'PNG')
+    return "ok"
