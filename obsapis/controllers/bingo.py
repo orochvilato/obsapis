@@ -16,12 +16,15 @@ def bingovisuel(params,files):
     path = '/'.join(app.instance_path.split('/')[:-1] +['obsapis','resources','visuels'])
     vispath = path+'/bingo'
 
-    bingo = Image.open(vispath+'/bingo.png')
+    #bingo = Image.open(vispath+'/bingo.png')
+    bingo = Image.open(vispath+'/bingovide.png')
     fondcouleur = Image.open(vispath+'/fondcouleur.png')
     logo_emission = Image.open(vispath+'/logo_emission_politique.png')
     #logo_emission = Image.open(vispath+'/logo_bourdin_direct.jpg')
     #logo_emission = Image.open(vispath+'/logo_onpc.png')
-    fond_emission = Image.open(vispath+'/fond_emission_politique.png')
+    logo_emission = Image.open(vispath+'/logo_elysee.png')
+    #fond_emission = Image.open(vispath+'/fond_emission_politique.png')
+    fond_emission = Image.open(vispath+'/fond_elysee.png')
     texture = Image.open(vispath+'/texture.png')
 
 
@@ -175,7 +178,7 @@ def bingovisuel(params,files):
     factor = min(float(270)/logoh,float(1900)/logow)
     print factor, logow*factor, logoh*factor
     logo_emission_new = logo_emission.resize((int(logow*factor),int(logoh*factor)),Image.ANTIALIAS)
-    fond.paste(logo_emission_new,((2000-int(logow*factor))/2,20+(270-int(logoh*factor))/2))
+    fond.paste(logo_emission_new,((2000-int(logow*factor))/2,20+(270-int(logoh*factor))/2), logo_emission_new)
     fond.paste(textes,(0,0),textes)
 
     final = fond

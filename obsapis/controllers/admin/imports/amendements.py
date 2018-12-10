@@ -9,11 +9,14 @@ import requests
 import re
 
 def get_signataires(url):
+    print(url)
     items = ['AUTEUR_ID','COSIGNATAIRES_ID','DATE_BADAGE','SORT']
     r = requests.get(url)
     from lxml import etree
     parser = etree.HTMLParser()
     page   = etree.fromstring(r.content, parser)
+    if not page:
+        return None
     result = {}
     for item in items:
         x = page.xpath('//meta[@name="%s"]/@content' % item)
@@ -63,6 +66,8 @@ def import_amendements(rebuild=False):
             amd = dict((fields[i],_a) for i,_a in enumerate(a.split('|')))
             if not deja_amd.get(amd['id'],{}).get('auteurs',False):
                 meta = get_signataires(amd['urlAmend'])
+                if not meta:
+                    continue
                 auteurs = [ deputes_id_gp[_a] for _a in meta['AUTEUR_ID'].split(';') if _a in deputes_id_gp.keys() ]
                 cosignataires = [ deputes_id_gp[_a] for _a in meta['COSIGNATAIRES_ID'].split(';') if _a in deputes_id_gp.keys() and not _a in meta['AUTEUR_ID'].split(';') ]
                 if not auteurs:
