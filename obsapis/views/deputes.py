@@ -37,7 +37,7 @@ deputefields = ['depute_uid','depute_id','depute_shortid','depute_region','deput
                 'depute_circo','depute_nom','depute_contacts','groupe_abrev','groupe_libelle',
                 'depute_election','depute_profession','depute_naissance','depute_suppleant',
                 'depute_actif','depute_mandat_debut','depute_mandat_fin','depute_mandat_fin_cause',
-                'depute_bureau','depute_mandats','depute_autresmandats','depute_collaborateurs_hatvp', 'depute_travaux',
+                'depute_bureau','depute_mandats','depute_autresmandats','depute_collaborateurs', 'depute_travaux',
                 'depute_hatvp','depute_nuages','depute_place','stats']
 
 deputesfields = ['depute_uid','depute_id','depute_shortid','depute_region','depute_departement','depute_departement_id','depute_nom_sa',
@@ -173,7 +173,7 @@ def _ajax(type_page):
     groupe_rename = {'REM':'LAREM','NG':'SOC'}
     if groupe in groupe_rename.keys():
         groupe = groupe_rename[groupe]
-    
+
     text = request.args.get('query',request.args.get('requete',''))
 
     region = request.args.get('region',None)
