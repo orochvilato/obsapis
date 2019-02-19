@@ -1751,12 +1751,12 @@ def visuelvotecledetail21big(num,fs=32,fst=34):
     # legende
     legendimg = Image.new('RGB',(440*2,800*2),color=(255,255,255))
     legenddraw = ImageDraw.Draw(legendimg)
-    leg_fs = 35*2
+    leg_fs = 32*2
     fontpos2  = ImageFont.truetype("Montserrat-Regular.ttf", leg_fs)
     for row,leg in enumerate(legend):
-        legenddraw.ellipse((0,leg_fs/2+row*75*2,leg_fs,leg_fs/2+leg_fs+row*75*2),gpcolors[leg[0]])
+        legenddraw.ellipse((0,leg_fs/2+row*66*2,leg_fs,leg_fs/2+leg_fs+row*66*2),gpcolors[leg[0]])
         for i,l in enumerate(leg[1]):
-            legenddraw.text((70*2,leg_fs/2+row*75*2+(i*leg_fs)-8*2-(leg_fs/2)*(len(leg[1])-1)),l, font=fontpos2, fill=(33,53,88,255))
+            legenddraw.text((70*2,leg_fs/2+row*66*2+(i*leg_fs)-8*2-(leg_fs/2)*(len(leg[1])-1)),l, font=fontpos2, fill=(33,53,88,255))
     legimg = legendimg.resize((220*2,400*2),Image.ANTIALIAS).crop((0,0,220*2,300*2))
     vis.paste(legimg,(770*2,120*2))
 
