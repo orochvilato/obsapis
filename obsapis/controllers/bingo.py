@@ -19,12 +19,13 @@ def bingovisuel(params,files):
     #bingo = Image.open(vispath+'/bingo.png')
     bingo = Image.open(vispath+'/bingovide.png')
     fondcouleur = Image.open(vispath+'/fondcouleur.png')
-    logo_emission = Image.open(vispath+'/logo_emission_politique.png')
+    fondcouleur = Image.open(vispath+'/fondgiletsjaunes.jpg')
+    #logo_emission = Image.open(vispath+'/logo_emission_politique.png')
     #logo_emission = Image.open(vispath+'/logo_bourdin_direct.jpg')
     #logo_emission = Image.open(vispath+'/logo_onpc.png')
-    logo_emission = Image.open(vispath+'/logo_elysee.png')
+    #logo_emission = Image.open(vispath+'/logo_elysee.png')
     #fond_emission = Image.open(vispath+'/fond_emission_politique.png')
-    fond_emission = Image.open(vispath+'/fond_elysee.png')
+    #fond_emission = Image.open(vispath+'/fond_elysee.png')
     texture = Image.open(vispath+'/texture.png')
 
 
@@ -170,15 +171,16 @@ def bingovisuel(params,files):
     #
     #d.text((circ_x+6,circ_y+circ_pad), circo, font=fontcirco, fill=(255,255,255,255))
 
-    fond.paste(fondcouleur,(0,0),fondcouleur)
-    fond.paste(fond_emission,(0,0),fond_emission)
-    fond.paste(texture,(0,0),texture)
+    #fond.paste(fondcouleur,(0,0),fondcouleur)
+    fond.paste(fondcouleur,(0,0))
+    #fond.paste(fond_emission,(0,0),fond_emission)
+    #fond.paste(texture,(0,0),texture)
     fond.paste(bingo,(0,0),bingo)
-    logow,logoh = logo_emission.size
-    factor = min(float(270)/logoh,float(1900)/logow)
-    print factor, logow*factor, logoh*factor
-    logo_emission_new = logo_emission.resize((int(logow*factor),int(logoh*factor)),Image.ANTIALIAS)
-    fond.paste(logo_emission_new,((2000-int(logow*factor))/2,20+(270-int(logoh*factor))/2), logo_emission_new)
+    #logow,logoh = logo_emission.size
+    #factor = min(float(270)/logoh,float(1900)/logow)
+    #print factor, logow*factor, logoh*factor
+    #logo_emission_new = logo_emission.resize((int(logow*factor),int(logoh*factor)),Image.ANTIALIAS)
+    #fond.paste(logo_emission_new,((2000-int(logow*factor))/2,20+(270-int(logoh*factor))/2), logo_emission_new)
     fond.paste(textes,(0,0),textes)
 
     final = fond
