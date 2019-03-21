@@ -474,7 +474,7 @@ def pyramideparticipation():
 
 @app.route('/charts/participation')
 def charts_participation():
-
+    print request.args_as_dict()
     buckets = [0]*10
     for d in mdb.deputes.find({'depute_actif':True},{'stats.positions.exprimes':1}):
         if 'positions' in d['stats'].keys():

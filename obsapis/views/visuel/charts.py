@@ -16,6 +16,7 @@ def visuel_deputes(stat):
     f = visuelmacaron if 'macaron' in request.args else visuelclean
 
     download = int(request.args.get('download','0'))
+    groupe = request.args.get('groupe','all')
 
     if 'macaron' in request.args:
         f = visuelmacaron
@@ -25,10 +26,10 @@ def visuel_deputes(stat):
         zone = dict(width=994,height=400,x=15,y=35,background="#fffdf1")
     if stat=='participation':
         from obsapis.controllers.visuel.charts.deputes.scrutins import participation_globale_par_tranche_de_10 as chart
-        v = f([(chart(width=zone['width'],height=zone['height'],background=zone['background']),zone['x'],zone['y'])])
+        v = f([(chart(width=zone['width'],height=zone['height'],background=zone['background'],groupe=groupe),zone['x'],zone['y'])])
     elif stat=='commissions':
         from obsapis.controllers.visuel.charts.deputes.commissions import presence_globale_par_tranche_de_10 as chart
-        v = f([(chart(width=zone['width'],height=zone['height'],background=zone['background']),zone['x'],zone['y'])])
+        v = f([(chart(width=zone['width'],height=zone['height'],background=zone['background'],groupe=groupe),zone['x'],zone['y'])])
     else:
         v = ""
     headers = {'Cache-Control':'no-cache, no-store, must-revalidate','Pragma':'no-cache'}

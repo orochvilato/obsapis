@@ -8,9 +8,12 @@ import random
 import datetime
 import pygal
 
-def participation_globale_par_tranche_de_10(width=800,height=600,background="#ffffff"):
+def participation_globale_par_tranche_de_10(width=800,height=600,background="#ffffff",groupe='all'):
     buckets = [0]*10
-    for d in mdb.deputes.find({'depute_actif':True},{'stats.positions.exprimes':1}):
+    filter = {'depute_actif':True}
+    if groupe != 'all':
+        filter['groupe_abrev'] = groupe
+    for d in mdb.deputes.find(filter,{'stats.positions.exprimes':1}):
         if 'positions' in d['stats'].keys():
             buckets[int(d['stats']['positions']['exprimes'])/10] += 1
     #return json_response(dict(n=sum(buckets),buckets=buckets))
@@ -29,7 +32,7 @@ def participation_globale_par_tranche_de_10(width=800,height=600,background="#ff
 
     import datetime
     barchart = pygal.Bar(human_readable=True, width=width,height=height,show_legend=False,x_title=u'% de participation',y_title=u"nombre\nde députés",style=custom_style)
-    barchart.title = u'Participation aux scrutins publics (au %s)' % (datetime.datetime.now().strftime('%d/%m/%Y'))
+    barchart.title = u'Participation aux scrutins publics'+(' du groupe %s' % groupe if groupe!='all' else '')+' (au %s)' % (datetime.datetime.now().strftime('%d/%m/%Y'))
     barchart.x_labels = ["%d-%d" % (n*10,9+n*10) for n in range(10)]
     barchart.add('nb', buckets)
 
