@@ -53,7 +53,7 @@ def updateScrutinsTexte():
                 #print docs[s['scrutin_liendossier']]
                 amdts = list(mdb.amendements.find({'$and':[{'instance':u"S\u00e9ance publique"},
                                                            {'urlDossierLegislatif':{'$regex':s['scrutin_liendossier']+'.*'}},
-                                                           {'numInit':{'$in':docs[s['scrutin_liendossier']]}},
+                                                           {'numInit':{'$in':docs.get(s['scrutin_liendossier'],[])}},
                                                            {'urlAmend':{'$regex':'/'+num+'.asp'}}]}))
                                                            #{'$or':[{'numAmend':num},{'numAmend':{'$regex':'.*[^0-9]'}{'$regex':'^'+num+'[^0-9].*'}},{'numAmend':{'$regex':'.*[^0-9]'+num+'$'}}]}]}))
 
