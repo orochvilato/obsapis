@@ -81,12 +81,15 @@ def import_qag():
             rubrique = tit[0]
             titre = ' - '.join(tit[1:])
             if not id in dejavu:
-                q = parse_question(qurl)
-                q['id'] = id
-                q['titre'] = titre
-                q['rubrique'] = rubrique
-                q['legislature'] = legislature
-                ops.append(UpdateOne({'id':q['id']},{'$set':q},upsert=True))
+                try:
+                    q = parse_question(qurl)
+                    q['id'] = id
+                    q['titre'] = titre
+                    q['rubrique'] = rubrique
+                    q['legislature'] = legislature
+                    ops.append(UpdateOne({'id':q['id']},{'$set':q},upsert=True))
+                except:
+                    pass
         if ops:
             mdbrw.questions.bulk_write(ops)
         offset += nbitems
